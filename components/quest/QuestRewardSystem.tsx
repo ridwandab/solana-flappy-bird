@@ -80,7 +80,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
   }
 
   const sendSOLReward = async (amount: number) => {
-    if (!publicKey || !sendTransaction) return
+    if (!wallet.publicKey || !wallet.sendTransaction) return
 
     try {
       // Create a transaction to send SOL from treasury to user
@@ -88,13 +88,13 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: new PublicKey('11111111111111111111111111111111'), // Treasury address
-          toPubkey: publicKey,
+          toPubkey: wallet.publicKey,
           lamports: amount * LAMPORTS_PER_SOL,
         })
       )
 
       // Send transaction
-      const signature = await sendTransaction(transaction, connection)
+      const signature = await wallet.sendTransaction(transaction, connection)
       await connection.confirmTransaction(signature, 'confirmed')
       
       console.log(`SOL reward sent: ${signature}`)
