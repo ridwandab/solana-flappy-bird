@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 250,  // Much more gentle gravity for smooth gameplay
-  flapForce: -200,  // Gentler flap force for better control
+  gravity: 150,  // Very gentle gravity for ultra smooth gameplay
+  flapForce: -120,  // Very gentle flap force for precise control
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   

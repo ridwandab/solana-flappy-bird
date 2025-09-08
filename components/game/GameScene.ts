@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
   private scoreSound!: Phaser.Sound.BaseSound
   
   // Game physics constants
-  private readonly GRAVITY = 250  // Much more gentle gravity for smooth gameplay
-  private readonly FLAP_FORCE = -200  // Gentler flap force for better control
+  private readonly GRAVITY = 150  // Very gentle gravity for ultra smooth gameplay
+  private readonly FLAP_FORCE = -120  // Very gentle flap force for precise control
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
