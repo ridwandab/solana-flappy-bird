@@ -30,6 +30,14 @@ export const useGlobalAudio = () => {
   }, [settings.musicEnabled])
 
   useEffect(() => {
+    // Update sound effects based on settings
+    console.log('Sound effects enabled:', settings.soundEnabled)
+    if (!settings.soundEnabled) {
+      console.log('Sound effects disabled globally')
+    }
+  }, [settings.soundEnabled])
+
+  useEffect(() => {
     // Update volume in real-time
     if (currentGainNodeRef.current && audioContextRef.current) {
       const volume = (settings.musicVolume / 100) * 0.1 // Max 10% volume

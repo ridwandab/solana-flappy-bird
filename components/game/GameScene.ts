@@ -153,7 +153,7 @@ export class GameScene extends Phaser.Scene {
       }
       
       this.audioManager = new AudioManager(this, audioConfig)
-      console.log('Audio manager initialized')
+      console.log('Audio manager initialized with settings:', audioConfig)
     } catch (error) {
       console.error('Failed to initialize audio manager:', error)
     }

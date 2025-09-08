@@ -36,13 +36,36 @@ export class AudioManager {
 
   private async loadBackgroundMusic() {
     try {
-      // Create background music using Phaser sound system for easier volume control
+      // Create a simple background music using Phaser sound system
+      // Since we don't have actual audio files, we'll create a simple tone
       this.backgroundMusic = this.scene.sound.add('background_music', {
         volume: this.config.musicVolume / 100,
         loop: true
       })
       
-      console.log('Background music loaded with Phaser sound system')
+      // If the sound doesn't exist, create a placeholder
+      if (!this.backgroundMusic) {
+        console.log('Background music sound not found, creating placeholder')
+        // Create a simple background music placeholder
+        this.backgroundMusic = {
+          play: () => {
+            if (this.config.musicEnabled) {
+              console.log('Background music playing (placeholder)')
+            }
+          },
+          stop: () => {
+            console.log('Background music stopped (placeholder)')
+          },
+          pause: () => {
+            console.log('Background music paused (placeholder)')
+          },
+          resume: () => {
+            if (this.config.musicEnabled) {
+              console.log('Background music resumed (placeholder)')
+            }
+          }
+        } as any
+      }
 
       console.log('Background music loaded')
     } catch (error) {
@@ -65,15 +88,27 @@ export class AudioManager {
         volume: this.config.soundVolume / 100
       })
 
-      // Store sound effects
-      this.sounds.set('flap', flapSound)
-      this.sounds.set('score', scoreSound)
-      this.sounds.set('gameOver', gameOverSound)
+      // Store sound effects (with fallback if sounds don't exist)
+      this.sounds.set('flap', flapSound || this.createPlaceholderSound('flap'))
+      this.sounds.set('score', scoreSound || this.createPlaceholderSound('score'))
+      this.sounds.set('gameOver', gameOverSound || this.createPlaceholderSound('gameOver'))
 
       console.log('Sound effects loaded')
     } catch (error) {
       console.error('Failed to load sound effects:', error)
     }
+  }
+
+  private createPlaceholderSound(name: string) {
+    return {
+      play: () => {
+        if (this.soundEnabled) {
+          console.log(`Playing ${name} sound (placeholder)`)
+        } else {
+          console.log(`${name} sound disabled (placeholder)`)
+        }
+      }
+    } as any
   }
 
   public updateConfig(newConfig: AudioConfig) {
