@@ -358,9 +358,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private startGame() {
-    // Reset game state
-    this.resetGameState()
-
     // Hide start screen elements (but keep bird)
     this.startScreenElements.forEach(element => {
       if (element !== this.bird) {
@@ -402,19 +399,24 @@ export class GameScene extends Phaser.Scene {
       this.pipes.clear(true, true)
     }
     
-    // Reset bird position and state
+    // Reset bird position and state - convert back to static sprite
     if (this.bird) {
-      this.bird.setPosition(200, 300)
+      // Store current properties
+      const currentTexture = this.bird.texture.key
+      const currentScale = this.bird.scaleX
+      
+      // Destroy the physics bird
+      this.bird.destroy()
+      
+      // Create new static bird for start screen
+      this.bird = this.add.sprite(200, 300, currentTexture)
+      this.bird.setScale(currentScale)
+      this.bird.setVisible(true)
+      this.bird.setAlpha(1)
       this.bird.setRotation(0)
       this.bird.setTint(0xffffff) // Remove any tint
-      this.bird.setAlpha(1) // Reset alpha
       
-      // Reset physics if bird has body
-      if (this.bird.body) {
-        const body = this.bird.body as Phaser.Physics.Arcade.Body
-        body.setVelocity(0, 0)
-        body.setAngularVelocity(0)
-      }
+      console.log('Bird converted back to static sprite for restart')
     }
     
     // Reset score display
@@ -601,7 +603,8 @@ export class GameScene extends Phaser.Scene {
       console.log('Restarting game...')
       // Reset game state and start fresh
       this.resetGameState()
-      this.createStartScreen()
+      // Don't call createStartScreen() here as it will be called by startGame()
+      // Just reset the state and let the game over popup handle the restart
     }
   }
 
