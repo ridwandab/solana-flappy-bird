@@ -110,7 +110,7 @@ export class GameScene extends Phaser.Scene {
         soundVolume: settings.soundVolume,
         musicVolume: settings.musicVolume
       }
-      this.audioManager.updateConfig(audioConfig)
+      this.audioManager.updateAudioConfig(audioConfig)
     }
   }
 
@@ -130,7 +130,7 @@ export class GameScene extends Phaser.Scene {
         soundVolume: this.gameSettings.soundVolume,
         musicVolume: this.gameSettings.musicVolume
       }
-      this.audioManager.updateConfig(audioConfig)
+      this.audioManager.updateAudioConfig(audioConfig)
       console.log('Audio settings applied to AudioManager:', audioConfig)
     }
 
@@ -198,6 +198,11 @@ export class GameScene extends Phaser.Scene {
 
       // Apply settings after audio manager is initialized
       this.applySettings()
+
+      // Start background music
+      if (this.audioManager) {
+        this.audioManager.startBackgroundMusic()
+      }
 
       // Create start screen after sprites are loaded
       this.createStartScreen()

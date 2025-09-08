@@ -122,33 +122,23 @@ export class AudioManager {
       console.log('Phaser sound system mute:', !newConfig.soundEnabled)
     }
     
-    // Update background music volume in real-time
-    if (this.backgroundMusic) {
-      // Update mute state
-      if (newConfig.musicEnabled) {
-        this.backgroundMusic.resume()
-        console.log('Background music resumed, volume:', newConfig.musicVolume + '%')
-      } else {
-        this.backgroundMusic.pause()
-        console.log('Background music paused')
-      }
-    }
-    
-    // Store sound enabled state for use in play methods
-    this.soundEnabled = newConfig.soundEnabled
-    
-    console.log('Audio config updated:', newConfig)
   }
 
-  public playBackgroundMusic() {
+  public startBackgroundMusic() {
     if (this.backgroundMusic && this.config.musicEnabled) {
       this.backgroundMusic.play()
+      console.log('Background music started')
+    } else if (!this.config.musicEnabled) {
+      console.log('Background music disabled in config')
+    } else {
+      console.log('Background music not available')
     }
   }
 
   public stopBackgroundMusic() {
     if (this.backgroundMusic) {
       this.backgroundMusic.stop()
+      console.log('Background music stopped')
     }
   }
 
@@ -172,5 +162,38 @@ export class AudioManager {
 
   public playGameOverSound() {
     this.playSound('gameOver')
+  }
+
+  public updateAudioConfig(newConfig: AudioConfig) {
+    console.log('Updating audio config:', newConfig)
+    this.config = newConfig
+    
+    // Update background music volume and mute state
+    if (this.backgroundMusic) {
+      if (newConfig.musicEnabled) {
+        this.backgroundMusic.resume()
+        console.log('Background music resumed')
+      } else {
+        this.backgroundMusic.pause()
+        console.log('Background music paused')
+      }
+    }
+    
+    // Update sound effects enabled state
+    this.soundEnabled = newConfig.soundEnabled
+    console.log(`Sound effects ${newConfig.soundEnabled ? 'enabled' : 'disabled'}`)
+    
+    // Update sound volumes (for future use when we have actual sound files)
+    this.sounds.forEach((sound, name) => {
+      if (sound && 'volume' in sound) {
+        (sound as any).volume = newConfig.soundVolume / 100
+      }
+    })
+    
+    console.log('Audio config updated successfully')
+  }
+
+  public getCurrentConfig(): AudioConfig {
+    return { ...this.config }
   }
 }
