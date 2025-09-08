@@ -17,7 +17,9 @@ interface CosmeticItemProps {
   cosmetic: Cosmetic
   isOwned: boolean
   onPurchase: () => void
+  onUse?: () => void
   isLoading: boolean
+  isSelected?: boolean
 }
 
 const rarityColors = {
@@ -38,11 +40,13 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
   cosmetic,
   isOwned,
   onPurchase,
+  onUse,
   isLoading,
+  isSelected = false,
 }) => {
   return (
     <div className={`card relative overflow-hidden transition-all duration-300 hover:scale-105 ${
-      isOwned ? 'ring-2 ring-green-400' : `ring-1 ${rarityBorders[cosmetic.rarity]}`
+      isSelected ? 'ring-2 ring-blue-400' : isOwned ? 'ring-2 ring-green-400' : `ring-1 ${rarityBorders[cosmetic.rarity]}`
     }`}>
       {/* Rarity Badge */}
       <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold bg-black/50 backdrop-blur-sm ${
@@ -86,8 +90,8 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
           )}
         </div>
 
-        {/* Purchase Button */}
-        {!isOwned && (
+        {/* Purchase or Use Button */}
+        {!isOwned ? (
           <button
             onClick={onPurchase}
             disabled={isLoading}
@@ -97,8 +101,23 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
                 : 'bg-primary-600 hover:bg-primary-700 text-white'
             }`}
           >
-            {isLoading ? 'Processing...' : 'Purchase'}
+            {isLoading ? 'Processing...' : cosmetic.price === 0 ? 'Free' : `Purchase ${cosmetic.price} SOL`}
           </button>
+        ) : (
+          <div className="space-y-2">
+            {isSelected ? (
+              <div className="w-full py-2 px-4 rounded-lg font-semibold bg-blue-600 text-white text-center">
+                Currently Using
+              </div>
+            ) : (
+              <button
+                onClick={onUse}
+                className="w-full py-2 px-4 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition-all duration-200"
+              >
+                Use This Bird
+              </button>
+            )}
+          </div>
         )}
       </div>
 

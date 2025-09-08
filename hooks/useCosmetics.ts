@@ -7,6 +7,60 @@ import { Cosmetic } from '@/components/store/CosmeticItem'
 // Mock cosmetics data - in a real app, this would come from Supabase
 const mockCosmetics: Cosmetic[] = [
   {
+    id: 'bird_default',
+    name: 'Default Bird',
+    description: 'The classic red bird - free to use!',
+    price: 0,
+    rarity: 'common',
+    imageUrl: '/Bird2.png',
+    type: 'bird',
+  },
+  {
+    id: 'bird_3',
+    name: 'Red Warrior Bird',
+    description: 'A fierce red bird with warrior spirit',
+    price: 0.02,
+    rarity: 'common',
+    imageUrl: '/Bird3.png',
+    type: 'bird',
+  },
+  {
+    id: 'bird_4',
+    name: 'Green Explorer Bird',
+    description: 'A bright green bird ready for adventure',
+    price: 0.03,
+    rarity: 'rare',
+    imageUrl: '/Bird4.png',
+    type: 'bird',
+  },
+  {
+    id: 'bird_5',
+    name: 'Brown Ranger Bird',
+    description: 'A sturdy brown bird for long flights',
+    price: 0.04,
+    rarity: 'rare',
+    imageUrl: '/Bird5.png',
+    type: 'bird',
+  },
+  {
+    id: 'bird_6',
+    name: 'White Angel Bird',
+    description: 'A pure white bird with angelic grace',
+    price: 0.05,
+    rarity: 'epic',
+    imageUrl: '/Bird6.png',
+    type: 'bird',
+  },
+  {
+    id: 'bird_7',
+    name: 'Purple Mystic Bird',
+    description: 'A mystical purple bird with magical powers',
+    price: 0.08,
+    rarity: 'legendary',
+    imageUrl: '/Bird7.png',
+    type: 'bird',
+  },
+  {
     id: 'bird_golden',
     name: 'Golden Bird',
     description: 'A majestic golden bird with shimmering feathers',
@@ -104,10 +158,18 @@ export const useCosmetics = () => {
   const getUserCosmeticsFromStorage = (playerAddress: string): string[] => {
     try {
       const saved = localStorage.getItem(`userCosmetics_${playerAddress}`)
-      return saved ? JSON.parse(saved) : []
+      const cosmetics = saved ? JSON.parse(saved) : []
+      
+      // Always include default bird if not already present
+      if (!cosmetics.includes('bird_default')) {
+        cosmetics.push('bird_default')
+        localStorage.setItem(`userCosmetics_${playerAddress}`, JSON.stringify(cosmetics))
+      }
+      
+      return cosmetics
     } catch (error) {
       console.error('Failed to parse user cosmetics:', error)
-      return []
+      return ['bird_default'] // Always return at least the default bird
     }
   }
 

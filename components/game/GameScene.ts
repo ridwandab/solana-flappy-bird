@@ -163,12 +163,11 @@ export class GameScene extends Phaser.Scene {
     
     // Preload bird sprites
     this.load.image('bird_default', '/Bird2-export.png') // Default character
-    this.load.image('bird_cosmetic_2', '/Bird2.png')
-    this.load.image('bird_cosmetic_3', '/Bird3.png')
-    this.load.image('bird_cosmetic_4', '/Bird4.png')
-    this.load.image('bird_cosmetic_5', '/Bird5.png')
-    this.load.image('bird_cosmetic_6', '/Bird6.png')
-    this.load.image('bird_cosmetic_7', '/Bird7.png')
+    this.load.image('bird_3', '/Bird3.png')
+    this.load.image('bird_4', '/Bird4.png')
+    this.load.image('bird_5', '/Bird5.png')
+    this.load.image('bird_6', '/Bird6.png')
+    this.load.image('bird_7', '/Bird7.png')
     
     // Preload pipe sprites for store
     this.load.image('pipe_cosmetic_4', '/Sprite-0004.png')
@@ -975,14 +974,14 @@ export class GameScene extends Phaser.Scene {
   private applyCosmetic(cosmeticType: string) {
     console.log(`Applying cosmetic: ${cosmeticType}`)
     
-    // Map cosmetic types to bird sprite keys
+    // Map cosmetic IDs to bird sprite keys
     const cosmeticMap: { [key: string]: string } = {
-      'bird2': 'bird_cosmetic_2',
-      'bird3': 'bird_cosmetic_3', 
-      'bird4': 'bird_cosmetic_4',
-      'bird5': 'bird_cosmetic_5',
-      'bird6': 'bird_cosmetic_6',
-      'bird7': 'bird_cosmetic_7'
+      'bird_default': 'bird_default',
+      'bird_3': 'bird_3',
+      'bird_4': 'bird_4',
+      'bird_5': 'bird_5',
+      'bird_6': 'bird_6',
+      'bird_7': 'bird_7'
     }
     
     // Check if cosmetic type exists in our map

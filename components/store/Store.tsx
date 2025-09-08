@@ -16,14 +16,16 @@ interface StoreProps {
 export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
   const { publicKey } = useWallet()
   const { connection } = useConnection()
-  const { cosmetics, purchaseCosmetic, getUserCosmetics } = useCosmetics()
+  const { cosmetics, purchaseCosmetic, getUserCosmetics, selectCosmetic, getSelectedCosmetic } = useCosmetics()
   const { balance, isLoading: balanceLoading, formatBalance, refreshBalance, error: balanceError } = useBalance()
   const [userCosmetics, setUserCosmetics] = useState<string[]>([])
+  const [selectedCosmetic, setSelectedCosmetic] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (publicKey) {
       loadUserCosmetics()
+      loadSelectedCosmetic()
     }
   }, [publicKey])
 
@@ -34,6 +36,16 @@ export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
       setUserCosmetics(owned)
     } catch (error) {
       console.error('Failed to load user cosmetics:', error)
+    }
+  }
+
+  const loadSelectedCosmetic = () => {
+    if (!publicKey) return
+    try {
+      const selected = getSelectedCosmetic(publicKey.toString())
+      setSelectedCosmetic(selected)
+    } catch (error) {
+      console.error('Failed to load selected cosmetic:', error)
     }
   }
 
@@ -50,6 +62,18 @@ export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
       console.error('Purchase failed:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleUseCosmetic = async (cosmeticId: string) => {
+    if (!publicKey) return
+    
+    try {
+      await selectCosmetic(cosmeticId)
+      setSelectedCosmetic(cosmeticId)
+      console.log(`Selected cosmetic: ${cosmeticId}`)
+    } catch (error) {
+      console.error('Failed to select cosmetic:', error)
     }
   }
 
@@ -147,7 +171,9 @@ export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
                 cosmetic={cosmetic}
                 isOwned={true}
                 onPurchase={() => {}}
+                onUse={() => handleUseCosmetic(cosmetic.id)}
                 isLoading={false}
+                isSelected={selectedCosmetic === cosmetic.id}
               />
             ))}
           </div>
