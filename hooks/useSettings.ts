@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 20,  // Like original Flappy Bird (CS50 reference)
-  flapForce: -5,  // Like original Flappy Bird (CS50 reference)
+  gravity: 300,  // Balanced gravity for Phaser engine
+  flapForce: -180,  // Balanced flap force for Phaser engine
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
