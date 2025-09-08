@@ -358,6 +358,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private startGame() {
+    // Reset game state
+    this.resetGameState()
+
     // Hide start screen elements (but keep bird)
     this.startScreenElements.forEach(element => {
       if (element !== this.bird) {
@@ -376,6 +379,57 @@ export class GameScene extends Phaser.Scene {
     // Initialize game
     this.isGameStarted = true
     this.initializeGame()
+  }
+
+  private resetGameState() {
+    console.log('Resetting game state...')
+    
+    // Reset game flags
+    this.isGameOver = false
+    this.isGameStarted = false
+    this.score = 0
+    this.pipesPassed = 0
+    this.difficultyLevel = 0
+    
+    // Clear all active pipes
+    this.activePipes.forEach(pipeSet => {
+      this.destroyPipeSet(pipeSet)
+    })
+    this.activePipes = []
+    
+    // Clear pipes group
+    if (this.pipes) {
+      this.pipes.clear(true, true)
+    }
+    
+    // Reset bird position and state
+    if (this.bird) {
+      this.bird.setPosition(200, 300)
+      this.bird.setRotation(0)
+      this.bird.setTint(0xffffff) // Remove any tint
+      this.bird.setAlpha(1) // Reset alpha
+      
+      // Reset physics if bird has body
+      if (this.bird.body) {
+        const body = this.bird.body as Phaser.Physics.Arcade.Body
+        body.setVelocity(0, 0)
+        body.setAngularVelocity(0)
+      }
+    }
+    
+    // Reset score display
+    if (this.scoreText) {
+      this.scoreText.setText('0')
+    }
+    
+    // Clear any existing game over popup elements
+    this.children.list.forEach(child => {
+      if (child.name && child.name.includes('gameOver')) {
+        child.destroy()
+      }
+    })
+    
+    console.log('Game state reset complete')
   }
 
   private initializeGame() {
@@ -545,7 +599,9 @@ export class GameScene extends Phaser.Scene {
   private handleRestart() {
     if (this.isGameOver) {
       console.log('Restarting game...')
-      this.scene.start('GameScene')
+      // Reset game state and start fresh
+      this.resetGameState()
+      this.createStartScreen()
     }
   }
 
@@ -873,15 +929,24 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createGameOverPopup() {
+    // Clear any existing game over popup elements first
+    this.children.list.forEach(child => {
+      if (child.name && child.name.includes('gameOver')) {
+        child.destroy()
+      }
+    })
+    
     // Create popup background (very transparent to show game background clearly)
     const popupBg = this.add.rectangle(400, 300, 350, 280, 0x2C2C2C, 0.2)
     popupBg.setStrokeStyle(3, 0x444444)
     popupBg.setOrigin(0.5)
+    popupBg.name = 'gameOver_popupBg'
     
     // Add subtle shadow effect
     const shadow = this.add.rectangle(403, 303, 350, 280, 0x000000, 0.05)
     shadow.setOrigin(0.5)
     shadow.setDepth(-1)
+    shadow.name = 'gameOver_shadow'
     
     // Game Over title
     const gameOverText = this.add.text(400, 220, 'GAME OVER', {
@@ -891,6 +956,7 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     gameOverText.setOrigin(0.5)
+    gameOverText.name = 'gameOver_title'
     
     // Score display
     const scoreText = this.add.text(400, 260, `Your Score: ${this.score}`, {
@@ -899,6 +965,7 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'Arial'
     })
     scoreText.setOrigin(0.5)
+    scoreText.name = 'gameOver_score'
     
     // High score display (you can implement high score tracking later)
     const highScoreText = this.add.text(400, 290, `High Score: ${this.score}`, {
@@ -907,11 +974,13 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'Arial'
     })
     highScoreText.setOrigin(0.5)
+    highScoreText.name = 'gameOver_highScore'
     
     // Large START button (like in the original start screen)
     const startBtn = this.add.rectangle(400, 330, 200, 60, 0x00ff00)
     startBtn.setStrokeStyle(4, 0x000000)
     startBtn.setInteractive()
+    startBtn.name = 'gameOver_startBtn'
     
     const startText = this.add.text(400, 330, 'START', {
       fontSize: '32px',
@@ -920,6 +989,7 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     startText.setOrigin(0.5)
+    startText.name = 'gameOver_startText'
     
     // Add hover effects for START button
     startBtn.on('pointerover', () => {
@@ -938,6 +1008,7 @@ export class GameScene extends Phaser.Scene {
     const mainMenuBtn = this.add.rectangle(400, 400, 200, 40, 0x666666)
     mainMenuBtn.setStrokeStyle(2, 0x888888)
     mainMenuBtn.setInteractive()
+    mainMenuBtn.name = 'gameOver_mainMenuBtn'
     
     const mainMenuText = this.add.text(400, 400, 'Main Menu', {
       fontSize: '18px',
@@ -946,6 +1017,7 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     mainMenuText.setOrigin(0.5)
+    mainMenuText.name = 'gameOver_mainMenuText'
     
     // Re-enable input for button interactions
     this.input.enabled = true
