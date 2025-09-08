@@ -617,11 +617,22 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // AGGRESSIVE COLLISION CHECK - Check all pipes every frame
+    // AGGRESSIVE COLLISION CHECK - Check all pipes every frame with Phaser collision
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
-      if (this.checkPipeCollision(pipeSet)) {
-        console.log('🚨 AGGRESSIVE COLLISION DETECTED IN UPDATE LOOP!')
+      
+      // Use Phaser's built-in collision detection
+      const birdBounds = this.bird.getBounds()
+      const topPipeBounds = pipeSet.topPipe.getBounds()
+      const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
+      
+      const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds)
+      const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
+      
+      if (hitTopPipe || hitBottomPipe) {
+        console.log('🚨🚨🚨 PHASER COLLISION DETECTED IN UPDATE LOOP! 🚨🚨🚨')
+        console.log('Hit top pipe:', hitTopPipe)
+        console.log('Hit bottom pipe:', hitBottomPipe)
         if (!this.isGameOver) {
           this.gameOver()
         }
@@ -796,71 +807,48 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // EXACT COLLISION DETECTION - Match visual pipe bounds exactly
-    const birdX = this.bird.x
-    const birdY = this.bird.y
+    // Use Phaser's built-in collision detection for accuracy
+    const birdBounds = this.bird.getBounds()
+    const topPipeBounds = pipeSet.topPipe.getBounds()
+    const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
     
-    // Get pipe positions directly from sprites
-    const topPipeX = pipeSet.topPipe.x
-    const topPipeY = pipeSet.topPipe.y
-    const bottomPipeX = pipeSet.bottomPipe.x
-    const bottomPipeY = pipeSet.bottomPipe.y
-    
-    // Get pipe dimensions
-    const pipeWidth = pipeSet.topPipe.width
-    const pipeHeight = pipeSet.topPipe.height
-    
-    // EXACT collision bounds - match visual pipe exactly (no extra margin)
-    // Top pipe bounds (flipped pipe - extends upward from y position)
-    const topPipeLeft = topPipeX
-    const topPipeRight = topPipeX + pipeWidth
-    const topPipeTop = topPipeY - pipeHeight // Top pipe extends upward
-    const topPipeBottom = topPipeY
-    
-    // Bottom pipe bounds
-    const bottomPipeLeft = bottomPipeX
-    const bottomPipeRight = bottomPipeX + pipeWidth
-    const bottomPipeTop = bottomPipeY
-    const bottomPipeBottom = bottomPipeY + pipeHeight
-    
-    // Bird collision area - match visual bird size
-    const birdSize = 15 // Match visual bird size
-    const birdLeft = birdX - birdSize
-    const birdRight = birdX + birdSize
-    const birdTop = birdY - birdSize
-    const birdBottom = birdY + birdSize
-    
-    // Simple collision check
-    const hitTopPipe = (
-      birdRight > topPipeLeft &&
-      birdLeft < topPipeRight &&
-      birdBottom > topPipeTop &&
-      birdTop < topPipeBottom
-    )
-    
-    const hitBottomPipe = (
-      birdRight > bottomPipeLeft &&
-      birdLeft < bottomPipeRight &&
-      birdBottom > bottomPipeTop &&
-      birdTop < bottomPipeBottom
-    )
+    // Check collision using Phaser's bounds intersection
+    const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds)
+    const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
     
     // Debug logging
-    if (Math.abs(birdX - topPipeX) < 100 || Math.abs(birdX - bottomPipeX) < 100) {
-      console.log('🔍 EXACT COLLISION DEBUG:', {
-        bird: { x: birdX, y: birdY, size: birdSize },
-        topPipe: { x: topPipeX, y: topPipeY, width: pipeWidth, height: pipeHeight },
-        bottomPipe: { x: bottomPipeX, y: bottomPipeY, width: pipeWidth, height: pipeHeight },
-        topPipeBounds: { left: topPipeLeft, right: topPipeRight, top: topPipeTop, bottom: topPipeBottom },
-        bottomPipeBounds: { left: bottomPipeLeft, right: bottomPipeRight, top: bottomPipeTop, bottom: bottomPipeBottom },
-        birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+    if (Math.abs(this.bird.x - pipeSet.topPipe.x) < 100 || Math.abs(this.bird.x - pipeSet.bottomPipe.x) < 100) {
+      console.log('🔍 PHASER COLLISION DEBUG:', {
+        bird: { x: this.bird.x, y: this.bird.y },
+        birdBounds: {
+          x: birdBounds.x,
+          y: birdBounds.y,
+          width: birdBounds.width,
+          height: birdBounds.height
+        },
+        topPipeBounds: {
+          x: topPipeBounds.x,
+          y: topPipeBounds.y,
+          width: topPipeBounds.width,
+          height: topPipeBounds.height
+        },
+        bottomPipeBounds: {
+          x: bottomPipeBounds.x,
+          y: bottomPipeBounds.y,
+          width: bottomPipeBounds.width,
+          height: bottomPipeBounds.height
+        },
         hitTopPipe,
-        hitBottomPipe
+        hitBottomPipe,
+        phaserOverlap: {
+          top: Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds),
+          bottom: Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
+        }
       })
     }
     
     if (hitTopPipe || hitBottomPipe) {
-      console.log('💥💥💥 EXACT COLLISION DETECTED! 💥💥💥')
+      console.log('💥💥💥 PHASER COLLISION DETECTED! 💥💥💥')
       console.log('Hit top pipe:', hitTopPipe)
       console.log('Hit bottom pipe:', hitBottomPipe)
       return true
