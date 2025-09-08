@@ -10,7 +10,6 @@ import { useGameState } from '@/hooks/useGameState'
 import { useHighScore } from '@/hooks/useHighScore'
 import { useQuestIntegration } from '@/hooks/useQuestIntegration'
 import { useSettings } from '@/hooks/useSettings'
-import { useCosmetics } from '@/hooks/useCosmetics'
 
 interface GameProps {
   onBackToMenu: () => void
@@ -27,7 +26,6 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { saveHighScore, getHighScore } = useHighScore()
   const { quests, acceptQuest } = useQuestIntegration(phaserGameRef.current)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
-  const { getSelectedCosmetic } = useCosmetics()
   
   // Debug quest integration
   useEffect(() => {
@@ -56,9 +54,6 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
 
-    // Get selected cosmetic
-    const selectedCosmetic = publicKey ? getSelectedCosmetic(publicKey.toString()) : null
-
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 800,
@@ -72,7 +67,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
           debug: graphicsConfig.showFPS,
         },
       },
-      scene: GameScene,
+      scene: [GameScene],
       scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -81,14 +76,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     phaserGameRef.current = new Phaser.Game(config)
     
-    // Pass settings and cosmetic data to game scene
+    // Pass settings to game scene
     const gameScene = phaserGameRef.current.scene.getScene('GameScene') as GameScene
     if (gameScene) {
       gameScene.setSettings(settings)
-      // Pass selected cosmetic data
-      if (selectedCosmetic) {
-        gameScene.init({ selectedCosmetic })
-      }
     }
 
     // Listen for game events
