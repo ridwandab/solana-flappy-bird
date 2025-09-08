@@ -1,0 +1,100 @@
+import { useEffect } from 'react'
+import { useQuests } from './useQuests'
+
+interface QuestEvent {
+  type: 'game_start' | 'game_end' | 'score_achieved' | 'high_score' | 'cosmetic_purchased'
+  data: any
+}
+
+export const useQuestIntegration = (game: any) => {
+  const { acceptQuest, updateQuestProgress, quests } = useQuests()
+
+  useEffect(() => {
+    console.log('🔍 useQuestIntegration useEffect triggered, game:', game)
+    if (!game) {
+      console.log('Quest integration: No game instance available')
+      return
+    }
+
+    console.log('Quest integration: Setting up quest event listeners for game:', game)
+
+    const handleQuestEvent = (event: QuestEvent) => {
+      console.log('Quest event received in integration:', event)
+      
+      switch (event.type) {
+        case 'game_start':
+          console.log('Processing game_start quest event')
+          // Update daily play quests
+          updateQuestProgress('daily_play_1', 1)
+          updateQuestProgress('daily_play_3', 1)
+          updateQuestProgress('weekly_play_20', 1)
+          updateQuestProgress('achievement_play_100', 1)
+          break
+
+        case 'score_achieved':
+          const score = event.data.score
+          console.log('Processing score_achieved quest event, score:', score)
+          
+          // Update score-based quests
+          if (score >= 10) {
+            updateQuestProgress('daily_score_10', score)
+          }
+          if (score >= 50) {
+            updateQuestProgress('achievement_score_50', score)
+          }
+          
+          // Update weekly score quest
+          updateQuestProgress('weekly_score_100', score)
+          break
+
+        case 'game_end':
+          const finalScore = event.data.score
+          const pipesPassed = event.data.pipesPassed || 0
+          console.log('Processing game_end quest event, score:', finalScore)
+          
+          // Check for high score achievement
+          const currentHighScore = localStorage.getItem('highScore') || '0'
+          if (finalScore > parseInt(currentHighScore)) {
+            updateQuestProgress('daily_high_score', 1)
+            updateQuestProgress('achievement_first_win', 1)
+            localStorage.setItem('highScore', finalScore.toString())
+          }
+          
+          // Update total games played
+          const totalGames = parseInt(localStorage.getItem('totalGames') || '0') + 1
+          localStorage.setItem('totalGames', totalGames.toString())
+          
+          // Update achievement quest for total games
+          updateQuestProgress('achievement_play_100', totalGames)
+          break
+
+        case 'cosmetic_purchased':
+          console.log('Processing cosmetic_purchased quest event')
+          updateQuestProgress('weekly_cosmetic', 1)
+          break
+
+        default:
+          console.log('Unknown quest event type:', event.type)
+      }
+    }
+
+    // Listen for quest events from game
+    console.log('🔍 Setting up quest event listener on game.events:', game.events)
+    game.events.on('questEvent', handleQuestEvent)
+    console.log('Quest integration: Event listener attached successfully')
+
+    return () => {
+      if (game && game.events) {
+        game.events.off('questEvent', handleQuestEvent)
+        console.log('Quest integration: Event listener removed')
+      }
+    }
+  }, [game])
+
+  return {
+    quests,
+    acceptQuest,
+    updateQuestProgress
+  }
+}
+
