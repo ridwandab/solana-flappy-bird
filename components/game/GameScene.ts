@@ -763,8 +763,9 @@ export class GameScene extends Phaser.Scene {
       }
       
       // Check collision with bird
-      if (this.checkPipeCollision(pipeSet)) {
-        console.log('Bird hit pipe! Game Over!')
+      const collisionDetected = this.checkPipeCollision(pipeSet)
+      if (collisionDetected) {
+        console.log('🚨🚨🚨 COLLISION DETECTED! Calling gameOver()! 🚨🚨🚨')
         if (!this.isGameOver) {
           this.gameOver()
         }
@@ -820,19 +821,37 @@ export class GameScene extends Phaser.Scene {
         top: bottomPipeCollisionTop.y,
         bottom: bottomPipeCollisionBottom.y
       }
+      
+      // Debug: Log collision bounds every frame when bird is close to pipes
+      const distanceToTopPipe = Math.abs(this.bird.x - topPipeBounds.left)
+      const distanceToBottomPipe = Math.abs(this.bird.x - bottomPipeBounds.left)
+      
+      if (distanceToTopPipe < 100 || distanceToBottomPipe < 100) {
+        console.log('🔍 COLLISION DEBUG - Bird near pipes:', {
+          bird: { x: this.bird.x, y: this.bird.y },
+          birdBounds,
+          topPipeBounds,
+          bottomPipeBounds,
+          distanceToTopPipe,
+          distanceToBottomPipe
+        })
+      }
     
     const hitTop = this.checkBoundsOverlap(birdBounds, topPipeBounds)
     const hitBottom = this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
     
     // Enhanced debugging for collision detection
     if (hitTop) {
-      console.log('💥 EXACT COLLISION with TOP pipe detected!')
+      console.log('💥💥💥 COLLISION with TOP pipe detected! 💥💥💥')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Top pipe bounds (exact):', topPipeBounds)
-      console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
-      console.log('Using red collision lines for exact collision detection')
+      console.log('Top pipe bounds (red lines):', topPipeBounds)
+      console.log('Red line positions:', {
+        top: { x: topPipeCollisionTop.x, y: topPipeCollisionTop.y },
+        bottom: { x: topPipeCollisionBottom.x, y: topPipeCollisionBottom.y },
+        left: { x: topPipeCollisionLeft.x, y: topPipeCollisionLeft.y },
+        right: { x: topPipeCollisionRight.x, y: topPipeCollisionRight.y }
+      })
       console.log('Collision overlap:', {
         left: Math.max(birdBounds.left, topPipeBounds.left),
         right: Math.min(birdBounds.right, topPipeBounds.right),
@@ -841,13 +860,16 @@ export class GameScene extends Phaser.Scene {
       })
     }
     if (hitBottom) {
-      console.log('💥 EXACT COLLISION with BOTTOM pipe detected!')
+      console.log('💥💥💥 COLLISION with BOTTOM pipe detected! 💥💥💥')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Bottom pipe bounds (exact):', bottomPipeBounds)
-      console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
-      console.log('Using red collision lines for exact collision detection')
+      console.log('Bottom pipe bounds (red lines):', bottomPipeBounds)
+      console.log('Red line positions:', {
+        top: { x: bottomPipeCollisionTop.x, y: bottomPipeCollisionTop.y },
+        bottom: { x: bottomPipeCollisionBottom.x, y: bottomPipeCollisionBottom.y },
+        left: { x: bottomPipeCollisionLeft.x, y: bottomPipeCollisionLeft.y },
+        right: { x: bottomPipeCollisionRight.x, y: bottomPipeCollisionRight.y }
+      })
       console.log('Collision overlap:', {
         left: Math.max(birdBounds.left, bottomPipeBounds.left),
         right: Math.min(birdBounds.right, bottomPipeBounds.right),
