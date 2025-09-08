@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 600,  // Reduced gravity for smoother gameplay
-  flapForce: -350,  // Adjusted flap force to match new gravity
+  gravity: 400,  // Further reduced gravity for better gameplay
+  flapForce: -300,  // Adjusted flap force to match new gravity
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
