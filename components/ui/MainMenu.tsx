@@ -2,6 +2,7 @@
 
 import { FC, useState, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { 
   Play, 
   Trophy, 
@@ -81,14 +82,9 @@ export const MainMenu: FC<MainMenuProps> = ({
             </div>
           </div>
           
-          {publicKey && (
-            <div className="inline-flex items-center space-x-2 bg-white/10 rounded-full px-4 py-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span className="text-white text-sm">
-                {publicKey.toString().slice(0, 4)}...{publicKey.toString().slice(-4)}
-              </span>
-            </div>
-          )}
+          <div className="flex justify-center">
+            <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
+          </div>
         </div>
 
         {/* Main Menu Buttons */}
