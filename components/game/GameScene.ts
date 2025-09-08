@@ -648,27 +648,37 @@ export class GameScene extends Phaser.Scene {
                 y: birdBounds.y,
                 width: birdBounds.width,
                 height: birdBounds.height
-              }
+              },
+              boundsRight: birdBounds.x + birdBounds.width,
+              boundsBottom: birdBounds.y + birdBounds.height
             },
             topPipe: {
               x: pipeSet.topPipe.x,
               y: pipeSet.topPipe.y,
+              width: pipeSet.topPipe.width,
+              height: pipeSet.topPipe.height,
               bounds: {
                 x: topPipeBounds.x,
                 y: topPipeBounds.y,
                 width: topPipeBounds.width,
                 height: topPipeBounds.height
-              }
+              },
+              boundsRight: topPipeBounds.x + topPipeBounds.width,
+              boundsBottom: topPipeBounds.y + topPipeBounds.height
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
+              width: pipeSet.bottomPipe.width,
+              height: pipeSet.bottomPipe.height,
               bounds: {
                 x: bottomPipeBounds.x,
                 y: bottomPipeBounds.y,
                 width: bottomPipeBounds.width,
                 height: bottomPipeBounds.height
-              }
+              },
+              boundsRight: bottomPipeBounds.x + bottomPipeBounds.width,
+              boundsBottom: bottomPipeBounds.y + bottomPipeBounds.height
             },
             collision: {
               hitTopPipe,
@@ -688,6 +698,19 @@ export class GameScene extends Phaser.Scene {
                 width: line.width, 
                 height: line.height 
               })) : 'none'
+            },
+            boundsComparison: {
+              birdVsTopPipe: {
+                birdLeft: birdBounds.x,
+                birdRight: birdBounds.x + birdBounds.width,
+                birdTop: birdBounds.y,
+                birdBottom: birdBounds.y + birdBounds.height,
+                pipeLeft: topPipeBounds.x,
+                pipeRight: topPipeBounds.x + topPipeBounds.width,
+                pipeTop: topPipeBounds.y,
+                pipeBottom: topPipeBounds.y + topPipeBounds.height,
+                overlap: hitTopPipe
+              }
             }
           })
         }
@@ -697,7 +720,14 @@ export class GameScene extends Phaser.Scene {
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
+          console.log('Bird sprite size:', { width: this.bird.width, height: this.bird.height })
           console.log('Bird bounds:', birdBounds)
+          console.log('Bird body info:', this.bird.body ? {
+            width: (this.bird.body as any).width,
+            height: (this.bird.body as any).height,
+            offsetX: (this.bird.body as any).offset?.x,
+            offsetY: (this.bird.body as any).offset?.y
+          } : 'No body')
           console.log('Pipe positions:', { 
             top: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y },
             bottom: { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y }
