@@ -480,6 +480,13 @@ export class GameScene extends Phaser.Scene {
     // Clear any active pipes
     this.activePipes = []
     
+    // Reset world gravity to settings value
+    if (this.physics && this.physics.world) {
+      const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
+      this.physics.world.gravity.y = gravityValue
+      console.log('World gravity reset to:', gravityValue)
+    }
+    
     console.log('Game state reset complete')
   }
 
@@ -649,8 +656,9 @@ export class GameScene extends Phaser.Scene {
     if (this.bird.body) {
       // Set gravity on first flap to start the game properly
       if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
-        (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
-        console.log('Gravity activated on first flap')
+        const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
+        console.log('Gravity activated on first flap:', gravityValue)
       }
       
       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
@@ -767,7 +775,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.bird || this.isGameOver) return false
     
     // Make bird collision bounds match visual size exactly
-    const birdRadius = 5 // Match visual bird size for fair collision
+    const birdRadius = 15 // More realistic bird collision size
     const birdBounds = {
       left: this.bird.x - birdRadius,
       right: this.bird.x + birdRadius,
@@ -782,8 +790,8 @@ export class GameScene extends Phaser.Scene {
     const pipeWidth = 80  // Sprite-0003.png actual width
     const pipeHeight = 400  // Sprite-0003.png actual height
     
-    // No margin - exact collision with pipe visual edges
-    const pipeMargin = 0 // No margin for exact collision with pipe visual edges
+    // Add small margin for more forgiving collision
+    const pipeMargin = 5 // Small margin for more forgiving collision
     const topPipeBounds = {
       left: pipeSet.topPipe.x + pipeMargin,
       right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
@@ -969,6 +977,7 @@ export class GameScene extends Phaser.Scene {
     
     // Stop world gravity to prevent bird from falling
     this.physics.world.gravity.y = 0
+    console.log('World gravity stopped for game over')
     
     // Make bird non-interactive and remove input handlers
     this.bird.setInteractive(false)
