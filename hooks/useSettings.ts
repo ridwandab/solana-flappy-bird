@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 300,  // Balanced gravity for Phaser engine
-  flapForce: -180,  // Balanced flap force for Phaser engine
+  gravity: 200,  // Reduced gravity for easier control
+  flapForce: -250,  // Increased flap force for better response
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
