@@ -30,7 +30,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
   questId,
   rewardAmount = 0
 }) => {
-  const { publicKey, sendTransaction } = useWallet()
+  const wallet = useWallet()
   const { connection } = useConnection()
   const { claimQuestReward, quests } = useQuests()
   const [isClaiming, setIsClaiming] = useState(false)
@@ -41,7 +41,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
   const quest = questId ? quests.find(q => q.id === questId) : null
 
   const handleClaimReward = async () => {
-    if (!publicKey || !quest) return
+    if (!wallet.publicKey || !quest) return
 
     setIsClaiming(true)
     try {
@@ -49,7 +49,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
       
       // Send SOL reward to user's wallet
       const rewardResult = await simulateSOLReward(
-        { publicKey, sendTransaction },
+        wallet,
         quest.reward,
         quest.id
       )
