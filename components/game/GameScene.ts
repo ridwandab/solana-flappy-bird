@@ -739,25 +739,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getPipeSpriteKey(): string {
-    // Map pipe cosmetic types to sprite keys
-    const pipeCosmeticMap: { [key: string]: string } = {
-      'pipe_4': 'pipe_4',
-      'pipe_5': 'pipe_5',
-      'pipe_6': 'pipe_6',
-      'pipe_7': 'pipe_7'
-    }
-    
-    // Check if a pipe cosmetic is selected and exists
-    if (this.selectedPipeCosmetic && pipeCosmeticMap[this.selectedPipeCosmetic]) {
-      const spriteKey = pipeCosmeticMap[this.selectedPipeCosmetic]
-      if (this.textures.exists(spriteKey)) {
-        console.log(`Using pipe cosmetic: ${spriteKey}`)
-        return spriteKey
-      }
-    }
-    
-    // Default to original pipe sprite
-    console.log('Using default pipe sprite')
+    // Always use default pipe sprite for normal gameplay
+    // Pipe cosmetics are only for display in store, not for actual gameplay
+    console.log('Using default pipe sprite for gameplay')
     return 'pipe_sprite'
   }
 
