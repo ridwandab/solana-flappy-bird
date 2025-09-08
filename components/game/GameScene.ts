@@ -383,6 +383,27 @@ export class GameScene extends Phaser.Scene {
     this.initializeGame()
   }
 
+  private handleRestart() {
+    console.log('Restarting game...')
+    // Reset all game state
+    this.isGameOver = false
+    this.isGameStarted = false
+    this.score = 0
+    this.difficultyLevel = 0
+    this.pipesPassed = 0
+    this.scoredPipes.clear()
+    this.activePipes = []
+    this.lastPipeSpawnTime = 0
+    
+    // Clear all existing game objects
+    this.children.removeAll()
+    
+    // Recreate the start screen
+    this.createStartScreen()
+    
+    console.log('Game restarted successfully!')
+  }
+
   private initializeGame() {
     // Create scrolling background for game
     this.createScrollingBackground()
@@ -547,12 +568,6 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private handleRestart() {
-    if (this.isGameOver) {
-      console.log('Restarting game...')
-      this.scene.start('GameScene')
-    }
-  }
 
   private getCurrentPipeSpacing(): number {
     // Calculate current pipe spacing based on difficulty level
@@ -649,8 +664,8 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // Make bird collision bounds match visual size exactly
-    const birdRadius = 5 // Match visual bird size for fair collision
+    // Make bird collision bounds slightly larger for more responsive collision
+    const birdRadius = 8 // Slightly larger for better collision detection
     const birdBounds = {
       left: this.bird.x - birdRadius,
       right: this.bird.x + birdRadius,
@@ -665,8 +680,8 @@ export class GameScene extends Phaser.Scene {
     const pipeWidth = 80  // Sprite-0003.png actual width
     const pipeHeight = 400  // Sprite-0003.png actual height
     
-    // No margin - exact collision with pipe visual edges
-    const pipeMargin = 0 // No margin for exact collision with pipe visual edges
+    // Small margin for more responsive collision
+    const pipeMargin = 2 // Small margin for more responsive collision
     const topPipeBounds = {
       left: pipeSet.topPipe.x + pipeMargin,
       right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
@@ -687,34 +702,22 @@ export class GameScene extends Phaser.Scene {
     
     // Enhanced debugging for collision detection
     if (hitTop) {
-      console.log('💥 EXACT COLLISION with TOP pipe detected!')
+      console.log('💥 COLLISION with TOP pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
+      console.log('Bird radius:', birdRadius, 'pixels (responsive collision)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Top pipe bounds (exact):', topPipeBounds)
+      console.log('Top pipe bounds:', topPipeBounds)
       console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, topPipeBounds.left),
-        right: Math.min(birdBounds.right, topPipeBounds.right),
-        top: Math.max(birdBounds.top, topPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, topPipeBounds.bottom)
-      })
+      console.log('Pipe margin:', pipeMargin, 'pixels (responsive collision)')
     }
     if (hitBottom) {
-      console.log('💥 EXACT COLLISION with BOTTOM pipe detected!')
+      console.log('💥 COLLISION with BOTTOM pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
+      console.log('Bird radius:', birdRadius, 'pixels (responsive collision)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Bottom pipe bounds (exact):', bottomPipeBounds)
+      console.log('Bottom pipe bounds:', bottomPipeBounds)
       console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, bottomPipeBounds.left),
-        right: Math.min(birdBounds.right, bottomPipeBounds.right),
-        top: Math.max(birdBounds.top, bottomPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, bottomPipeBounds.bottom)
-      })
+      console.log('Pipe margin:', pipeMargin, 'pixels (responsive collision)')
     }
     
     // Check overlap with either pipe
