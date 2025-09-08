@@ -45,6 +45,7 @@ export class GameScene extends Phaser.Scene {
   private flapSound!: Phaser.Sound.BaseSound
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
+  private selectedPipeCosmetic: string | null = null
   
   // Game physics constants
   private readonly GRAVITY = 1000
@@ -71,7 +72,6 @@ export class GameScene extends Phaser.Scene {
 
   // Cosmetic system
   private selectedCosmetic: string | null = null
-  private selectedPipeCosmetic: string | null = null
   
   // Quest tracking
   private gamesPlayedToday: number = 0
@@ -163,6 +163,7 @@ export class GameScene extends Phaser.Scene {
     
     // Preload bird sprites
     this.load.image('bird_default', '/Bird2-export.png') // Default character
+    this.load.image('bird_1', '/Bird1.png')
     this.load.image('bird_3', '/Bird3.png')
     this.load.image('bird_4', '/Bird4.png')
     this.load.image('bird_5', '/Bird5.png')
@@ -170,10 +171,10 @@ export class GameScene extends Phaser.Scene {
     this.load.image('bird_7', '/Bird7.png')
     
     // Preload pipe sprites for store
-    this.load.image('pipe_cosmetic_4', '/Sprite-0004.png')
-    this.load.image('pipe_cosmetic_5', '/Sprite-0005.png')
-    this.load.image('pipe_cosmetic_6', '/Sprite-0006.png')
-    this.load.image('pipe_cosmetic_7', '/Sprite-0007.png')
+    this.load.image('pipe_4', '/Sprite-0004.png')
+    this.load.image('pipe_5', '/Sprite-0005.png')
+    this.load.image('pipe_6', '/Sprite-0006.png')
+    this.load.image('pipe_7', '/Sprite-0007.png')
     
     this.load.once('complete', () => {
       console.log('All sprites preloaded successfully')
@@ -730,10 +731,10 @@ export class GameScene extends Phaser.Scene {
   private getPipeSpriteKey(): string {
     // Map pipe cosmetic types to sprite keys
     const pipeCosmeticMap: { [key: string]: string } = {
-      'pipe4': 'pipe_cosmetic_4',
-      'pipe5': 'pipe_cosmetic_5',
-      'pipe6': 'pipe_cosmetic_6',
-      'pipe7': 'pipe_cosmetic_7'
+      'pipe_4': 'pipe_4',
+      'pipe_5': 'pipe_5',
+      'pipe_6': 'pipe_6',
+      'pipe_7': 'pipe_7'
     }
     
     // Check if a pipe cosmetic is selected and exists
@@ -975,8 +976,9 @@ export class GameScene extends Phaser.Scene {
     console.log(`Applying cosmetic: ${cosmeticType}`)
     
     // Map cosmetic IDs to bird sprite keys
-    const cosmeticMap: { [key: string]: string } = {
+    const birdCosmeticMap: { [key: string]: string } = {
       'bird_default': 'bird_default',
+      'bird_1': 'bird_1',
       'bird_3': 'bird_3',
       'bird_4': 'bird_4',
       'bird_5': 'bird_5',
@@ -984,20 +986,37 @@ export class GameScene extends Phaser.Scene {
       'bird_7': 'bird_7'
     }
     
-    // Check if cosmetic type exists in our map
-    if (cosmeticMap[cosmeticType]) {
-      const spriteKey = cosmeticMap[cosmeticType]
+    // Map cosmetic IDs to pipe sprite keys
+    const pipeCosmeticMap: { [key: string]: string } = {
+      'pipe_4': 'pipe_4',
+      'pipe_5': 'pipe_5',
+      'pipe_6': 'pipe_6',
+      'pipe_7': 'pipe_7'
+    }
+    
+    // Check if it's a bird cosmetic
+    if (birdCosmeticMap[cosmeticType]) {
+      const spriteKey = birdCosmeticMap[cosmeticType]
       
       // Check if the sprite texture exists
       if (this.textures.exists(spriteKey)) {
         // Apply the cosmetic sprite to the bird
         this.bird.setTexture(spriteKey)
-        console.log(`Applied cosmetic sprite: ${spriteKey}`)
+        console.log(`Applied bird cosmetic sprite: ${spriteKey}`)
       } else {
-        console.log(`Cosmetic sprite ${spriteKey} not found, using default`)
+        console.log(`Bird cosmetic sprite ${spriteKey} not found, using default`)
         this.bird.setTexture('bird_default')
       }
-    } else {
+    }
+    // Check if it's a pipe cosmetic
+    else if (pipeCosmeticMap[cosmeticType]) {
+      const spriteKey = pipeCosmeticMap[cosmeticType]
+      
+      // Store the selected pipe cosmetic for use when creating pipes
+      this.selectedPipeCosmetic = cosmeticType
+      console.log(`Selected pipe cosmetic: ${cosmeticType}`)
+    }
+    else {
       console.log(`Unknown cosmetic type: ${cosmeticType}, using default`)
       this.bird.setTexture('bird_default')
     }

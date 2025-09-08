@@ -10,7 +10,7 @@ export interface Cosmetic {
   price: number
   rarity: 'common' | 'rare' | 'epic' | 'legendary'
   imageUrl: string
-  type: 'bird' | 'background' | 'effect'
+  type: 'bird' | 'background' | 'effect' | 'pipe'
 }
 
 interface CosmeticItemProps {
@@ -65,7 +65,7 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
           />
         ) : (
           <div className="text-4xl text-white/40">
-            {cosmetic.type === 'bird' ? '🐦' : cosmetic.type === 'background' ? '🌅' : '✨'}
+            {cosmetic.type === 'bird' ? '🐦' : cosmetic.type === 'background' ? '🌅' : cosmetic.type === 'pipe' ? '🚰' : '✨'}
           </div>
         )}
       </div>
