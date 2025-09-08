@@ -122,7 +122,19 @@ export class GameScene extends Phaser.Scene {
       this.physics.world.gravity.y = this.gameSettings.gravity
     }
 
-    // Apply audio settings
+    // Apply audio settings to AudioManager
+    if (this.audioManager) {
+      const audioConfig: AudioConfig = {
+        soundEnabled: this.gameSettings.soundEnabled,
+        musicEnabled: this.gameSettings.musicEnabled,
+        soundVolume: this.gameSettings.soundVolume,
+        musicVolume: this.gameSettings.musicVolume
+      }
+      this.audioManager.updateConfig(audioConfig)
+      console.log('Audio settings applied to AudioManager:', audioConfig)
+    }
+
+    // Apply audio settings to Phaser sound system (fallback)
     if (this.sound) {
       this.sound.volume = this.gameSettings.soundVolume / 100
       this.sound.mute = !this.gameSettings.soundEnabled
@@ -183,6 +195,9 @@ export class GameScene extends Phaser.Scene {
       
       // Initialize audio manager
       this.initializeAudio()
+
+      // Apply settings after audio manager is initialized
+      this.applySettings()
 
       // Create start screen after sprites are loaded
       this.createStartScreen()

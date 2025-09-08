@@ -14,6 +14,7 @@ export class AudioManager {
   private sounds: Map<string, Phaser.Sound.BaseSound> = new Map()
   private audioContext: AudioContext | null = null
   private currentGainNode: GainNode | null = null
+  private soundEnabled: boolean = true
 
   constructor(scene: Phaser.Scene, config: AudioConfig) {
     this.scene = scene
@@ -265,17 +266,22 @@ export class AudioManager {
     if (this.backgroundMusic) {
       if (newConfig.musicEnabled) {
         this.backgroundMusic.resume()
+        console.log('Background music resumed')
       } else {
         this.backgroundMusic.pause()
+        console.log('Background music paused')
       }
     }
     
-    // Update sound effects
-    this.sounds.forEach((sound) => {
+    // Update sound effects volume and mute
+    this.sounds.forEach((sound, key) => {
       // Note: BaseSound doesn't have direct volume/mute properties
       // Volume control is handled through the gain nodes in the audio context
-      console.log('Sound effect volume updated to:', newConfig.soundVolume + '%')
+      console.log(`Sound effect ${key} volume updated to:`, newConfig.soundVolume + '%')
     })
+    
+    // Store sound enabled state for use in play methods
+    this.soundEnabled = newConfig.soundEnabled
     
     console.log('Audio config updated:', newConfig)
   }
@@ -294,8 +300,11 @@ export class AudioManager {
 
   public playSound(soundName: string) {
     const sound = this.sounds.get(soundName)
-    if (sound && this.config.soundEnabled) {
+    if (sound && this.soundEnabled) {
       sound.play()
+      console.log(`Playing sound: ${soundName}`)
+    } else if (!this.soundEnabled) {
+      console.log(`Sound disabled, not playing: ${soundName}`)
     }
   }
 
