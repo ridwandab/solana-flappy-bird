@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
   private scoreSound!: Phaser.Sound.BaseSound
   
   // Game physics constants
-  private readonly GRAVITY = 800  // Normal gravity like original Flappy Bird
-  private readonly FLAP_FORCE = -400  // Normal flap force like original Flappy Bird
+  private readonly GRAVITY = 500  // Balanced gravity - not too fast, not too slow
+  private readonly FLAP_FORCE = -250  // Balanced flap force for comfortable gameplay
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
