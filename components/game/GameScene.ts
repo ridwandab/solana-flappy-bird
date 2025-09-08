@@ -792,29 +792,34 @@ export class GameScene extends Phaser.Scene {
       bottom: this.bird.y + birdRadius
     }
     
-    // Check collision with top pipe
-    // Top pipe is positioned with setOrigin(0, 0) and setScale(1, -1)
-    // This means it's flipped vertically and anchored at top-left
-    // Using actual Sprite-0003.png dimensions for precise collision
-    const pipeWidth = 80  // Sprite-0003.png actual width
-    const pipeHeight = 400  // Sprite-0003.png actual height
-    
-    // Add small margin for more forgiving collision
-    const pipeMargin = 5 // Small margin for more forgiving collision
-    const topPipeBounds = {
-      left: pipeSet.topPipe.x + pipeMargin,
-      right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
-      top: pipeSet.topPipe.y - pipeHeight + pipeMargin, // Top pipe visual top (extends upward from y position)
-      bottom: pipeSet.topPipe.y - pipeMargin     // Top pipe visual bottom (at y position)
-    }
-    
-    // Check collision with bottom pipe
-    const bottomPipeBounds = {
-      left: pipeSet.bottomPipe.x + pipeMargin,
-      right: pipeSet.bottomPipe.x + pipeWidth - pipeMargin,
-      top: pipeSet.bottomPipe.y + pipeMargin,
-      bottom: pipeSet.bottomPipe.y + pipeHeight - pipeMargin
-    }
+    // Use collision visualization lines as actual collision bounds
+    if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
+      // Get collision bounds from the red lines
+      const topPipeCollisionTop = pipeSet.topPipeCollision[0] // Top line
+      const topPipeCollisionBottom = pipeSet.topPipeCollision[1] // Bottom line
+      const topPipeCollisionLeft = pipeSet.topPipeCollision[2] // Left line
+      const topPipeCollisionRight = pipeSet.topPipeCollision[3] // Right line
+      
+      const bottomPipeCollisionTop = pipeSet.bottomPipeCollision[0] // Top line
+      const bottomPipeCollisionBottom = pipeSet.bottomPipeCollision[1] // Bottom line
+      const bottomPipeCollisionLeft = pipeSet.bottomPipeCollision[2] // Left line
+      const bottomPipeCollisionRight = pipeSet.bottomPipeCollision[3] // Right line
+      
+      // Top pipe collision bounds (using red lines)
+      const topPipeBounds = {
+        left: topPipeCollisionLeft.x,
+        right: topPipeCollisionRight.x,
+        top: topPipeCollisionTop.y,
+        bottom: topPipeCollisionBottom.y
+      }
+      
+      // Bottom pipe collision bounds (using red lines)
+      const bottomPipeBounds = {
+        left: bottomPipeCollisionLeft.x,
+        right: bottomPipeCollisionRight.x,
+        top: bottomPipeCollisionTop.y,
+        bottom: bottomPipeCollisionBottom.y
+      }
     
     const hitTop = this.checkBoundsOverlap(birdBounds, topPipeBounds)
     const hitBottom = this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
@@ -827,7 +832,7 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird bounds:', birdBounds)
       console.log('Top pipe bounds (exact):', topPipeBounds)
       console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
+      console.log('Using red collision lines for exact collision detection')
       console.log('Collision overlap:', {
         left: Math.max(birdBounds.left, topPipeBounds.left),
         right: Math.min(birdBounds.right, topPipeBounds.right),
@@ -842,7 +847,7 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird bounds:', birdBounds)
       console.log('Bottom pipe bounds (exact):', bottomPipeBounds)
       console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
+      console.log('Using red collision lines for exact collision detection')
       console.log('Collision overlap:', {
         left: Math.max(birdBounds.left, bottomPipeBounds.left),
         right: Math.min(birdBounds.right, bottomPipeBounds.right),
@@ -851,8 +856,13 @@ export class GameScene extends Phaser.Scene {
       })
     }
     
-    // Check overlap with either pipe
-    return hitTop || hitBottom
+      // Check overlap with either pipe
+      return hitTop || hitBottom
+    } else {
+      // Fallback to original collision detection if red lines don't exist
+      console.log('Collision lines not found, using fallback collision detection')
+      return false
+    }
   }
 
   private checkBoundsOverlap(bounds1: any, bounds2: any): boolean {
