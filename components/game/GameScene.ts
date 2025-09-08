@@ -796,7 +796,7 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // AGGRESSIVE COLLISION DETECTION - Simple and reliable
+    // EXACT COLLISION DETECTION - Match visual pipe bounds exactly
     const birdX = this.bird.x
     const birdY = this.bird.y
     
@@ -810,23 +810,21 @@ export class GameScene extends Phaser.Scene {
     const pipeWidth = pipeSet.topPipe.width
     const pipeHeight = pipeSet.topPipe.height
     
-    // AGGRESSIVE collision bounds - make them bigger for easier collision
-    const collisionMargin = 20 // Extra margin for easier collision
-    
-    // Top pipe bounds (flipped pipe)
-    const topPipeLeft = topPipeX - collisionMargin
-    const topPipeRight = topPipeX + pipeWidth + collisionMargin
-    const topPipeTop = topPipeY - pipeHeight - collisionMargin // Top pipe extends upward
-    const topPipeBottom = topPipeY + collisionMargin
+    // EXACT collision bounds - match visual pipe exactly (no extra margin)
+    // Top pipe bounds (flipped pipe - extends upward from y position)
+    const topPipeLeft = topPipeX
+    const topPipeRight = topPipeX + pipeWidth
+    const topPipeTop = topPipeY - pipeHeight // Top pipe extends upward
+    const topPipeBottom = topPipeY
     
     // Bottom pipe bounds
-    const bottomPipeLeft = bottomPipeX - collisionMargin
-    const bottomPipeRight = bottomPipeX + pipeWidth + collisionMargin
-    const bottomPipeTop = bottomPipeY - collisionMargin
-    const bottomPipeBottom = bottomPipeY + pipeHeight + collisionMargin
+    const bottomPipeLeft = bottomPipeX
+    const bottomPipeRight = bottomPipeX + pipeWidth
+    const bottomPipeTop = bottomPipeY
+    const bottomPipeBottom = bottomPipeY + pipeHeight
     
-    // Bird collision area - make it bigger too
-    const birdSize = 30 // Bigger bird collision area
+    // Bird collision area - match visual bird size
+    const birdSize = 15 // Match visual bird size
     const birdLeft = birdX - birdSize
     const birdRight = birdX + birdSize
     const birdTop = birdY - birdSize
@@ -849,7 +847,7 @@ export class GameScene extends Phaser.Scene {
     
     // Debug logging
     if (Math.abs(birdX - topPipeX) < 100 || Math.abs(birdX - bottomPipeX) < 100) {
-      console.log('🔍 AGGRESSIVE COLLISION DEBUG:', {
+      console.log('🔍 EXACT COLLISION DEBUG:', {
         bird: { x: birdX, y: birdY, size: birdSize },
         topPipe: { x: topPipeX, y: topPipeY, width: pipeWidth, height: pipeHeight },
         bottomPipe: { x: bottomPipeX, y: bottomPipeY, width: pipeWidth, height: pipeHeight },
@@ -862,7 +860,7 @@ export class GameScene extends Phaser.Scene {
     }
     
     if (hitTopPipe || hitBottomPipe) {
-      console.log('💥💥💥 AGGRESSIVE COLLISION DETECTED! 💥💥💥')
+      console.log('💥💥💥 EXACT COLLISION DETECTED! 💥💥💥')
       console.log('Hit top pipe:', hitTopPipe)
       console.log('Hit bottom pipe:', hitBottomPipe)
       return true
@@ -938,19 +936,19 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
 
-    // Add collision visualization - red lines to show collision area
+    // Add collision visualization - red lines to show EXACT collision area
     const pipeWidth = topPipe.width
     const pipeHeightValue = topPipe.height
     
-    // Top pipe collision lines
-    const topPipeCollisionTop = this.add.rectangle(x, 0, pipeWidth, 2, 0xff0000, 0.8)
-    const topPipeCollisionBottom = this.add.rectangle(x, pipeHeight, pipeWidth, 2, 0xff0000, 0.8)
-    const topPipeCollisionLeft = this.add.rectangle(x, pipeHeight/2, 2, pipeHeight, 0xff0000, 0.8)
-    const topPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight/2, 2, pipeHeight, 0xff0000, 0.8)
+    // Top pipe collision lines - EXACT bounds
+    const topPipeCollisionTop = this.add.rectangle(x + pipeWidth/2, pipeHeight - pipeHeightValue/2, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionBottom = this.add.rectangle(x + pipeWidth/2, pipeHeight, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionLeft = this.add.rectangle(x, pipeHeight - pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    const topPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight - pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
     
-    // Bottom pipe collision lines
-    const bottomPipeCollisionTop = this.add.rectangle(x, pipeHeight + gap, pipeWidth, 2, 0xff0000, 0.8)
-    const bottomPipeCollisionBottom = this.add.rectangle(x, pipeHeight + gap + pipeHeightValue, pipeWidth, 2, 0xff0000, 0.8)
+    // Bottom pipe collision lines - EXACT bounds
+    const bottomPipeCollisionTop = this.add.rectangle(x + pipeWidth/2, pipeHeight + gap, pipeWidth, 2, 0xff0000, 0.8)
+    const bottomPipeCollisionBottom = this.add.rectangle(x + pipeWidth/2, pipeHeight + gap + pipeHeightValue, pipeWidth, 2, 0xff0000, 0.8)
     const bottomPipeCollisionLeft = this.add.rectangle(x, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
     const bottomPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
 
