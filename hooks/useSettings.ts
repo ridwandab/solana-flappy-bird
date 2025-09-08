@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 150,  // Very gentle gravity for ultra smooth gameplay
-  flapForce: -120,  // Very gentle flap force for precise control
+  gravity: 800,  // Normal gravity like original Flappy Bird
+  flapForce: -400,  // Normal flap force like original Flappy Bird
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
