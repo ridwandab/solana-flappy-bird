@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
   private scoreSound!: Phaser.Sound.BaseSound
   
   // Game physics constants
-  private readonly GRAVITY = 80  // Even lower gravity for easier control
-  private readonly FLAP_FORCE = -450  // Even stronger flap force for easier jumping
+  private readonly GRAVITY = 50  // Very low gravity for easier control
+  private readonly FLAP_FORCE = -400  // Strong flap force for easier jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
@@ -640,7 +640,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 4 // Reduce bird collision area by 4 pixels on each side (more sensitive)
+        const birdCollisionMargin = 2 // Reduce bird collision area by 2 pixels on each side (very sensitive)
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -966,7 +966,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = 4
+        const birdCollisionMargin = 2
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
