@@ -35,42 +35,8 @@ export class AudioManager {
   }
 
   private async loadBackgroundMusic() {
-    try {
-      // Create a simple background music using Phaser sound system
-      // Since we don't have actual audio files, we'll create a simple tone
-      this.backgroundMusic = this.scene.sound.add('background_music', {
-        volume: this.config.musicVolume / 100,
-        loop: true
-      })
-      
-      // If the sound doesn't exist, create a placeholder
-      if (!this.backgroundMusic) {
-        console.log('Background music sound not found, creating placeholder')
-        // Create a simple background music placeholder
-        this.backgroundMusic = {
-          play: () => {
-            if (this.config.musicEnabled) {
-              console.log('Background music playing (placeholder)')
-            }
-          },
-          stop: () => {
-            console.log('Background music stopped (placeholder)')
-          },
-          pause: () => {
-            console.log('Background music paused (placeholder)')
-          },
-          resume: () => {
-            if (this.config.musicEnabled) {
-              console.log('Background music resumed (placeholder)')
-            }
-          }
-        } as any
-      }
-
-      console.log('Background music loaded')
-    } catch (error) {
-      console.error('Failed to load background music:', error)
-    }
+    // Background music disabled - only sound effects enabled
+    console.log('Background music disabled - only sound effects enabled')
   }
 
   private async loadSoundEffects() {
@@ -125,21 +91,13 @@ export class AudioManager {
   }
 
   public startBackgroundMusic() {
-    if (this.backgroundMusic && this.config.musicEnabled) {
-      this.backgroundMusic.play()
-      console.log('Background music started')
-    } else if (!this.config.musicEnabled) {
-      console.log('Background music disabled in config')
-    } else {
-      console.log('Background music not available')
-    }
+    // Background music disabled - only sound effects enabled
+    console.log('Background music disabled - only sound effects enabled')
   }
 
   public stopBackgroundMusic() {
-    if (this.backgroundMusic) {
-      this.backgroundMusic.stop()
-      console.log('Background music stopped')
-    }
+    // Background music disabled - only sound effects enabled
+    console.log('Background music disabled - only sound effects enabled')
   }
 
   public playSound(soundName: string) {
@@ -168,16 +126,8 @@ export class AudioManager {
     console.log('Updating audio config:', newConfig)
     this.config = newConfig
     
-    // Update background music volume and mute state
-    if (this.backgroundMusic) {
-      if (newConfig.musicEnabled) {
-        this.backgroundMusic.resume()
-        console.log('Background music resumed')
-      } else {
-        this.backgroundMusic.pause()
-        console.log('Background music paused')
-      }
-    }
+    // Background music disabled - only sound effects enabled
+    console.log('Background music disabled - only sound effects enabled')
     
     // Update sound effects enabled state
     this.soundEnabled = newConfig.soundEnabled
