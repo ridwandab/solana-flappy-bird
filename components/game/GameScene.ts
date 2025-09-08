@@ -10,9 +10,7 @@ interface QuestEvent {
 // Game settings interface
 interface GameSettings {
   soundEnabled: boolean
-  musicEnabled: boolean
   soundVolume: number
-  musicVolume: number
   graphicsQuality: 'low' | 'medium' | 'high'
   showFPS: boolean
   autoSave: boolean
@@ -106,9 +104,7 @@ export class GameScene extends Phaser.Scene {
     if (this.audioManager) {
       const audioConfig: AudioConfig = {
         soundEnabled: settings.soundEnabled,
-        musicEnabled: settings.musicEnabled,
-        soundVolume: settings.soundVolume,
-        musicVolume: settings.musicVolume
+        soundVolume: settings.soundVolume
       }
       this.audioManager.updateAudioConfig(audioConfig)
     }
@@ -126,9 +122,7 @@ export class GameScene extends Phaser.Scene {
     if (this.audioManager) {
       const audioConfig: AudioConfig = {
         soundEnabled: this.gameSettings.soundEnabled,
-        musicEnabled: this.gameSettings.musicEnabled,
-        soundVolume: this.gameSettings.soundVolume,
-        musicVolume: this.gameSettings.musicVolume
+        soundVolume: this.gameSettings.soundVolume
       }
       this.audioManager.updateAudioConfig(audioConfig)
       console.log('Audio settings applied to AudioManager:', audioConfig)
@@ -147,9 +141,7 @@ export class GameScene extends Phaser.Scene {
     try {
       const audioConfig: AudioConfig = {
         soundEnabled: this.gameSettings?.soundEnabled ?? true,
-        musicEnabled: this.gameSettings?.musicEnabled ?? true,
-        soundVolume: this.gameSettings?.soundVolume ?? 70,
-        musicVolume: this.gameSettings?.musicVolume ?? 50
+        soundVolume: this.gameSettings?.soundVolume ?? 70
       }
       
       this.audioManager = new AudioManager(this, audioConfig)
@@ -1106,9 +1098,7 @@ export class GameScene extends Phaser.Scene {
     // Initialize audio manager with default settings
     const audioConfig = {
       soundEnabled: true,
-      musicEnabled: true,
-      soundVolume: 50,
-      musicVolume: 50
+      soundVolume: 50
     }
     
     this.audioManager = new AudioManager(this, audioConfig)

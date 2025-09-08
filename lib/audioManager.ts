@@ -2,9 +2,7 @@ import * as Phaser from 'phaser'
 
 export interface AudioConfig {
   soundEnabled: boolean
-  musicEnabled: boolean
   soundVolume: number
-  musicVolume: number
 }
 
 export class AudioManager {

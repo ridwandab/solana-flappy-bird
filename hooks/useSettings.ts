@@ -5,9 +5,7 @@ import { useGlobalAudio } from './useGlobalAudio'
 export interface GameSettings {
   // Audio Settings
   soundEnabled: boolean
-  musicEnabled: boolean
   soundVolume: number
-  musicVolume: number
   
   // Graphics Settings
   graphicsQuality: 'low' | 'medium' | 'high'
@@ -34,9 +32,7 @@ export interface GameSettings {
 const DEFAULT_SETTINGS: GameSettings = {
   // Audio Settings
   soundEnabled: true,
-  musicEnabled: true,
   soundVolume: 70,
-  musicVolume: 50,
   
   // Graphics Settings
   graphicsQuality: 'high',
@@ -73,12 +69,10 @@ export const useSettings = () => {
   useEffect(() => {
     // This will trigger useGlobalAudio to update volume
     console.log('Settings changed, audio system will be updated:', {
-      musicEnabled: settings.musicEnabled,
-      musicVolume: settings.musicVolume,
       soundEnabled: settings.soundEnabled,
       soundVolume: settings.soundVolume
     })
-  }, [settings.musicEnabled, settings.musicVolume, settings.soundEnabled, settings.soundVolume])
+  }, [settings.soundEnabled, settings.soundVolume])
 
   const loadSettings = () => {
     try {
@@ -136,9 +130,7 @@ export const useSettings = () => {
   const getAudioConfig = () => {
     return {
       soundEnabled: settings.soundEnabled,
-      musicEnabled: settings.musicEnabled,
-      soundVolume: settings.soundVolume / 100,
-      musicVolume: settings.musicVolume / 100
+      soundVolume: settings.soundVolume / 100
     }
   }
 

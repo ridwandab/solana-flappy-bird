@@ -136,41 +136,6 @@ export const Settings: FC<SettingsProps> = ({ onBackToMenu }) => {
                 </div>
               )}
 
-              {/* Background Music */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Background Music</h3>
-                  <p className="text-white/60 text-sm">Game background music</p>
-                </div>
-                <button
-                  onClick={() => handleSettingChange('musicEnabled', !settings.musicEnabled)}
-                  className={`w-12 h-6 rounded-full transition-colors ${
-                    settings.musicEnabled ? 'bg-green-500' : 'bg-gray-500'
-                  }`}
-                >
-                  <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    settings.musicEnabled ? 'translate-x-6' : 'translate-x-0.5'
-                  }`} />
-                </button>
-              </div>
-
-              {/* Music Volume */}
-              {settings.musicEnabled && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white">Music Volume</span>
-                    <span className="text-white/60">{settings.musicVolume}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={settings.musicVolume}
-                    onChange={(e) => handleSettingChange('musicVolume', parseInt(e.target.value))}
-                    className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                  />
-                </div>
-              )}
             </div>
           </div>
 
