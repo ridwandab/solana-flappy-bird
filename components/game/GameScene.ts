@@ -180,14 +180,14 @@ export class GameScene extends Phaser.Scene {
       console.log('All sprites preloaded successfully')
       // Reload background with actual sprite if it was using fallback
       this.reloadBackgroundWithSprite()
+      
+      // Initialize audio manager
+      this.initializeAudio()
+
+      // Create start screen after assets are loaded
+      this.createStartScreen()
     })
     this.load.start()
-
-    // Initialize audio manager
-    this.initializeAudio()
-
-    // Create start screen first
-    this.createStartScreen()
   }
 
   private createScrollingBackground() {
@@ -299,6 +299,11 @@ export class GameScene extends Phaser.Scene {
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
     this.startScreenElements.push(this.bird)
+    
+    // Apply selected cosmetic if available
+    if (this.selectedCosmetic) {
+      this.applyCosmetic(this.selectedCosmetic)
+    }
 
     // Create title
     const title = this.add.text(400, 200, '🐦 SOLANA FLAPPY BIRD', {
