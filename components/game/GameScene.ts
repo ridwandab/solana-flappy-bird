@@ -378,62 +378,6 @@ export class GameScene extends Phaser.Scene {
     this.initializeGame()
   }
 
-  private resetGameState() {
-    console.log('Resetting game state...')
-    
-    // Reset game flags
-    this.isGameOver = false
-    this.isGameStarted = false
-    this.score = 0
-    this.pipesPassed = 0
-    this.difficultyLevel = 0
-    
-    // Clear all active pipes
-    this.activePipes.forEach(pipeSet => {
-      this.destroyPipeSet(pipeSet)
-    })
-    this.activePipes = []
-    
-    // Clear pipes group
-    if (this.pipes) {
-      this.pipes.clear(true, true)
-    }
-    
-    // Reset bird position and state - convert back to static sprite
-    if (this.bird) {
-      // Store current properties
-      const currentTexture = this.bird.texture.key
-      const currentScale = this.bird.scaleX
-      
-      // Destroy the physics bird
-      this.bird.destroy()
-      
-      // Create new static bird for start screen
-      this.bird = this.add.sprite(200, 300, currentTexture)
-      this.bird.setScale(currentScale)
-      this.bird.setVisible(true)
-      this.bird.setAlpha(1)
-      this.bird.setRotation(0)
-      this.bird.setTint(0xffffff) // Remove any tint
-      
-      console.log('Bird converted back to static sprite for restart')
-    }
-    
-    // Reset score display
-    if (this.scoreText) {
-      this.scoreText.setText('0')
-    }
-    
-    // Clear any existing game over popup elements
-    this.children.list.forEach(child => {
-      if (child.name && child.name.includes('gameOver')) {
-        child.destroy()
-      }
-    })
-    
-    console.log('Game state reset complete')
-  }
-
   private initializeGame() {
     // Create scrolling background for game
     this.createScrollingBackground()
@@ -529,7 +473,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
 
     // Start spawning first pipe after a delay
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(1000, () => {
       this.spawnPipe()
     })
 
@@ -601,10 +545,7 @@ export class GameScene extends Phaser.Scene {
   private handleRestart() {
     if (this.isGameOver) {
       console.log('Restarting game...')
-      // Reset game state and start fresh
-      this.resetGameState()
-      // Don't call createStartScreen() here as it will be called by startGame()
-      // Just reset the state and let the game over popup handle the restart
+      this.scene.start('GameScene')
     }
   }
 
@@ -703,8 +644,8 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // Make bird collision bounds more reasonable for gameplay
-    const birdRadius = 12 // Slightly larger for more forgiving collision
+    // Make bird collision bounds match visual size exactly
+    const birdRadius = 5 // Match visual bird size for fair collision
     const birdBounds = {
       left: this.bird.x - birdRadius,
       right: this.bird.x + birdRadius,
@@ -719,8 +660,8 @@ export class GameScene extends Phaser.Scene {
     const pipeWidth = 80  // Sprite-0003.png actual width
     const pipeHeight = 400  // Sprite-0003.png actual height
     
-    // Add small margin for more forgiving collision detection
-    const pipeMargin = 3 // Small margin for more forgiving collision
+    // No margin - exact collision with pipe visual edges
+    const pipeMargin = 0 // No margin for exact collision with pipe visual edges
     const topPipeBounds = {
       left: pipeSet.topPipe.x + pipeMargin,
       right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
@@ -741,22 +682,34 @@ export class GameScene extends Phaser.Scene {
     
     // Enhanced debugging for collision detection
     if (hitTop) {
-      console.log('💥 COLLISION with TOP pipe detected!')
+      console.log('💥 EXACT COLLISION with TOP pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (forgiving collision)')
+      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Top pipe bounds:', topPipeBounds)
+      console.log('Top pipe bounds (exact):', topPipeBounds)
       console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (forgiving collision)')
+      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
+      console.log('Collision overlap:', {
+        left: Math.max(birdBounds.left, topPipeBounds.left),
+        right: Math.min(birdBounds.right, topPipeBounds.right),
+        top: Math.max(birdBounds.top, topPipeBounds.top),
+        bottom: Math.min(birdBounds.bottom, topPipeBounds.bottom)
+      })
     }
     if (hitBottom) {
-      console.log('💥 COLLISION with BOTTOM pipe detected!')
+      console.log('💥 EXACT COLLISION with BOTTOM pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (forgiving collision)')
+      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Bottom pipe bounds:', bottomPipeBounds)
+      console.log('Bottom pipe bounds (exact):', bottomPipeBounds)
       console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (forgiving collision)')
+      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
+      console.log('Collision overlap:', {
+        left: Math.max(birdBounds.left, bottomPipeBounds.left),
+        right: Math.min(birdBounds.right, bottomPipeBounds.right),
+        top: Math.max(birdBounds.top, bottomPipeBounds.top),
+        bottom: Math.min(birdBounds.bottom, bottomPipeBounds.bottom)
+      })
     }
     
     // Check overlap with either pipe
@@ -800,11 +753,6 @@ export class GameScene extends Phaser.Scene {
 
   private spawnPipe() {
     if (this.isGameOver) return
-
-    // Don't spawn if we already have too many pipes
-    if (this.activePipes.length >= this.MAX_ACTIVE_PIPES) {
-      return
-    }
 
     const gap = this.getCurrentPipeGap()
     const pipeHeight = Phaser.Math.Between(200, 300)
@@ -925,24 +873,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createGameOverPopup() {
-    // Clear any existing game over popup elements first
-    this.children.list.forEach(child => {
-      if (child.name && child.name.includes('gameOver')) {
-        child.destroy()
-      }
-    })
-    
     // Create popup background (very transparent to show game background clearly)
     const popupBg = this.add.rectangle(400, 300, 350, 280, 0x2C2C2C, 0.2)
     popupBg.setStrokeStyle(3, 0x444444)
     popupBg.setOrigin(0.5)
-    popupBg.name = 'gameOver_popupBg'
     
     // Add subtle shadow effect
     const shadow = this.add.rectangle(403, 303, 350, 280, 0x000000, 0.05)
     shadow.setOrigin(0.5)
     shadow.setDepth(-1)
-    shadow.name = 'gameOver_shadow'
     
     // Game Over title
     const gameOverText = this.add.text(400, 220, 'GAME OVER', {
@@ -952,7 +891,6 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     gameOverText.setOrigin(0.5)
-    gameOverText.name = 'gameOver_title'
     
     // Score display
     const scoreText = this.add.text(400, 260, `Your Score: ${this.score}`, {
@@ -961,7 +899,6 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'Arial'
     })
     scoreText.setOrigin(0.5)
-    scoreText.name = 'gameOver_score'
     
     // High score display (you can implement high score tracking later)
     const highScoreText = this.add.text(400, 290, `High Score: ${this.score}`, {
@@ -970,13 +907,11 @@ export class GameScene extends Phaser.Scene {
       fontFamily: 'Arial'
     })
     highScoreText.setOrigin(0.5)
-    highScoreText.name = 'gameOver_highScore'
     
     // Large START button (like in the original start screen)
     const startBtn = this.add.rectangle(400, 330, 200, 60, 0x00ff00)
     startBtn.setStrokeStyle(4, 0x000000)
     startBtn.setInteractive()
-    startBtn.name = 'gameOver_startBtn'
     
     const startText = this.add.text(400, 330, 'START', {
       fontSize: '32px',
@@ -985,7 +920,6 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     startText.setOrigin(0.5)
-    startText.name = 'gameOver_startText'
     
     // Add hover effects for START button
     startBtn.on('pointerover', () => {
@@ -1004,7 +938,6 @@ export class GameScene extends Phaser.Scene {
     const mainMenuBtn = this.add.rectangle(400, 400, 200, 40, 0x666666)
     mainMenuBtn.setStrokeStyle(2, 0x888888)
     mainMenuBtn.setInteractive()
-    mainMenuBtn.name = 'gameOver_mainMenuBtn'
     
     const mainMenuText = this.add.text(400, 400, 'Main Menu', {
       fontSize: '18px',
@@ -1013,7 +946,6 @@ export class GameScene extends Phaser.Scene {
       fontStyle: 'bold'
     })
     mainMenuText.setOrigin(0.5)
-    mainMenuText.name = 'gameOver_mainMenuText'
     
     // Re-enable input for button interactions
     this.input.enabled = true
@@ -1054,7 +986,7 @@ export class GameScene extends Phaser.Scene {
       'bird_7': 'bird_7'
     }
     
-    // Map cosmetic IDs to pipe sprite keys
+    // Map pipe cosmetic IDs to pipe sprite keys
     const pipeCosmeticMap: { [key: string]: string } = {
       'pipe_4': 'pipe_cosmetic_4',
       'pipe_5': 'pipe_cosmetic_5',
