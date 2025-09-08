@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 500,  // Balanced gravity - not too fast, not too slow
-  flapForce: -250,  // Balanced flap force for comfortable gameplay
+  gravity: 20,  // Like original Flappy Bird (CS50 reference)
+  flapForce: -5,  // Like original Flappy Bird (CS50 reference)
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
