@@ -617,6 +617,18 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
+    // AGGRESSIVE COLLISION CHECK - Check all pipes every frame
+    for (let i = 0; i < this.activePipes.length; i++) {
+      const pipeSet = this.activePipes[i]
+      if (this.checkPipeCollision(pipeSet)) {
+        console.log('🚨 AGGRESSIVE COLLISION DETECTED IN UPDATE LOOP!')
+        if (!this.isGameOver) {
+          this.gameOver()
+        }
+        return
+      }
+    }
+    
     // Additional collision check for bird falling below screen
     if (this.bird.y > 600) {
       console.log('Bird fell below screen! Game Over!')
@@ -784,133 +796,79 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // Make bird collision bounds match visual size exactly
-    const birdRadius = 15 // More realistic bird collision size
-    const birdBounds = {
-      left: this.bird.x - birdRadius,
-      right: this.bird.x + birdRadius,
-      top: this.bird.y - birdRadius,
-      bottom: this.bird.y + birdRadius
-    }
+    // AGGRESSIVE COLLISION DETECTION - Simple and reliable
+    const birdX = this.bird.x
+    const birdY = this.bird.y
     
-    // Use collision visualization lines as actual collision bounds
-    if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
-      // Get collision bounds from the red lines
-      const topPipeCollisionTop = pipeSet.topPipeCollision[0] // Top line
-      const topPipeCollisionBottom = pipeSet.topPipeCollision[1] // Bottom line
-      const topPipeCollisionLeft = pipeSet.topPipeCollision[2] // Left line
-      const topPipeCollisionRight = pipeSet.topPipeCollision[3] // Right line
-      
-      const bottomPipeCollisionTop = pipeSet.bottomPipeCollision[0] // Top line
-      const bottomPipeCollisionBottom = pipeSet.bottomPipeCollision[1] // Bottom line
-      const bottomPipeCollisionLeft = pipeSet.bottomPipeCollision[2] // Left line
-      const bottomPipeCollisionRight = pipeSet.bottomPipeCollision[3] // Right line
-      
-      // Top pipe collision bounds (using red lines)
-      // Rectangle center positions need to be converted to bounds
-      const topPipeBounds = {
-        left: topPipeCollisionLeft.x - 1, // Left line center - half width
-        right: topPipeCollisionRight.x + 1, // Right line center + half width
-        top: topPipeCollisionTop.y - 1, // Top line center - half height
-        bottom: topPipeCollisionBottom.y + 1 // Bottom line center + half height
-      }
-      
-      // Bottom pipe collision bounds (using red lines)
-      const bottomPipeBounds = {
-        left: bottomPipeCollisionLeft.x - 1, // Left line center - half width
-        right: bottomPipeCollisionRight.x + 1, // Right line center + half width
-        top: bottomPipeCollisionTop.y - 1, // Top line center - half height
-        bottom: bottomPipeCollisionBottom.y + 1 // Bottom line center + half height
-      }
-      
-      // Debug: Log collision bounds every frame when bird is close to pipes
-      const distanceToTopPipe = Math.abs(this.bird.x - topPipeBounds.left)
-      const distanceToBottomPipe = Math.abs(this.bird.x - bottomPipeBounds.left)
-      
-      if (distanceToTopPipe < 100 || distanceToBottomPipe < 100) {
-        console.log('🔍 COLLISION DEBUG - Bird near pipes:', {
-          bird: { x: this.bird.x, y: this.bird.y },
-          birdBounds,
-          topPipeBounds,
-          bottomPipeBounds,
-          distanceToTopPipe,
-          distanceToBottomPipe,
-          redLinePositions: {
-            topTop: { x: topPipeCollisionTop.x, y: topPipeCollisionTop.y },
-            topBottom: { x: topPipeCollisionBottom.x, y: topPipeCollisionBottom.y },
-            topLeft: { x: topPipeCollisionLeft.x, y: topPipeCollisionLeft.y },
-            topRight: { x: topPipeCollisionRight.x, y: topPipeCollisionRight.y },
-            bottomTop: { x: bottomPipeCollisionTop.x, y: bottomPipeCollisionTop.y },
-            bottomBottom: { x: bottomPipeCollisionBottom.x, y: bottomPipeCollisionBottom.y },
-            bottomLeft: { x: bottomPipeCollisionLeft.x, y: bottomPipeCollisionLeft.y },
-            bottomRight: { x: bottomPipeCollisionRight.x, y: bottomPipeCollisionRight.y }
-          }
-        })
-      }
+    // Get pipe positions directly from sprites
+    const topPipeX = pipeSet.topPipe.x
+    const topPipeY = pipeSet.topPipe.y
+    const bottomPipeX = pipeSet.bottomPipe.x
+    const bottomPipeY = pipeSet.bottomPipe.y
     
-    const hitTop = this.checkBoundsOverlap(birdBounds, topPipeBounds)
-    const hitBottom = this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
+    // Get pipe dimensions
+    const pipeWidth = pipeSet.topPipe.width
+    const pipeHeight = pipeSet.topPipe.height
     
-    // Debug collision detection results
-    if (distanceToTopPipe < 50 || distanceToBottomPipe < 50) {
-      console.log('🎯 COLLISION CHECK RESULTS:', {
-        hitTop,
-        hitBottom,
-        birdBounds,
-        topPipeBounds,
-        bottomPipeBounds,
-        checkBoundsOverlap: {
-          top: this.checkBoundsOverlap(birdBounds, topPipeBounds),
-          bottom: this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
-        }
+    // AGGRESSIVE collision bounds - make them bigger for easier collision
+    const collisionMargin = 20 // Extra margin for easier collision
+    
+    // Top pipe bounds (flipped pipe)
+    const topPipeLeft = topPipeX - collisionMargin
+    const topPipeRight = topPipeX + pipeWidth + collisionMargin
+    const topPipeTop = topPipeY - pipeHeight - collisionMargin // Top pipe extends upward
+    const topPipeBottom = topPipeY + collisionMargin
+    
+    // Bottom pipe bounds
+    const bottomPipeLeft = bottomPipeX - collisionMargin
+    const bottomPipeRight = bottomPipeX + pipeWidth + collisionMargin
+    const bottomPipeTop = bottomPipeY - collisionMargin
+    const bottomPipeBottom = bottomPipeY + pipeHeight + collisionMargin
+    
+    // Bird collision area - make it bigger too
+    const birdSize = 30 // Bigger bird collision area
+    const birdLeft = birdX - birdSize
+    const birdRight = birdX + birdSize
+    const birdTop = birdY - birdSize
+    const birdBottom = birdY + birdSize
+    
+    // Simple collision check
+    const hitTopPipe = (
+      birdRight > topPipeLeft &&
+      birdLeft < topPipeRight &&
+      birdBottom > topPipeTop &&
+      birdTop < topPipeBottom
+    )
+    
+    const hitBottomPipe = (
+      birdRight > bottomPipeLeft &&
+      birdLeft < bottomPipeRight &&
+      birdBottom > bottomPipeTop &&
+      birdTop < bottomPipeBottom
+    )
+    
+    // Debug logging
+    if (Math.abs(birdX - topPipeX) < 100 || Math.abs(birdX - bottomPipeX) < 100) {
+      console.log('🔍 AGGRESSIVE COLLISION DEBUG:', {
+        bird: { x: birdX, y: birdY, size: birdSize },
+        topPipe: { x: topPipeX, y: topPipeY, width: pipeWidth, height: pipeHeight },
+        bottomPipe: { x: bottomPipeX, y: bottomPipeY, width: pipeWidth, height: pipeHeight },
+        topPipeBounds: { left: topPipeLeft, right: topPipeRight, top: topPipeTop, bottom: topPipeBottom },
+        bottomPipeBounds: { left: bottomPipeLeft, right: bottomPipeRight, top: bottomPipeTop, bottom: bottomPipeBottom },
+        birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+        hitTopPipe,
+        hitBottomPipe
       })
     }
     
-    // Enhanced debugging for collision detection
-    if (hitTop) {
-      console.log('💥💥💥 COLLISION with TOP pipe detected! 💥💥💥')
-      console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird bounds:', birdBounds)
-      console.log('Top pipe bounds (red lines):', topPipeBounds)
-      console.log('Red line positions:', {
-        top: { x: topPipeCollisionTop.x, y: topPipeCollisionTop.y },
-        bottom: { x: topPipeCollisionBottom.x, y: topPipeCollisionBottom.y },
-        left: { x: topPipeCollisionLeft.x, y: topPipeCollisionLeft.y },
-        right: { x: topPipeCollisionRight.x, y: topPipeCollisionRight.y }
-      })
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, topPipeBounds.left),
-        right: Math.min(birdBounds.right, topPipeBounds.right),
-        top: Math.max(birdBounds.top, topPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, topPipeBounds.bottom)
-      })
-    }
-    if (hitBottom) {
-      console.log('💥💥💥 COLLISION with BOTTOM pipe detected! 💥💥💥')
-      console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird bounds:', birdBounds)
-      console.log('Bottom pipe bounds (red lines):', bottomPipeBounds)
-      console.log('Red line positions:', {
-        top: { x: bottomPipeCollisionTop.x, y: bottomPipeCollisionTop.y },
-        bottom: { x: bottomPipeCollisionBottom.x, y: bottomPipeCollisionBottom.y },
-        left: { x: bottomPipeCollisionLeft.x, y: bottomPipeCollisionLeft.y },
-        right: { x: bottomPipeCollisionRight.x, y: bottomPipeCollisionRight.y }
-      })
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, bottomPipeBounds.left),
-        right: Math.min(birdBounds.right, bottomPipeBounds.right),
-        top: Math.max(birdBounds.top, bottomPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, bottomPipeBounds.bottom)
-      })
+    if (hitTopPipe || hitBottomPipe) {
+      console.log('💥💥💥 AGGRESSIVE COLLISION DETECTED! 💥💥💥')
+      console.log('Hit top pipe:', hitTopPipe)
+      console.log('Hit bottom pipe:', hitBottomPipe)
+      return true
     }
     
-      // Check overlap with either pipe
-      return hitTop || hitBottom
-    } else {
-      // Fallback to original collision detection if red lines don't exist
-      console.log('Collision lines not found, using fallback collision detection')
-      return false
-    }
+    return false
   }
 
   private checkBoundsOverlap(bounds1: any, bounds2: any): boolean {
