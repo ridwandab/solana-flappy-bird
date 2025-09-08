@@ -807,19 +807,20 @@ export class GameScene extends Phaser.Scene {
       const bottomPipeCollisionRight = pipeSet.bottomPipeCollision[3] // Right line
       
       // Top pipe collision bounds (using red lines)
+      // Rectangle center positions need to be converted to bounds
       const topPipeBounds = {
-        left: topPipeCollisionLeft.x,
-        right: topPipeCollisionRight.x,
-        top: topPipeCollisionTop.y,
-        bottom: topPipeCollisionBottom.y
+        left: topPipeCollisionLeft.x - 1, // Left line center - half width
+        right: topPipeCollisionRight.x + 1, // Right line center + half width
+        top: topPipeCollisionTop.y - 1, // Top line center - half height
+        bottom: topPipeCollisionBottom.y + 1 // Bottom line center + half height
       }
       
       // Bottom pipe collision bounds (using red lines)
       const bottomPipeBounds = {
-        left: bottomPipeCollisionLeft.x,
-        right: bottomPipeCollisionRight.x,
-        top: bottomPipeCollisionTop.y,
-        bottom: bottomPipeCollisionBottom.y
+        left: bottomPipeCollisionLeft.x - 1, // Left line center - half width
+        right: bottomPipeCollisionRight.x + 1, // Right line center + half width
+        top: bottomPipeCollisionTop.y - 1, // Top line center - half height
+        bottom: bottomPipeCollisionBottom.y + 1 // Bottom line center + half height
       }
       
       // Debug: Log collision bounds every frame when bird is close to pipes
@@ -833,12 +834,37 @@ export class GameScene extends Phaser.Scene {
           topPipeBounds,
           bottomPipeBounds,
           distanceToTopPipe,
-          distanceToBottomPipe
+          distanceToBottomPipe,
+          redLinePositions: {
+            topTop: { x: topPipeCollisionTop.x, y: topPipeCollisionTop.y },
+            topBottom: { x: topPipeCollisionBottom.x, y: topPipeCollisionBottom.y },
+            topLeft: { x: topPipeCollisionLeft.x, y: topPipeCollisionLeft.y },
+            topRight: { x: topPipeCollisionRight.x, y: topPipeCollisionRight.y },
+            bottomTop: { x: bottomPipeCollisionTop.x, y: bottomPipeCollisionTop.y },
+            bottomBottom: { x: bottomPipeCollisionBottom.x, y: bottomPipeCollisionBottom.y },
+            bottomLeft: { x: bottomPipeCollisionLeft.x, y: bottomPipeCollisionLeft.y },
+            bottomRight: { x: bottomPipeCollisionRight.x, y: bottomPipeCollisionRight.y }
+          }
         })
       }
     
     const hitTop = this.checkBoundsOverlap(birdBounds, topPipeBounds)
     const hitBottom = this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
+    
+    // Debug collision detection results
+    if (distanceToTopPipe < 50 || distanceToBottomPipe < 50) {
+      console.log('🎯 COLLISION CHECK RESULTS:', {
+        hitTop,
+        hitBottom,
+        birdBounds,
+        topPipeBounds,
+        bottomPipeBounds,
+        checkBoundsOverlap: {
+          top: this.checkBoundsOverlap(birdBounds, topPipeBounds),
+          bottom: this.checkBoundsOverlap(birdBounds, bottomPipeBounds)
+        }
+      })
+    }
     
     // Enhanced debugging for collision detection
     if (hitTop) {
