@@ -157,6 +157,13 @@ export class GameScene extends Phaser.Scene {
     this.difficultyLevel = 0
     this.pipesPassed = 0
 
+    // Check if assets are already loaded
+    if (this.textures.exists('bird_default')) {
+      console.log('Assets already loaded, creating start screen immediately')
+      this.createStartScreen()
+      return
+    }
+
     // Preload sprites
     this.load.image('pipe_sprite', '/Sprite-0003.png')
     this.load.image('background_sprite', '/Background5.png')
@@ -673,28 +680,33 @@ export class GameScene extends Phaser.Scene {
       bottom: this.bird.y + birdRadius
     }
     
-    // Check collision with top pipe
-    // Top pipe is positioned with setOrigin(0, 0) and setScale(1, -1)
-    // This means it's flipped vertically and anchored at top-left
-    // Using actual Sprite-0003.png dimensions for precise collision
-    const pipeWidth = 80  // Sprite-0003.png actual width
-    const pipeHeight = 400  // Sprite-0003.png actual height
+    // Get actual pipe dimensions from the sprite
+    const topPipe = pipeSet.topPipe
+    const bottomPipe = pipeSet.bottomPipe
+    
+    // Use actual sprite dimensions instead of hardcoded values
+    const topPipeWidth = topPipe.displayWidth
+    const topPipeHeight = topPipe.displayHeight
+    const bottomPipeWidth = bottomPipe.displayWidth
+    const bottomPipeHeight = bottomPipe.displayHeight
     
     // Small margin for more responsive collision
     const pipeMargin = 2 // Small margin for more responsive collision
+    
+    // Top pipe bounds (flipped vertically with setScale(1, -1))
     const topPipeBounds = {
-      left: pipeSet.topPipe.x + pipeMargin,
-      right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
-      top: pipeSet.topPipe.y - pipeHeight + pipeMargin, // Top pipe visual top (extends upward from y position)
-      bottom: pipeSet.topPipe.y - pipeMargin     // Top pipe visual bottom (at y position)
+      left: topPipe.x + pipeMargin,
+      right: topPipe.x + topPipeWidth - pipeMargin,
+      top: topPipe.y - topPipeHeight + pipeMargin, // Top pipe extends upward from y position
+      bottom: topPipe.y - pipeMargin     // Top pipe bottom at y position
     }
     
-    // Check collision with bottom pipe
+    // Bottom pipe bounds
     const bottomPipeBounds = {
-      left: pipeSet.bottomPipe.x + pipeMargin,
-      right: pipeSet.bottomPipe.x + pipeWidth - pipeMargin,
-      top: pipeSet.bottomPipe.y + pipeMargin,
-      bottom: pipeSet.bottomPipe.y + pipeHeight - pipeMargin
+      left: bottomPipe.x + pipeMargin,
+      right: bottomPipe.x + bottomPipeWidth - pipeMargin,
+      top: bottomPipe.y + pipeMargin,
+      bottom: bottomPipe.y + bottomPipeHeight - pipeMargin
     }
     
     const hitTop = this.checkBoundsOverlap(birdBounds, topPipeBounds)
@@ -707,7 +719,8 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird radius:', birdRadius, 'pixels (responsive collision)')
       console.log('Bird bounds:', birdBounds)
       console.log('Top pipe bounds:', topPipeBounds)
-      console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
+      console.log('Top pipe position:', { x: topPipe.x, y: topPipe.y })
+      console.log('Top pipe dimensions:', { width: topPipeWidth, height: topPipeHeight })
       console.log('Pipe margin:', pipeMargin, 'pixels (responsive collision)')
     }
     if (hitBottom) {
@@ -716,7 +729,8 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird radius:', birdRadius, 'pixels (responsive collision)')
       console.log('Bird bounds:', birdBounds)
       console.log('Bottom pipe bounds:', bottomPipeBounds)
-      console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
+      console.log('Bottom pipe position:', { x: bottomPipe.x, y: bottomPipe.y })
+      console.log('Bottom pipe dimensions:', { width: bottomPipeWidth, height: bottomPipeHeight })
       console.log('Pipe margin:', pipeMargin, 'pixels (responsive collision)')
     }
     
