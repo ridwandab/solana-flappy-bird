@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
   private scoreSound!: Phaser.Sound.BaseSound
   
   // Game physics constants
-  private readonly GRAVITY = 50  // Very low gravity for easier control
-  private readonly FLAP_FORCE = -400  // Strong flap force for easier jumping
+  private readonly GRAVITY = 30  // Extremely low gravity for very easy control
+  private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
@@ -639,14 +639,8 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 2 // Reduce bird collision area by 2 pixels on each side (very sensitive)
-        const birdCollisionBounds = new Phaser.Geom.Rectangle(
-          birdBounds.x + birdCollisionMargin,
-          birdBounds.y + birdCollisionMargin,
-          birdBounds.width - (birdCollisionMargin * 2),
-          birdBounds.height - (birdCollisionMargin * 2)
-        )
+        // Use exact bird bounds for maximum sensitivity
+        const birdCollisionBounds = birdBounds
         
         // Create collision rectangles based on red lines positions
         let hitTopPipe = false
@@ -710,7 +704,7 @@ export class GameScene extends Phaser.Scene {
                 width: birdCollisionBounds.width,
                 height: birdCollisionBounds.height
               },
-              margin: birdCollisionMargin
+              margin: 'none (exact bounds)'
             },
             collision: {
               hitTopPipe,
@@ -741,9 +735,8 @@ export class GameScene extends Phaser.Scene {
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-          console.log('Bird original bounds:', birdBounds)
-          console.log('Bird collision bounds (with margin):', birdCollisionBounds)
-          console.log('Collision margin:', birdCollisionMargin)
+          console.log('Bird bounds (exact):', birdCollisionBounds)
+          console.log('Collision margin: none (exact bounds)')
           console.log('Invisible collision detection used!')
           if (!this.isGameOver) {
             this.gameOver()
@@ -964,15 +957,8 @@ export class GameScene extends Phaser.Scene {
           }
         }
         
-        // Check collision with bird
-        const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = 2
-        const birdCollisionBounds = new Phaser.Geom.Rectangle(
-          birdBounds.x + birdCollisionMargin,
-          birdBounds.y + birdCollisionMargin,
-          birdBounds.width - (birdCollisionMargin * 2),
-          birdBounds.height - (birdCollisionMargin * 2)
-        )
+        // Check collision with bird using exact bounds
+        const birdCollisionBounds = this.bird.getBounds()
         
         const obstacleBounds = new Phaser.Geom.Rectangle(
           obstacle.collisionData.x,

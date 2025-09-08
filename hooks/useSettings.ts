@@ -46,8 +46,8 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 50,  // Very low gravity for easier control
-  flapForce: -400,  // Strong flap force for easier jumping
+  gravity: 30,  // Extremely low gravity for very easy control
+  flapForce: -350,  // Moderate flap force for smooth jumping
   pipeSpeed: 3,
   pipeSpawnDelay: 2000,
   
