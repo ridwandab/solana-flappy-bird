@@ -32,38 +32,21 @@ export const MainMenu: FC<MainMenuProps> = ({
 }) => {
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
-  const { startBackgroundMusic, resumeAudioContext, startMusicImmediately } = useGlobalAudio()
+  const { resumeAudioContext } = useGlobalAudio()
 
-  // Start background music immediately when component mounts
+  // Initialize audio context for sound effects
   useEffect(() => {
-    // Try to start music immediately
-    const tryStartMusic = async () => {
-      const success = await startMusicImmediately()
-      
-      if (!success) {
-        console.log('🎵 Audio context needs user interaction, setting up fallback')
-        // Fallback: Start music on first user interaction
-        const handleUserInteraction = () => {
-          resumeAudioContext()
-          startBackgroundMusic()
-          console.log('🎵 Background music started after user interaction')
-          // Remove event listeners after first interaction
-          document.removeEventListener('click', handleUserInteraction)
-          document.removeEventListener('keydown', handleUserInteraction)
-        }
-
-        document.addEventListener('click', handleUserInteraction)
-        document.addEventListener('keydown', handleUserInteraction)
-
-        return () => {
-          document.removeEventListener('click', handleUserInteraction)
-          document.removeEventListener('keydown', handleUserInteraction)
-        }
+    const initializeAudio = async () => {
+      try {
+        await resumeAudioContext()
+        console.log('🔊 Audio context initialized for sound effects')
+      } catch (error) {
+        console.log('🔊 Audio context initialization failed:', error)
       }
     }
 
-    tryStartMusic()
-  }, [startBackgroundMusic, resumeAudioContext, startMusicImmediately])
+    initializeAudio()
+  }, [resumeAudioContext])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
