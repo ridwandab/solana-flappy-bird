@@ -40,6 +40,7 @@ export class GameScene extends Phaser.Scene {
   private isGameStarted: boolean = false
   private startScreenElements: Phaser.GameObjects.GameObject[] = []
   private pipeTimer!: Phaser.Time.TimerEvent
+  private birdCollisionDebug?: Phaser.GameObjects.Rectangle
   private flapSound!: Phaser.Sound.BaseSound
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
@@ -629,6 +630,15 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
+        // Make bird collision area smaller to match visual sprite better
+        const birdCollisionMargin = 8 // Reduce bird collision area by 8 pixels on each side
+        const birdCollisionBounds = new Phaser.Geom.Rectangle(
+          birdBounds.x + birdCollisionMargin,
+          birdBounds.y + birdCollisionMargin,
+          birdBounds.width - (birdCollisionMargin * 2),
+          birdBounds.height - (birdCollisionMargin * 2)
+        )
+        
         // Create collision rectangles based on red lines positions
         let hitTopPipe = false
         let hitBottomPipe = false
@@ -648,7 +658,7 @@ export class GameScene extends Phaser.Scene {
             bottomLine.y - topLine.y
           )
           
-          hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeCollisionRect)
+          hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
         }
         
         if (pipeSet.bottomPipeCollision && pipeSet.bottomPipeCollision.length >= 4) {
@@ -666,7 +676,27 @@ export class GameScene extends Phaser.Scene {
             bottomLine.y - topLine.y
           )
           
-          hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeCollisionRect)
+          hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
+        }
+        
+        // Add visual debugging for bird collision bounds
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
+          // Create green rectangle to show bird collision bounds
+          if (!this.birdCollisionDebug) {
+            this.birdCollisionDebug = this.add.rectangle(
+              birdCollisionBounds.x + birdCollisionBounds.width/2,
+              birdCollisionBounds.y + birdCollisionBounds.height/2,
+              birdCollisionBounds.width,
+              birdCollisionBounds.height,
+              0x00ff00,
+              0.3
+            )
+          } else {
+            this.birdCollisionDebug.x = birdCollisionBounds.x + birdCollisionBounds.width/2
+            this.birdCollisionDebug.y = birdCollisionBounds.y + birdCollisionBounds.height/2
+            this.birdCollisionDebug.width = birdCollisionBounds.width
+            this.birdCollisionDebug.height = birdCollisionBounds.height
+          }
         }
         
         // Debug logging when pipe is very close
@@ -677,12 +707,19 @@ export class GameScene extends Phaser.Scene {
               y: this.bird.y,
               width: this.bird.width,
               height: this.bird.height,
-              bounds: {
+              originalBounds: {
                 x: birdBounds.x,
                 y: birdBounds.y,
                 width: birdBounds.width,
                 height: birdBounds.height
-              }
+              },
+              collisionBounds: {
+                x: birdCollisionBounds.x,
+                y: birdCollisionBounds.y,
+                width: birdCollisionBounds.width,
+                height: birdCollisionBounds.height
+              },
+              margin: birdCollisionMargin
             },
             redLinesCollision: {
               hitTopPipe,
@@ -713,7 +750,9 @@ export class GameScene extends Phaser.Scene {
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-          console.log('Bird bounds:', birdBounds)
+          console.log('Bird original bounds:', birdBounds)
+          console.log('Bird collision bounds (with margin):', birdCollisionBounds)
+          console.log('Collision margin:', birdCollisionMargin)
           console.log('Red lines collision area used for detection!')
           if (!this.isGameOver) {
             this.gameOver()
@@ -1104,6 +1143,12 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.isGameOver = true
+    
+    // Clean up bird collision debug
+    if (this.birdCollisionDebug) {
+      this.birdCollisionDebug.destroy()
+      this.birdCollisionDebug = undefined
+    }
     
     // Debug: Log stack trace to see what caused game over
     console.log('🚨🚨🚨 GAME OVER TRIGGERED! 🚨🚨🚨')
