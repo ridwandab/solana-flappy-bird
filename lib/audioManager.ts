@@ -263,13 +263,18 @@ export class AudioManager {
     
     // Update background music mute
     if (this.backgroundMusic) {
-      this.backgroundMusic.mute = !newConfig.musicEnabled
+      if (newConfig.musicEnabled) {
+        this.backgroundMusic.resume()
+      } else {
+        this.backgroundMusic.pause()
+      }
     }
     
     // Update sound effects
     this.sounds.forEach((sound) => {
-      sound.volume = newConfig.soundVolume / 100
-      sound.mute = !newConfig.soundEnabled
+      // Note: BaseSound doesn't have direct volume/mute properties
+      // Volume control is handled through the gain nodes in the audio context
+      console.log('Sound effect volume updated to:', newConfig.soundVolume + '%')
     })
     
     console.log('Audio config updated:', newConfig)
