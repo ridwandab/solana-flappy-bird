@@ -908,25 +908,38 @@ export class GameScene extends Phaser.Scene {
     })
     highScoreText.setOrigin(0.5)
     
-    // Play Again button
-    const playAgainBtn = this.add.rectangle(400, 330, 200, 40, 0x4CAF50)
-    playAgainBtn.setStrokeStyle(2, 0x66BB6A)
-    playAgainBtn.setInteractive()
+    // Large START button (like in the original start screen)
+    const startBtn = this.add.rectangle(400, 330, 200, 60, 0x00ff00)
+    startBtn.setStrokeStyle(4, 0x000000)
+    startBtn.setInteractive()
     
-    const playAgainText = this.add.text(400, 330, 'Play Again', {
-      fontSize: '18px',
-      color: '#ffffff',
+    const startText = this.add.text(400, 330, 'START', {
+      fontSize: '32px',
+      color: '#000000',
       fontFamily: 'Arial',
       fontStyle: 'bold'
     })
-    playAgainText.setOrigin(0.5)
+    startText.setOrigin(0.5)
+    
+    // Add hover effects for START button
+    startBtn.on('pointerover', () => {
+      startBtn.setFillStyle(0x00cc00)
+    })
+    
+    startBtn.on('pointerout', () => {
+      startBtn.setFillStyle(0x00ff00)
+    })
+    
+    startBtn.on('pointerdown', () => {
+      this.startGame()
+    })
     
     // Main Menu button
-    const mainMenuBtn = this.add.rectangle(400, 380, 200, 40, 0x666666)
+    const mainMenuBtn = this.add.rectangle(400, 400, 200, 40, 0x666666)
     mainMenuBtn.setStrokeStyle(2, 0x888888)
     mainMenuBtn.setInteractive()
     
-    const mainMenuText = this.add.text(400, 380, 'Main Menu', {
+    const mainMenuText = this.add.text(400, 400, 'Main Menu', {
       fontSize: '18px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -937,20 +950,7 @@ export class GameScene extends Phaser.Scene {
     // Re-enable input for button interactions
     this.input.enabled = true
     
-    // Button interactions
-    playAgainBtn.on('pointerdown', () => {
-      console.log('Play Again clicked')
-      this.game.events.emit('restart')
-      this.scene.start('GameScene')
-    })
-    
-    playAgainBtn.on('pointerover', () => {
-      playAgainBtn.setFillStyle(0x66BB6A)
-    })
-    
-    playAgainBtn.on('pointerout', () => {
-      playAgainBtn.setFillStyle(0x4CAF50)
-    })
+    // Button interactions (START button interactions are already handled above)
     
     mainMenuBtn.on('pointerdown', () => {
       console.log('Main Menu clicked')
