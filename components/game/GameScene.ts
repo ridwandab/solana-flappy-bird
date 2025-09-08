@@ -739,6 +739,18 @@ export class GameScene extends Phaser.Scene {
         const pipeSpeed = this.gameSettings?.pipeSpeed || this.PIPE_SPEED
         pipeSet.topPipe.x -= pipeSpeed
         pipeSet.bottomPipe.x -= pipeSpeed
+        
+        // Move collision visualization lines with pipes
+        if (pipeSet.topPipeCollision) {
+          pipeSet.topPipeCollision.forEach((element: any) => {
+            element.x -= pipeSpeed
+          })
+        }
+        if (pipeSet.bottomPipeCollision) {
+          pipeSet.bottomPipeCollision.forEach((element: any) => {
+            element.x -= pipeSpeed
+          })
+        }
       }
       
       // Check for scoring when pipes pass the bird (only once per pipe set)
@@ -853,6 +865,14 @@ export class GameScene extends Phaser.Scene {
   private destroyPipeSet(pipeSet: any) {
     pipeSet.topPipe.destroy()
     pipeSet.bottomPipe.destroy()
+    
+    // Destroy collision visualization elements
+    if (pipeSet.topPipeCollision) {
+      pipeSet.topPipeCollision.forEach((element: any) => element.destroy())
+    }
+    if (pipeSet.bottomPipeCollision) {
+      pipeSet.bottomPipeCollision.forEach((element: any) => element.destroy())
+    }
   }
 
   private getPipeSpriteKey(): string {
@@ -902,17 +922,36 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
 
+    // Add collision visualization - red lines to show collision area
+    const pipeWidth = topPipe.width
+    const pipeHeightValue = topPipe.height
+    
+    // Top pipe collision lines
+    const topPipeCollisionTop = this.add.rectangle(x, 0, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionBottom = this.add.rectangle(x, pipeHeight, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionLeft = this.add.rectangle(x, pipeHeight/2, 2, pipeHeight, 0xff0000, 0.8)
+    const topPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight/2, 2, pipeHeight, 0xff0000, 0.8)
+    
+    // Bottom pipe collision lines
+    const bottomPipeCollisionTop = this.add.rectangle(x, pipeHeight + gap, pipeWidth, 2, 0xff0000, 0.8)
+    const bottomPipeCollisionBottom = this.add.rectangle(x, pipeHeight + gap + pipeHeightValue, pipeWidth, 2, 0xff0000, 0.8)
+    const bottomPipeCollisionLeft = this.add.rectangle(x, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    const bottomPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+
     // Create pipe set object
     const pipeSet = {
       topPipe: topPipe,
       bottomPipe: bottomPipe,
+      // Store collision visualization elements
+      topPipeCollision: [topPipeCollisionTop, topPipeCollisionBottom, topPipeCollisionLeft, topPipeCollisionRight],
+      bottomPipeCollision: [bottomPipeCollisionTop, bottomPipeCollisionBottom, bottomPipeCollisionLeft, bottomPipeCollisionRight],
       scored: false
     }
 
     // Add to active pipes
     this.activePipes.push(pipeSet)
     
-    console.log(`New pipe set created with sprite. Total active pipes: ${this.activePipes.length}`)
+    console.log(`New pipe set created with collision visualization. Total active pipes: ${this.activePipes.length}`)
   }
 
   private scorePoint() {
