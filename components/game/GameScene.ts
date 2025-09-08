@@ -774,6 +774,26 @@ export class GameScene extends Phaser.Scene {
             element.x -= pipeSpeed
           })
         }
+        
+        // Debug: Log actual Phaser bounds vs red line positions
+        if (Math.abs(pipeSet.topPipe.x - 200) < 50) { // When pipe is near bird
+          const actualTopBounds = pipeSet.topPipe.getBounds()
+          const actualBottomBounds = pipeSet.bottomPipe.getBounds()
+          console.log('🔍 PIPE BOUNDS DEBUG:', {
+            topPipe: {
+              x: pipeSet.topPipe.x,
+              y: pipeSet.topPipe.y,
+              phaserBounds: actualTopBounds,
+              redLines: pipeSet.topPipeCollision ? pipeSet.topPipeCollision.map((line: any) => ({ x: line.x, y: line.y })) : 'none'
+            },
+            bottomPipe: {
+              x: pipeSet.bottomPipe.x,
+              y: pipeSet.bottomPipe.y,
+              phaserBounds: actualBottomBounds,
+              redLines: pipeSet.bottomPipeCollision ? pipeSet.bottomPipeCollision.map((line: any) => ({ x: line.x, y: line.y })) : 'none'
+            }
+          })
+        }
       }
       
       // Check for scoring when pipes pass the bird (only once per pipe set)
@@ -924,21 +944,34 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
 
-    // Add collision visualization - red lines to show EXACT collision area
+    // Add collision visualization - red lines to show PHASER COLLISION BOUNDS
     const pipeWidth = topPipe.width
     const pipeHeightValue = topPipe.height
     
-    // Top pipe collision lines - EXACT bounds
-    const topPipeCollisionTop = this.add.rectangle(x + pipeWidth/2, pipeHeight - pipeHeightValue/2, pipeWidth, 2, 0xff0000, 0.8)
-    const topPipeCollisionBottom = this.add.rectangle(x + pipeWidth/2, pipeHeight, pipeWidth, 2, 0xff0000, 0.8)
-    const topPipeCollisionLeft = this.add.rectangle(x, pipeHeight - pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
-    const topPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight - pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    // Get the actual bounds that Phaser will use for collision detection
+    // Top pipe bounds (flipped pipe - extends upward from y position)
+    const topPipeLeft = x
+    const topPipeRight = x + pipeWidth
+    const topPipeTop = pipeHeight - pipeHeightValue // Top pipe extends upward
+    const topPipeBottom = pipeHeight
     
-    // Bottom pipe collision lines - EXACT bounds
-    const bottomPipeCollisionTop = this.add.rectangle(x + pipeWidth/2, pipeHeight + gap, pipeWidth, 2, 0xff0000, 0.8)
-    const bottomPipeCollisionBottom = this.add.rectangle(x + pipeWidth/2, pipeHeight + gap + pipeHeightValue, pipeWidth, 2, 0xff0000, 0.8)
-    const bottomPipeCollisionLeft = this.add.rectangle(x, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
-    const bottomPipeCollisionRight = this.add.rectangle(x + pipeWidth, pipeHeight + gap + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    // Bottom pipe bounds
+    const bottomPipeLeft = x
+    const bottomPipeRight = x + pipeWidth
+    const bottomPipeTop = pipeHeight + gap
+    const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
+    
+    // Top pipe collision lines - match Phaser bounds exactly
+    const topPipeCollisionTop = this.add.rectangle(topPipeLeft + pipeWidth/2, topPipeTop, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionBottom = this.add.rectangle(topPipeLeft + pipeWidth/2, topPipeBottom, pipeWidth, 2, 0xff0000, 0.8)
+    const topPipeCollisionLeft = this.add.rectangle(topPipeLeft, topPipeTop + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    const topPipeCollisionRight = this.add.rectangle(topPipeRight, topPipeTop + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    
+    // Bottom pipe collision lines - match Phaser bounds exactly
+    const bottomPipeCollisionTop = this.add.rectangle(bottomPipeLeft + pipeWidth/2, bottomPipeTop, pipeWidth, 2, 0xff0000, 0.8)
+    const bottomPipeCollisionBottom = this.add.rectangle(bottomPipeLeft + pipeWidth/2, bottomPipeBottom, pipeWidth, 2, 0xff0000, 0.8)
+    const bottomPipeCollisionLeft = this.add.rectangle(bottomPipeLeft, bottomPipeTop + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
+    const bottomPipeCollisionRight = this.add.rectangle(bottomPipeRight, bottomPipeTop + pipeHeightValue/2, 2, pipeHeightValue, 0xff0000, 0.8)
 
     // Create pipe set object
     const pipeSet = {
