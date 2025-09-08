@@ -378,6 +378,62 @@ export class GameScene extends Phaser.Scene {
     this.initializeGame()
   }
 
+  private resetGameState() {
+    console.log('Resetting game state...')
+    
+    // Reset game flags
+    this.isGameOver = false
+    this.isGameStarted = false
+    this.score = 0
+    this.pipesPassed = 0
+    this.difficultyLevel = 0
+    
+    // Clear all active pipes
+    this.activePipes.forEach(pipeSet => {
+      this.destroyPipeSet(pipeSet)
+    })
+    this.activePipes = []
+    
+    // Clear pipes group
+    if (this.pipes) {
+      this.pipes.clear(true, true)
+    }
+    
+    // Reset bird position and state - convert back to static sprite
+    if (this.bird) {
+      // Store current properties
+      const currentTexture = this.bird.texture.key
+      const currentScale = this.bird.scaleX
+      
+      // Destroy the physics bird
+      this.bird.destroy()
+      
+      // Create new static bird for start screen
+      this.bird = this.add.sprite(200, 300, currentTexture)
+      this.bird.setScale(currentScale)
+      this.bird.setVisible(true)
+      this.bird.setAlpha(1)
+      this.bird.setRotation(0)
+      this.bird.setTint(0xffffff) // Remove any tint
+      
+      console.log('Bird converted back to static sprite for restart')
+    }
+    
+    // Reset score display
+    if (this.scoreText) {
+      this.scoreText.setText('0')
+    }
+    
+    // Clear any existing game over popup elements
+    this.children.list.forEach(child => {
+      if (child.name && child.name.includes('gameOver')) {
+        child.destroy()
+      }
+    })
+    
+    console.log('Game state reset complete')
+  }
+
   private initializeGame() {
     // Create scrolling background for game
     this.createScrollingBackground()
@@ -425,13 +481,14 @@ export class GameScene extends Phaser.Scene {
       this.applyCosmetic(this.selectedCosmetic)
     } else {
       console.log('No cosmetic selected, using default bird (Bird2-export.png)')
-      this.bird.setTexture('bird_default')
-    }
-
-    // If bird texture doesn't exist, create a placeholder
-    if (!this.textures.exists('bird_default')) {
-      console.log('Bird2-export.png not loaded, creating placeholder')
-      this.createDefaultBird()
+      // Check if texture exists before setting
+      if (this.textures.exists('bird_default')) {
+        this.bird.setTexture('bird_default')
+        console.log('Applied default bird texture successfully')
+      } else {
+        console.log('Bird2-export.png not loaded, creating placeholder')
+        this.createDefaultBird()
+      }
     }
 
     // Pipes group - use completely static group (no physics)
@@ -545,7 +602,9 @@ export class GameScene extends Phaser.Scene {
   private handleRestart() {
     if (this.isGameOver) {
       console.log('Restarting game...')
-      this.scene.start('GameScene')
+      // Reset game state instead of restarting scene
+      this.resetGameState()
+      this.startGame()
     }
   }
 
@@ -967,9 +1026,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   private loadSounds() {
-    // Sound system temporarily disabled to avoid errors
-    // You can add actual audio files later
-    console.log('Sound system disabled - add audio files to enable')
+    // Initialize audio manager with default settings
+    const audioConfig = {
+      soundEnabled: true,
+      musicEnabled: true,
+      soundVolume: 50,
+      musicVolume: 50
+    }
+    
+    this.audioManager = new AudioManager(this, audioConfig)
+    console.log('Sound system initialized with Web Audio API')
   }
 
   private applyCosmetic(cosmeticType: string) {
