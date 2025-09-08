@@ -203,7 +203,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
               
               <button
                 onClick={handleClaimReward}
-                disabled={isClaiming || !publicKey}
+                disabled={isClaiming || !wallet.publicKey}
                 className="flex-1 px-4 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white rounded-lg transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isClaiming ? (
@@ -220,7 +220,7 @@ export const QuestRewardSystem: FC<QuestRewardSystemProps> = ({
               </button>
             </div>
             
-            {!publicKey && (
+            {!wallet.publicKey && (
               <p className="text-red-400 text-sm mt-4">
                 Please connect your wallet to claim rewards
               </p>
