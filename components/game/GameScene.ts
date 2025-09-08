@@ -180,14 +180,14 @@ export class GameScene extends Phaser.Scene {
       console.log('All sprites preloaded successfully')
       // Reload background with actual sprite if it was using fallback
       this.reloadBackgroundWithSprite()
+      
+      // Initialize audio manager
+      this.initializeAudio()
+
+      // Create start screen after sprites are loaded
+      this.createStartScreen()
     })
     this.load.start()
-
-    // Initialize audio manager
-    this.initializeAudio()
-
-    // Create start screen first
-    this.createStartScreen()
   }
 
   private createScrollingBackground() {
@@ -493,6 +493,10 @@ export class GameScene extends Phaser.Scene {
       if (this.bird.body) {
         (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
+        // Set gravity to 0 initially - will be set when game actually starts
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
+        // Stop any existing velocity
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
       }
       
       console.log('Bird converted from static to physics sprite')
@@ -506,6 +510,10 @@ export class GameScene extends Phaser.Scene {
       if (this.bird.body) {
         (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
+        // Set gravity to 0 initially - will be set when game actually starts
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
+        // Stop any existing velocity
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
       }
     }
     
@@ -624,6 +632,12 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || !this.isGameStarted) return
 
     if (this.bird.body) {
+      // Set gravity on first flap to start the game properly
+      if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
+        (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
+        console.log('Gravity activated on first flap')
+      }
+      
       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
       
       // Play flap sound using audio manager
