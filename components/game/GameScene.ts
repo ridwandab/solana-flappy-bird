@@ -40,7 +40,6 @@ export class GameScene extends Phaser.Scene {
   private isGameStarted: boolean = false
   private startScreenElements: Phaser.GameObjects.GameObject[] = []
   private pipeTimer!: Phaser.Time.TimerEvent
-  private birdCollisionDebug?: Phaser.GameObjects.Rectangle
   private flapSound!: Phaser.Sound.BaseSound
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
@@ -679,25 +678,7 @@ export class GameScene extends Phaser.Scene {
           hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
         }
         
-        // Add visual debugging for bird collision bounds
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-          // Create green rectangle to show bird collision bounds
-          if (!this.birdCollisionDebug) {
-            this.birdCollisionDebug = this.add.rectangle(
-              birdCollisionBounds.x + birdCollisionBounds.width/2,
-              birdCollisionBounds.y + birdCollisionBounds.height/2,
-              birdCollisionBounds.width,
-              birdCollisionBounds.height,
-              0x00ff00,
-              0.3
-            )
-          } else {
-            this.birdCollisionDebug.x = birdCollisionBounds.x + birdCollisionBounds.width/2
-            this.birdCollisionDebug.y = birdCollisionBounds.y + birdCollisionBounds.height/2
-            this.birdCollisionDebug.width = birdCollisionBounds.width
-            this.birdCollisionDebug.height = birdCollisionBounds.height
-          }
-        }
+        // Visual debugging removed - collision detection works invisibly
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
@@ -1137,12 +1118,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.isGameOver = true
-    
-    // Clean up bird collision debug
-    if (this.birdCollisionDebug) {
-      this.birdCollisionDebug.destroy()
-      this.birdCollisionDebug = undefined
-    }
     
     // Debug: Log stack trace to see what caused game over
     console.log('🚨🚨🚨 GAME OVER TRIGGERED! 🚨🚨🚨')
