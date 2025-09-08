@@ -527,7 +527,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
 
     // Start spawning first pipe after a delay
-    this.time.delayedCall(1000, () => {
+    this.time.delayedCall(2000, () => {
       this.spawnPipe()
     })
 
@@ -700,8 +700,8 @@ export class GameScene extends Phaser.Scene {
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
-    // Make bird collision bounds match visual size exactly
-    const birdRadius = 5 // Match visual bird size for fair collision
+    // Make bird collision bounds more reasonable for gameplay
+    const birdRadius = 12 // Slightly larger for more forgiving collision
     const birdBounds = {
       left: this.bird.x - birdRadius,
       right: this.bird.x + birdRadius,
@@ -716,8 +716,8 @@ export class GameScene extends Phaser.Scene {
     const pipeWidth = 80  // Sprite-0003.png actual width
     const pipeHeight = 400  // Sprite-0003.png actual height
     
-    // No margin - exact collision with pipe visual edges
-    const pipeMargin = 0 // No margin for exact collision with pipe visual edges
+    // Add small margin for more forgiving collision detection
+    const pipeMargin = 3 // Small margin for more forgiving collision
     const topPipeBounds = {
       left: pipeSet.topPipe.x + pipeMargin,
       right: pipeSet.topPipe.x + pipeWidth - pipeMargin,
@@ -738,34 +738,22 @@ export class GameScene extends Phaser.Scene {
     
     // Enhanced debugging for collision detection
     if (hitTop) {
-      console.log('💥 EXACT COLLISION with TOP pipe detected!')
+      console.log('💥 COLLISION with TOP pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
+      console.log('Bird radius:', birdRadius, 'pixels (forgiving collision)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Top pipe bounds (exact):', topPipeBounds)
+      console.log('Top pipe bounds:', topPipeBounds)
       console.log('Top pipe position:', { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, topPipeBounds.left),
-        right: Math.min(birdBounds.right, topPipeBounds.right),
-        top: Math.max(birdBounds.top, topPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, topPipeBounds.bottom)
-      })
+      console.log('Pipe margin:', pipeMargin, 'pixels (forgiving collision)')
     }
     if (hitBottom) {
-      console.log('💥 EXACT COLLISION with BOTTOM pipe detected!')
+      console.log('💥 COLLISION with BOTTOM pipe detected!')
       console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-      console.log('Bird radius:', birdRadius, 'pixels (matches visual bird size)')
+      console.log('Bird radius:', birdRadius, 'pixels (forgiving collision)')
       console.log('Bird bounds:', birdBounds)
-      console.log('Bottom pipe bounds (exact):', bottomPipeBounds)
+      console.log('Bottom pipe bounds:', bottomPipeBounds)
       console.log('Bottom pipe position:', { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y })
-      console.log('Pipe margin:', pipeMargin, 'pixels (exact collision with pipe edges)')
-      console.log('Collision overlap:', {
-        left: Math.max(birdBounds.left, bottomPipeBounds.left),
-        right: Math.min(birdBounds.right, bottomPipeBounds.right),
-        top: Math.max(birdBounds.top, bottomPipeBounds.top),
-        bottom: Math.min(birdBounds.bottom, bottomPipeBounds.bottom)
-      })
+      console.log('Pipe margin:', pipeMargin, 'pixels (forgiving collision)')
     }
     
     // Check overlap with either pipe
@@ -809,6 +797,11 @@ export class GameScene extends Phaser.Scene {
 
   private spawnPipe() {
     if (this.isGameOver) return
+
+    // Don't spawn if we already have too many pipes
+    if (this.activePipes.length >= this.MAX_ACTIVE_PIPES) {
+      return
+    }
 
     const gap = this.getCurrentPipeGap()
     const pipeHeight = Phaser.Math.Between(200, 300)
