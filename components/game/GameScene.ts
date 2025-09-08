@@ -299,6 +299,21 @@ export class GameScene extends Phaser.Scene {
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
     this.startScreenElements.push(this.bird)
+    
+    // Apply cosmetic if selected
+    if (this.selectedCosmetic) {
+      console.log(`Applying selected cosmetic on start screen: ${this.selectedCosmetic}`)
+      this.applyCosmetic(this.selectedCosmetic)
+    } else {
+      // Check if texture exists before setting
+      if (this.textures.exists('bird_default')) {
+        this.bird.setTexture('bird_default')
+        console.log('Applied default bird texture on start screen')
+      } else {
+        console.log('Bird2-export.png not loaded on start screen, creating placeholder')
+        this.createDefaultBird()
+      }
+    }
 
     // Create title
     const title = this.add.text(400, 200, '🐦 SOLANA FLAPPY BIRD', {
@@ -430,6 +445,25 @@ export class GameScene extends Phaser.Scene {
         child.destroy()
       }
     })
+    
+    // Clear start screen elements
+    this.startScreenElements.forEach(element => {
+      if (element && element.destroy) {
+        element.destroy()
+      }
+    })
+    this.startScreenElements = []
+    
+    // Reset input handlers
+    this.input.removeAllListeners()
+    
+    // Stop any active timers
+    if (this.pipeTimer) {
+      this.pipeTimer.destroy()
+    }
+    
+    // Clear any active pipes
+    this.activePipes = []
     
     console.log('Game state reset complete')
   }
@@ -602,9 +636,9 @@ export class GameScene extends Phaser.Scene {
   private handleRestart() {
     if (this.isGameOver) {
       console.log('Restarting game...')
-      // Reset game state instead of restarting scene
+      // Reset game state and go back to start screen
       this.resetGameState()
-      this.startGame()
+      this.createStartScreen()
     }
   }
 
@@ -990,7 +1024,7 @@ export class GameScene extends Phaser.Scene {
     })
     
     startBtn.on('pointerdown', () => {
-      this.startGame()
+      this.handleRestart()
     })
     
     // Main Menu button
