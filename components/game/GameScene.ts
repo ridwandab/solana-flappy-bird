@@ -392,23 +392,9 @@ export class GameScene extends Phaser.Scene {
 
   private handleRestart() {
     console.log('Restarting game...')
-    // Reset all game state
-    this.isGameOver = false
-    this.isGameStarted = false
-    this.score = 0
-    this.difficultyLevel = 0
-    this.pipesPassed = 0
-    this.scoredPipes.clear()
-    this.activePipes = []
-    this.lastPipeSpawnTime = 0
     
-    // Clear all existing game objects
-    this.children.removeAll()
-    
-    // Recreate the start screen
-    this.createStartScreen()
-    
-    console.log('Game restarted successfully!')
+    // Use scene restart method instead of manual reset
+    this.scene.restart()
   }
 
   private initializeGame() {
@@ -491,6 +477,14 @@ export class GameScene extends Phaser.Scene {
     // Physics
     this.physics.add.collider(this.bird, this.ground, () => {
       console.log('Bird hit ground! Game Over!')
+      if (!this.isGameOver) {
+        this.gameOver()
+      }
+    }, undefined, this)
+    
+    // Add collision detection for pipes using physics
+    this.physics.add.collider(this.bird, this.pipes, () => {
+      console.log('Bird hit pipe! Game Over!')
       if (!this.isGameOver) {
         this.gameOver()
       }
@@ -650,14 +644,8 @@ export class GameScene extends Phaser.Scene {
         console.log(`Scored! Pipe set at x: ${pipeSet.topPipe.x}, total score: ${this.score}, pipes passed: ${this.pipesPassed}`)
       }
       
-      // Check collision with bird
-      if (this.checkPipeCollision(pipeSet)) {
-        console.log('Bird hit pipe! Game Over!')
-        if (!this.isGameOver) {
-          this.gameOver()
-        }
-        return
-      }
+      // Collision detection is now handled by physics system
+      // No need for manual collision checking
       
       // Remove pipes that are off screen
       if (pipeSet.topPipe.x < -100) {
@@ -791,11 +779,31 @@ export class GameScene extends Phaser.Scene {
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
     
+    // Add physics body to top pipe for accurate collision
+    this.physics.add.existing(topPipe)
+    if (topPipe.body) {
+      const body = topPipe.body as Phaser.Physics.Arcade.Body
+      body.setImmovable(true)
+      body.setSize(topPipe.displayWidth, topPipe.displayHeight)
+    }
+    
     console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
     // Create bottom pipe using the selected sprite
     const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
+    
+    // Add physics body to bottom pipe for accurate collision
+    this.physics.add.existing(bottomPipe)
+    if (bottomPipe.body) {
+      const body = bottomPipe.body as Phaser.Physics.Arcade.Body
+      body.setImmovable(true)
+      body.setSize(bottomPipe.displayWidth, bottomPipe.displayHeight)
+    }
+
+    // Add pipes to physics group for collision detection
+    this.pipes.add(topPipe)
+    this.pipes.add(bottomPipe)
 
     // Create pipe set object
     const pipeSet = {
