@@ -62,6 +62,7 @@ export class GameScene extends Phaser.Scene {
   // Pipe management
   private activePipes: any[] = [] // Track active pipe sets
   private lastPipeSpawnTime: number = 0
+  private activeObstacles: any[] = [] // Store random obstacles
   
   // Difficulty progression
   private difficultyLevel: number = 0
@@ -421,6 +422,12 @@ export class GameScene extends Phaser.Scene {
     })
     this.activePipes = []
     
+    // Clear all active obstacles
+    this.activeObstacles.forEach(obstacle => {
+      obstacle.sprite.destroy()
+    })
+    this.activeObstacles = []
+    
     // Clear pipes group
     if (this.pipes) {
       this.pipes.clear(true, true)
@@ -617,6 +624,9 @@ export class GameScene extends Phaser.Scene {
     // Update pipes movement and management
     this.updatePipes()
     
+    // Update obstacles movement and collision
+    this.updateObstacles()
+    
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
@@ -630,7 +640,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 8 // Reduce bird collision area by 8 pixels on each side
+        const birdCollisionMargin = 4 // Reduce bird collision area by 4 pixels on each side (more sensitive)
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -931,6 +941,64 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private updateObstacles() {
+    // Update each active obstacle
+    for (let i = this.activeObstacles.length - 1; i >= 0; i--) {
+      const obstacle = this.activeObstacles[i]
+      
+      if (!this.isGameOver) {
+        const pipeSpeed = this.gameSettings?.pipeSpeed || this.PIPE_SPEED
+        
+        // Move obstacle with pipes
+        obstacle.sprite.x -= pipeSpeed
+        obstacle.collisionData.x -= pipeSpeed
+        
+        // Move moving obstacles vertically
+        if (obstacle.type === 'moving_spike' && obstacle.speed > 0) {
+          obstacle.sprite.y += obstacle.speed * obstacle.direction
+          obstacle.collisionData.y += obstacle.speed * obstacle.direction
+          
+          // Reverse direction if hitting boundaries
+          if (obstacle.sprite.y <= 50 || obstacle.sprite.y >= 500) {
+            obstacle.direction *= -1
+          }
+        }
+        
+        // Check collision with bird
+        const birdBounds = this.bird.getBounds()
+        const birdCollisionMargin = 4
+        const birdCollisionBounds = new Phaser.Geom.Rectangle(
+          birdBounds.x + birdCollisionMargin,
+          birdBounds.y + birdCollisionMargin,
+          birdBounds.width - (birdCollisionMargin * 2),
+          birdBounds.height - (birdCollisionMargin * 2)
+        )
+        
+        const obstacleBounds = new Phaser.Geom.Rectangle(
+          obstacle.collisionData.x,
+          obstacle.collisionData.y,
+          obstacle.collisionData.width,
+          obstacle.collisionData.height
+        )
+        
+        if (Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, obstacleBounds)) {
+          console.log('🚨🚨🚨 OBSTACLE COLLISION DETECTED! 🚨🚨🚨')
+          console.log('Obstacle type:', obstacle.type)
+          if (!this.isGameOver) {
+            this.gameOver()
+          }
+          return
+        }
+      }
+      
+      // Remove obstacles that are off screen
+      if (obstacle.sprite.x < -100) {
+        obstacle.sprite.destroy()
+        this.activeObstacles.splice(i, 1)
+      }
+    }
+  }
+
   private checkPipeCollision(pipeSet: any): boolean {
     if (!this.bird || this.isGameOver) return false
     
@@ -1088,6 +1156,82 @@ export class GameScene extends Phaser.Scene {
     this.activePipes.push(pipeSet)
     
     console.log(`New pipe set created with invisible collision detection. Total active pipes: ${this.activePipes.length}`)
+    
+    // Add random obstacles to make the game more challenging
+    this.spawnRandomObstacles(x, pipeHeight, gap)
+  }
+
+  private spawnRandomObstacles(pipeX: number, pipeHeight: number, gap: number) {
+    // Only add obstacles for higher difficulty levels
+    if (this.difficultyLevel < 2) return
+    
+    const obstacleTypes = ['spike', 'block', 'moving_spike']
+    const numObstacles = Phaser.Math.Between(1, 3) // 1-3 obstacles per pipe set
+    
+    for (let i = 0; i < numObstacles; i++) {
+      const obstacleType = Phaser.Math.RND.pick(obstacleTypes)
+      const obstacleX = pipeX + Phaser.Math.Between(-50, 50) // Random X position near pipe
+      
+      let obstacleY: number
+      let obstacleHeight: number
+      let obstacleWidth: number
+      
+      // Randomly place obstacles above or below the gap
+      if (Math.random() < 0.5) {
+        // Above the gap (between top pipe and ceiling)
+        obstacleY = Phaser.Math.Between(50, pipeHeight - 100)
+      } else {
+        // Below the gap (between bottom pipe and ground)
+        obstacleY = pipeHeight + gap + Phaser.Math.Between(50, 100)
+      }
+      
+      // Create obstacle based on type
+      switch (obstacleType) {
+        case 'spike':
+          obstacleWidth = Phaser.Math.Between(20, 40)
+          obstacleHeight = Phaser.Math.Between(15, 30)
+          break
+        case 'block':
+          obstacleWidth = Phaser.Math.Between(30, 50)
+          obstacleHeight = Phaser.Math.Between(20, 40)
+          break
+        case 'moving_spike':
+          obstacleWidth = Phaser.Math.Between(15, 25)
+          obstacleHeight = Phaser.Math.Between(10, 20)
+          break
+        default:
+          obstacleWidth = 30
+          obstacleHeight = 20
+      }
+      
+      // Create obstacle sprite (using a simple colored rectangle for now)
+      const obstacleColor = obstacleType === 'spike' ? 0xff4444 : 
+                           obstacleType === 'block' ? 0x4444ff : 0xffaa44
+      
+      const obstacle = this.add.rectangle(obstacleX, obstacleY, obstacleWidth, obstacleHeight, obstacleColor)
+      obstacle.setOrigin(0, 0)
+      
+      // Add collision data for the obstacle
+      const obstacleCollisionData = {
+        x: obstacleX,
+        y: obstacleY,
+        width: obstacleWidth,
+        height: obstacleHeight
+      }
+      
+      // Store obstacle data
+      const obstacleData = {
+        sprite: obstacle,
+        type: obstacleType,
+        collisionData: obstacleCollisionData,
+        speed: obstacleType === 'moving_spike' ? Phaser.Math.Between(1, 3) : 0,
+        direction: Math.random() < 0.5 ? 1 : -1 // Random direction for moving obstacles
+      }
+      
+      this.activeObstacles.push(obstacleData)
+    }
+    
+    console.log(`Spawned ${numObstacles} random obstacles for pipe at x: ${pipeX}`)
   }
 
   private scorePoint() {
