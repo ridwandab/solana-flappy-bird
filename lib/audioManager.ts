@@ -57,24 +57,25 @@ export class AudioManager {
         
         // Configure oscillators for 8-bit style
         oscillator1.type = 'square'
-        oscillator1.frequency.setValueAtTime(220, this.audioContext.currentTime) // A3
-        oscillator1.frequency.setValueAtTime(277, this.audioContext.currentTime + 0.5) // C#4
-        oscillator1.frequency.setValueAtTime(330, this.audioContext.currentTime + 1) // E4
-        oscillator1.frequency.setValueAtTime(277, this.audioContext.currentTime + 1.5) // C#4
+        const currentTime = this.audioContext.currentTime
+        oscillator1.frequency.setValueAtTime(220, currentTime) // A3
+        oscillator1.frequency.setValueAtTime(277, currentTime + 0.5) // C#4
+        oscillator1.frequency.setValueAtTime(330, currentTime + 1) // E4
+        oscillator1.frequency.setValueAtTime(277, currentTime + 1.5) // C#4
         
         oscillator2.type = 'square'
-        oscillator2.frequency.setValueAtTime(110, this.audioContext.currentTime) // A2 (octave lower)
-        oscillator2.frequency.setValueAtTime(138, this.audioContext.currentTime + 0.5) // C#3
-        oscillator2.frequency.setValueAtTime(165, this.audioContext.currentTime + 1) // E3
-        oscillator2.frequency.setValueAtTime(138, this.audioContext.currentTime + 1.5) // C#3
+        oscillator2.frequency.setValueAtTime(110, currentTime) // A2 (octave lower)
+        oscillator2.frequency.setValueAtTime(138, currentTime + 0.5) // C#3
+        oscillator2.frequency.setValueAtTime(165, currentTime + 1) // E3
+        oscillator2.frequency.setValueAtTime(138, currentTime + 1.5) // C#3
         
         // Configure filter for 8-bit sound
         filter.type = 'lowpass'
-        filter.frequency.setValueAtTime(2000, this.audioContext.currentTime)
+        filter.frequency.setValueAtTime(2000, currentTime)
         
         // Configure gain
         const volume = (this.config.musicVolume / 100) * 0.1 // Max 10% volume
-        gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
+        gainNode.gain.setValueAtTime(volume, currentTime)
         
         // Store reference to current gain node for volume control
         this.currentGainNode = gainNode
@@ -95,8 +96,8 @@ export class AudioManager {
                 musicLoop = createBackgroundMusicLoop()
                 musicLoop.oscillator1.start()
                 musicLoop.oscillator2.start()
-                musicLoop.oscillator1.stop(this.audioContext.currentTime + 2)
-                musicLoop.oscillator2.stop(this.audioContext.currentTime + 2)
+                musicLoop.oscillator1.stop((this.audioContext?.currentTime || 0) + 2)
+                musicLoop.oscillator2.stop((this.audioContext?.currentTime || 0) + 2)
                 
                 // Schedule next loop
                 setTimeout(() => {
@@ -157,15 +158,16 @@ export class AudioManager {
         gainNode.connect(this.audioContext.destination)
         
         oscillator.type = 'sawtooth'
-        oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime)
-        oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1)
+        const currentTime = this.audioContext.currentTime
+        oscillator.frequency.setValueAtTime(800, currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.1)
         
         const volume = (this.config.soundVolume / 100) * 0.3 // Max 30% volume
-        gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1)
+        gainNode.gain.setValueAtTime(volume, currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1)
         
         oscillator.start()
-        oscillator.stop(this.audioContext.currentTime + 0.1)
+        oscillator.stop(currentTime + 0.1)
       }
 
       // Score sound effect
@@ -179,16 +181,17 @@ export class AudioManager {
         gainNode.connect(this.audioContext.destination)
         
         oscillator.type = 'sine'
-        oscillator.frequency.setValueAtTime(523, this.audioContext.currentTime) // C5
-        oscillator.frequency.setValueAtTime(659, this.audioContext.currentTime + 0.1) // E5
-        oscillator.frequency.setValueAtTime(784, this.audioContext.currentTime + 0.2) // G5
+        const currentTime = this.audioContext.currentTime
+        oscillator.frequency.setValueAtTime(523, currentTime) // C5
+        oscillator.frequency.setValueAtTime(659, currentTime + 0.1) // E5
+        oscillator.frequency.setValueAtTime(784, currentTime + 0.2) // G5
         
         const volume = (this.config.soundVolume / 100) * 0.2 // Max 20% volume
-        gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3)
+        gainNode.gain.setValueAtTime(volume, currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3)
         
         oscillator.start()
-        oscillator.stop(this.audioContext.currentTime + 0.3)
+        oscillator.stop(currentTime + 0.3)
       }
 
       // Game over sound effect
@@ -202,15 +205,16 @@ export class AudioManager {
         gainNode.connect(this.audioContext.destination)
         
         oscillator.type = 'sawtooth'
-        oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime)
-        oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.5)
+        const currentTime = this.audioContext.currentTime
+        oscillator.frequency.setValueAtTime(200, currentTime)
+        oscillator.frequency.exponentialRampToValueAtTime(50, currentTime + 0.5)
         
         const volume = (this.config.soundVolume / 100) * 0.4 // Max 40% volume
-        gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5)
+        gainNode.gain.setValueAtTime(volume, currentTime)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.5)
         
         oscillator.start()
-        oscillator.stop(this.audioContext.currentTime + 0.5)
+        oscillator.stop(currentTime + 0.5)
       }
 
       // Store sound effects
