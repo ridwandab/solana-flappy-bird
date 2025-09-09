@@ -89,21 +89,16 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     // Calculate responsive dimensions
     const getGameDimensions = () => {
-      if (isMobile) {
-        if (isPortrait) {
-          // Portrait: use full screen width, maintain aspect ratio
-          const width = Math.min(screenSize.width, 400)
-          const height = Math.min(screenSize.height, 600)
-          return { width, height }
-        } else {
-          // Landscape: use full screen
-          const width = Math.min(screenSize.width, 800)
-          const height = Math.min(screenSize.height, 400)
-          return { width, height }
-        }
+      if (isPortrait) {
+        // Portrait: use full screen width, maintain aspect ratio
+        const width = Math.min(screenSize.width, 400)
+        const height = Math.min(screenSize.height, 600)
+        return { width, height }
       } else {
-        // Desktop: use fixed dimensions
-        return { width: 800, height: 600 }
+        // Landscape: use full screen
+        const width = Math.min(screenSize.width, 800)
+        const height = Math.min(screenSize.height, 400)
+        return { width, height }
       }
     }
 
@@ -124,7 +119,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: isMobile ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: dimensions.width,
         height: dimensions.height,
@@ -253,23 +248,22 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  // Mobile responsive layout
-  if (isMobile) {
-    return (
-      <div className={`${isPortrait ? 'portrait-fullscreen' : 'landscape-fullscreen'} mobile-game-container no-select`}>
-        {/* Mobile Game Header - Hidden in fullscreen */}
+  // Responsive layout for both mobile and desktop
+  return (
+    <div className={`${isPortrait ? 'portrait-fullscreen' : 'landscape-fullscreen'} mobile-game-container no-select`}>
+        {/* Game Header - Hidden in fullscreen */}
         {!isFullscreen && (
           <div className={`${isPortrait ? 'portrait-hide-ui' : 'landscape-hide-ui'} flex items-center justify-between w-full p-4 bg-black/20 backdrop-blur-md`}>
             <div className="flex items-center space-x-2">
               <button
                 onClick={onBackToMenu}
-                className="btn-secondary mobile-button text-sm px-3 py-2"
+                className={`btn-secondary ${isMobile ? 'mobile-button text-sm px-3 py-2' : 'px-4 py-2'}`}
               >
-                ← Menu
+                ← {isMobile ? 'Menu' : 'Back to Menu'}
               </button>
               <button
                 onClick={handlePause}
-                className="btn-primary mobile-button text-sm px-3 py-2"
+                className={`btn-primary ${isMobile ? 'mobile-button text-sm px-3 py-2' : 'px-4 py-2'}`}
               >
                 Pause
               </button>
@@ -277,32 +271,32 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
             
             <div className="flex items-center space-x-4">
               <div className="text-center">
-                <p className="text-xs text-white/80">Score</p>
-                <p className="text-lg font-bold text-white">{score}</p>
+                <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-sm'}`}>Score</p>
+                <p className={`font-bold text-white ${isMobile ? 'text-lg' : 'text-2xl'}`}>{score}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-white/80">High</p>
-                <p className="text-sm font-bold text-yellow-400">
+                <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-sm'}`}>High</p>
+                <p className={`font-bold text-yellow-400 ${isMobile ? 'text-sm' : 'text-xl'}`}>
                   {gameState.highScore || 0}
                 </p>
               </div>
               <button
                 onClick={toggleFullscreen}
-                className="btn-primary mobile-button text-sm px-3 py-2"
+                className={`btn-primary ${isMobile ? 'mobile-button text-sm px-3 py-2' : 'px-4 py-2'}`}
               >
-                {isFullscreen ? 'Exit' : 'Full'}
+                {isFullscreen ? 'Exit' : (isMobile ? 'Full' : 'Fullscreen')}
               </button>
             </div>
           </div>
         )}
 
-        {/* Mobile Game Canvas */}
+        {/* Game Canvas */}
         <div 
           ref={gameRef}
           className={`${isPortrait ? 'portrait-game-canvas' : 'landscape-game-canvas'} mobile-game-canvas game-canvas-container`}
           style={{ 
-            width: isMobile ? '100vw' : '800px', 
-            height: isMobile ? '100vh' : '600px' 
+            width: '100vw', 
+            height: isPortrait ? '100vh' : '100vh'
           }}
           onTouchStart={(e) => {
             // Prevent default touch behavior
@@ -370,71 +364,4 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       </div>
     )
   }
-
-  // Desktop layout
-  return (
-    <div className="flex flex-col items-center space-y-6">
-      {/* Desktop Game Header */}
-      <div className="flex items-center justify-between w-full max-w-4xl">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={onBackToMenu}
-            className="btn-secondary"
-          >
-            ← Back to Menu
-          </button>
-          <button
-            onClick={handlePause}
-            className="btn-primary"
-          >
-            Pause
-          </button>
-          <button
-            onClick={toggleFullscreen}
-            className="btn-primary"
-          >
-            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-          </button>
-        </div>
-        
-        <div className="flex items-center space-x-6">
-          <div className="text-center">
-            <p className="text-sm text-white/80">Score</p>
-            <p className="text-2xl font-bold text-white">{score}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-white/80">High Score</p>
-            <p className="text-xl font-bold text-yellow-400">
-              {gameState.highScore || 0}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Game Canvas */}
-      <div 
-        ref={gameRef}
-        className="border-4 border-white/20 rounded-lg shadow-2xl"
-        style={{ width: '800px', height: '600px' }}
-      />
-
-      {/* Desktop Game Over Modal */}
-      {isGameOver && (
-        <GameOverModal
-          score={score}
-          highScore={gameState.highScore || 0}
-          onRestart={handleRestart}
-          onBackToMenu={onBackToMenu}
-        />
-      )}
-
-      {/* Desktop Pause Modal */}
-      {isPaused && (
-        <PauseModal
-          onResume={handleResume}
-          onBackToMenu={onBackToMenu}
-        />
-      )}
-    </div>
-  )
 }

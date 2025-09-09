@@ -175,6 +175,44 @@
     .desktop-only {
       display: block;
     }
+
+    /* Desktop portrait mode - full screen height */
+    .portrait-fullscreen {
+      height: 100vh !important;
+      width: 100vw !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 1000 !important;
+    }
+
+    .portrait-game-canvas {
+      height: 100vh !important;
+      width: 100vw !important;
+    }
+
+    .portrait-hide-ui {
+      display: none !important;
+    }
+
+    /* Desktop landscape mode */
+    .landscape-fullscreen {
+      height: 100vh !important;
+      width: 100vw !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 1000 !important;
+    }
+
+    .landscape-game-canvas {
+      height: 100vh !important;
+      width: 100vw !important;
+    }
+
+    .landscape-hide-ui {
+      display: none !important;
+    }
   }
 
   /* Prevent text selection on game elements */
