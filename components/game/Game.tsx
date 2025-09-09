@@ -363,5 +363,4 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         )}
       </div>
     )
-  }
 }
