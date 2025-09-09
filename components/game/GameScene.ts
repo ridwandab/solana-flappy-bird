@@ -171,8 +171,13 @@ export class GameScene extends Phaser.Scene {
     const { width, height } = this.scale.gameSize
     console.log(`Orientation changed to: ${width}x${height}`)
     
-    // Reposition all game elements
-    this.repositionGameElements(width, height)
+    // Ensure we have valid dimensions before repositioning
+    if (width && height && width > 0 && height > 0) {
+      // Reposition all game elements
+      this.repositionGameElements(width, height)
+    } else {
+      console.warn('Invalid dimensions in onOrientationChange:', width, height)
+    }
   }
 
   private repositionUIElements(width: number, height: number) {
@@ -188,6 +193,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private repositionGameElements(width: number, height: number) {
+    // Ensure we have valid dimensions
+    if (!width || !height || width <= 0 || height <= 0) {
+      console.warn('Invalid dimensions for repositionGameElements:', width, height)
+      return
+    }
+    
     // Reposition bird
     if (this.bird) {
       this.bird.setPosition(width * 0.2, height / 2)
@@ -230,12 +241,14 @@ export class GameScene extends Phaser.Scene {
     // Update pipe spawn position
     this.PIPE_RESPAWN_X = width + 100
     
-    // Reposition existing pipes
-    this.pipes.children.entries.forEach((pipe: any) => {
-      if (pipe.x > width) {
-        pipe.x = this.PIPE_RESPAWN_X
-      }
-    })
+    // Reposition existing pipes - check if pipes and children exist
+    if (this.pipes && this.pipes.children && this.pipes.children.entries) {
+      this.pipes.children.entries.forEach((pipe: any) => {
+        if (pipe.x > width) {
+          pipe.x = this.PIPE_RESPAWN_X
+        }
+      })
+    }
   }
 
   private initializeAudio() {

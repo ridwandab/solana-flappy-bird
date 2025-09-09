@@ -108,22 +108,26 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     // Calculate responsive dimensions
     const getGameDimensions = () => {
+      // Ensure we have valid screen dimensions
+      const safeWidth = Math.max(screenSize.width || 400, 300)
+      const safeHeight = Math.max(screenSize.height || 600, 400)
+      
       // Force desktop to always use portrait dimensions
       if (!isMobile) {
         // Desktop: force portrait dimensions - height > width
-        const width = Math.min(screenSize.width, 400)
-        const height = Math.min(screenSize.height, 600)
+        const width = Math.min(safeWidth, 400)
+        const height = Math.min(safeHeight, 600)
         console.log('Desktop dimensions:', width, 'x', height, '(portrait)')
         return { width, height }
       } else if (isPortrait) {
         // Mobile portrait
-        const width = Math.min(screenSize.width, 400)
-        const height = Math.min(screenSize.height, 600)
+        const width = Math.min(safeWidth, 400)
+        const height = Math.min(safeHeight, 600)
         return { width, height }
       } else {
         // Mobile landscape
-        const width = Math.min(screenSize.width, 800)
-        const height = Math.min(screenSize.height, 400)
+        const width = Math.min(safeWidth, 800)
+        const height = Math.min(safeHeight, 400)
         return { width, height }
       }
     }
