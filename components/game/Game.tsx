@@ -225,7 +225,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center space-y-4 sm:space-y-6 p-4 sm:p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center space-y-4 sm:space-y-6 px-2 sm:px-4 py-4 sm:py-6">
       {/* Game Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-4xl gap-4 sm:gap-0">
         <div className="flex items-center space-x-2 sm:space-x-4">
@@ -266,7 +266,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
           height: 'auto',
           aspectRatio: '4/3',
           maxWidth: '800px',
-          maxHeight: '600px'
+          maxHeight: '600px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
         }}
       />
 

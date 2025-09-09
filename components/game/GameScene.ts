@@ -329,7 +329,7 @@ export class GameScene extends Phaser.Scene {
 
     // Create bird icon
     const birdIcon = this.add.image(400, 150, 'bird_default')
-    birdIcon.setScale(2)
+    birdIcon.setScale(1.2) // Reduced from 2 to 1.2 for better size
     birdIcon.setOrigin(0.5, 0.5)
     birdIcon.setScrollFactor(0)
     this.startScreenElements.push(birdIcon)

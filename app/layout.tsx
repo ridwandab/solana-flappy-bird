@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   title: 'Solana Flappy Bird',
   description: 'A Solana-powered Flappy Bird game with cosmetics and high score system',
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: '/Bird2-export.png',
+    shortcut: '/Bird2-export.png',
+    apple: '/Bird2-export.png',
   },
   viewport: {
     width: 'device-width',
