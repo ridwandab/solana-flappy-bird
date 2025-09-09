@@ -236,8 +236,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
           width: '100%', 
           height: 'auto',
           aspectRatio: '4/3',
-          maxWidth: '1000px',
-          maxHeight: '750px',
+          maxWidth: '600px',
+          maxHeight: '450px',
           marginLeft: 'auto',
           marginRight: 'auto'
         }}

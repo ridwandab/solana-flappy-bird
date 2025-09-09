@@ -330,13 +330,13 @@ export class GameScene extends Phaser.Scene {
     // No title or icon - just the game
 
     // Create start button
-    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
+    const startButton = this.add.rectangle(400, 300, 200, 60, 0x00ff00)
     startButton.setScrollFactor(0)
     startButton.setInteractive()
     startButton.setStrokeStyle(4, 0x000000)
     this.startScreenElements.push(startButton)
 
-    const startText = this.add.text(400, 350, 'START', {
+    const startText = this.add.text(400, 300, 'START', {
       fontSize: '32px',
       color: '#000000',
       fontFamily: 'Arial',
@@ -361,7 +361,7 @@ export class GameScene extends Phaser.Scene {
     })
 
     // Instructions
-    const instructions = this.add.text(400, 450, 'Tap to flap and avoid pipes!\nCollect SOL rewards by completing quests!', {
+    const instructions = this.add.text(400, 400, 'Tap to flap and avoid pipes!\nCollect SOL rewards by completing quests!', {
       fontSize: '20px',
       color: '#ffffff',
       stroke: '#000000',
@@ -629,11 +629,12 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with precise pipe collision areas
         // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
+        // But we need to account for the flip - the solid part is actually at the top of the flipped pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 120, // Bottom 120 pixels are solid (much larger area)
+          topPipeBounds.y, // Top of the flipped pipe (which is actually the bottom visually)
           topPipeBounds.width,
-          120
+          150 // Much larger collision area for top pipe
         )
         
         // Bottom pipe: collision area is at the top of the visual pipe
@@ -641,7 +642,7 @@ export class GameScene extends Phaser.Scene {
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          120 // Top 120 pixels are solid (much larger area)
+          150 // Top 150 pixels are solid (much larger area)
         )
         
         let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
@@ -662,14 +663,14 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 120px (flipped pipe)'
+              note: 'Top pipe collision area is at top 150px (flipped pipe - corrected)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
               collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height },
-              note: 'Bottom pipe collision area is at top 120px'
+              note: 'Bottom pipe collision area is at top 150px'
             },
             collision: {
               hitTopPipe,
