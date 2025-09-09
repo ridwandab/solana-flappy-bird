@@ -51,6 +51,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   useEffect(() => {
     if (!gameRef.current) return
 
+    // Add fullscreen class to body
+    document.body.classList.add('game-fullscreen')
+
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
 
@@ -60,20 +63,14 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const isMobile = screenWidth < 768
     const isLandscape = screenWidth > screenHeight
 
-    // Calculate game dimensions based on device and orientation
-    let gameWidth = 800
-    let gameHeight = 600
+    // Calculate game dimensions - FULLSCREEN from top to bottom
+    let gameWidth = screenWidth
+    let gameHeight = screenHeight
 
-    if (isMobile) {
-      if (isLandscape) {
-        // Landscape mobile - use full width, maintain aspect ratio
-        gameWidth = Math.min(screenWidth, 1200)
-        gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
-      } else {
-        // Portrait mobile - use full height, maintain aspect ratio
-        gameHeight = Math.min(screenHeight * 0.8, 800) // 80% of screen height
-        gameWidth = Math.round(gameHeight * 1.33) // 4:3 aspect ratio
-      }
+    // For desktop, maintain reasonable size
+    if (!isMobile) {
+      gameWidth = Math.min(screenWidth, 1200)
+      gameHeight = Math.min(screenHeight, 800)
     }
 
     const config: Phaser.Types.Core.GameConfig = {
@@ -95,6 +92,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth,
         height: gameHeight,
+        fullscreenTarget: 'game-container',
       },
     }
 
@@ -156,17 +154,14 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         const isMobile = screenWidth < 768
         const isLandscape = screenWidth > screenHeight
 
-        let gameWidth = 800
-        let gameHeight = 600
+        // FULLSCREEN from top to bottom
+        let gameWidth = screenWidth
+        let gameHeight = screenHeight
 
-        if (isMobile) {
-          if (isLandscape) {
-            gameWidth = Math.min(screenWidth, 1200)
-            gameHeight = Math.round(gameWidth * 0.75)
-          } else {
-            gameHeight = Math.min(screenHeight * 0.8, 800)
-            gameWidth = Math.round(gameHeight * 1.33)
-          }
+        // For desktop, maintain reasonable size
+        if (!isMobile) {
+          gameWidth = Math.min(screenWidth, 1200)
+          gameHeight = Math.min(screenHeight, 800)
         }
 
         phaserGameRef.current.scale.resize(gameWidth, gameHeight)
@@ -177,6 +172,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     window.addEventListener('orientationchange', handleResize)
 
     return () => {
+      // Remove fullscreen class from body
+      document.body.classList.remove('game-fullscreen')
+      
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleResize)
       if (phaserGameRef.current) {
@@ -257,15 +255,16 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         </div>
       </div>
 
-      {/* Game Canvas */}
+      {/* Game Canvas - FULLSCREEN */}
       <div 
         ref={gameRef}
-        className="game-container border-4 border-white/20 rounded-lg shadow-2xl w-full max-w-4xl mx-auto"
+        id="game-container"
+        className="game-container w-full h-screen fixed top-0 left-0 z-10"
         style={{ 
-          width: '100%', 
-          height: 'auto',
-          aspectRatio: '4/3',
-          maxHeight: '80vh'
+          width: '100vw', 
+          height: '100vh',
+          maxWidth: '100vw',
+          maxHeight: '100vh'
         }}
       />
 
