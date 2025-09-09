@@ -300,8 +300,8 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create ground
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
+    // Create invisible ground for collision only
+    this.ground = this.add.rectangle(400, 580, 800, 40, 0x000000, 0)
     this.ground.setScrollFactor(0)
     this.startScreenElements.push(this.ground)
 
@@ -631,9 +631,9 @@ export class GameScene extends Phaser.Scene {
         // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 80, // Bottom 80 pixels are solid (larger area)
+          topPipeBounds.y + topPipeBounds.height - 120, // Bottom 120 pixels are solid (much larger area)
           topPipeBounds.width,
-          80
+          120
         )
         
         // Bottom pipe: collision area is at the top of the visual pipe
@@ -641,7 +641,7 @@ export class GameScene extends Phaser.Scene {
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          80 // Top 80 pixels are solid (larger area)
+          120 // Top 120 pixels are solid (much larger area)
         )
         
         let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
@@ -662,14 +662,14 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 80px (flipped pipe)'
+              note: 'Top pipe collision area is at bottom 120px (flipped pipe)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
               collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height },
-              note: 'Bottom pipe collision area is at top 80px'
+              note: 'Bottom pipe collision area is at top 120px'
             },
             collision: {
               hitTopPipe,
