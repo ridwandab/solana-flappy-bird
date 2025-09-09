@@ -48,13 +48,13 @@ export class GameScene extends Phaser.Scene {
   private readonly GRAVITY = 30  // Extremely low gravity for very easy control
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
-  private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
+  private readonly PIPE_SPAWN_DELAY = 1500  // Faster spawn delay between pipes (1.5 seconds)
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
-  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
-  private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
-  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
+  private readonly BASE_PIPE_SPACING = 300  // Base distance between pipe sets (in pixels) - CLOSER
+  private readonly MIN_PIPE_SPACING = 150   // Minimum distance (gets closer over time) - CLOSER
+  private readonly MAX_ACTIVE_PIPES = 4  // Maximum number of pipe sets on screen - MORE PIPES
+  private readonly BASE_PIPE_GAP = 120  // Base gap between pipes - SMALLER
+  private readonly MIN_PIPE_GAP = 60    // Minimum gap (gets smaller over time) - SMALLER
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -1160,7 +1160,7 @@ export class GameScene extends Phaser.Scene {
     // Add to active pipes
     this.activePipes.push(pipeSet)
     
-    console.log(`New pipe set created with ACCURATE collision detection (5px margin). Total active pipes: ${this.activePipes.length}`)
+    console.log(`New pipe set created with CLOSER spacing (gap: ${gap}px) and ACCURATE collision detection (5px margin). Total active pipes: ${this.activePipes.length}`)
     
     // Add random obstacles to make the game more challenging
     this.spawnRandomObstacles(x, pipeHeight, gap)
