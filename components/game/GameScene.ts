@@ -48,13 +48,13 @@ export class GameScene extends Phaser.Scene {
   private readonly GRAVITY = 30  // Extremely low gravity for very easy control
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
-  private readonly PIPE_SPAWN_DELAY = 1500  // Faster spawn delay between pipes (1.5 seconds)
+  private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 350  // Base distance between pipe sets (in pixels) - BALANCED
-  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time) - BALANCED
-  private readonly MAX_ACTIVE_PIPES = 4  // Maximum number of pipe sets on screen - MORE PIPES
-  private readonly BASE_PIPE_GAP = 120  // Base gap between pipes - SMALLER
-  private readonly MIN_PIPE_GAP = 60    // Minimum gap (gets smaller over time) - SMALLER
+  private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
+  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
+  private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
+  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
+  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -185,9 +185,9 @@ export class GameScene extends Phaser.Scene {
       console.log('All sprites preloaded successfully')
       // Reload background with actual sprite if it was using fallback
       this.reloadBackgroundWithSprite()
-
-    // Initialize audio manager
-    this.initializeAudio()
+      
+      // Initialize audio manager
+      this.initializeAudio()
 
       // Apply settings after audio manager is initialized
       this.applySettings()
@@ -198,7 +198,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Create start screen after sprites are loaded
-    this.createStartScreen()
+      this.createStartScreen()
     })
     this.load.start()
   }
@@ -551,11 +551,11 @@ export class GameScene extends Phaser.Scene {
       console.log('No cosmetic selected, using default bird (Bird2-export.png)')
       // Check if texture exists before setting
       if (this.textures.exists('bird_default')) {
-      this.bird.setTexture('bird_default')
+        this.bird.setTexture('bird_default')
         console.log('Applied default bird texture successfully')
       } else {
-      console.log('Bird2-export.png not loaded, creating placeholder')
-      this.createDefaultBird()
+        console.log('Bird2-export.png not loaded, creating placeholder')
+        this.createDefaultBird()
       }
     }
 
@@ -636,57 +636,37 @@ export class GameScene extends Phaser.Scene {
       
       // Only check collision if pipe is close to bird (within 100 pixels)
       if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
-        // Use direct sprite bounds for accurate collision detection
+        // Use actual visual pipe bounds for collision detection
         const birdBounds = this.bird.getBounds()
         const topPipeBounds = pipeSet.topPipe.getBounds()
         const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
         
-        // Simple and accurate bounds collision - matches visual pipe exactly
-        const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds)
-        const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
+        // Use exact bird bounds for maximum sensitivity
+        const birdCollisionBounds = birdBounds
+        
+        // Check collision using actual visual pipe bounds - this matches what player sees
+        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
+        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
         
         // Visual debugging removed - collision detection works invisibly
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-          console.log('🔍 SPRITE BOUNDS COLLISION DEBUG:', {
+          console.log('🔍 VISUAL COLLISION DEBUG:', {
             bird: {
               x: this.bird.x,
               y: this.bird.y,
-              width: this.bird.width,
-              height: this.bird.height,
-              bounds: {
-                x: birdBounds.x,
-                y: birdBounds.y,
-                width: birdBounds.width,
-                height: birdBounds.height
-              }
+              bounds: { x: birdBounds.x, y: birdBounds.y, width: birdBounds.width, height: birdBounds.height }
             },
-            pipes: {
-              topPipe: {
-                x: pipeSet.topPipe.x,
-                y: pipeSet.topPipe.y,
-                width: pipeSet.topPipe.width,
-                height: pipeSet.topPipe.height,
-                bounds: {
-                  x: topPipeBounds.x,
-                  y: topPipeBounds.y,
-                  width: topPipeBounds.width,
-                  height: topPipeBounds.height
-                }
-              },
-              bottomPipe: {
-                x: pipeSet.bottomPipe.x,
-                y: pipeSet.bottomPipe.y,
-                width: pipeSet.bottomPipe.width,
-                height: pipeSet.bottomPipe.height,
-                bounds: {
-                  x: bottomPipeBounds.x,
-                  y: bottomPipeBounds.y,
-                  width: bottomPipeBounds.width,
-                  height: bottomPipeBounds.height
-                }
-              }
+            topPipe: {
+              x: pipeSet.topPipe.x,
+              y: pipeSet.topPipe.y,
+              bounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height }
+            },
+            bottomPipe: {
+              x: pipeSet.bottomPipe.x,
+              y: pipeSet.bottomPipe.y,
+              bounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height }
             },
             collision: {
               hitTopPipe,
@@ -697,14 +677,14 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (hitTopPipe || hitBottomPipe) {
-          console.log('🚨🚨🚨 SPRITE BOUNDS COLLISION DETECTED! 🚨🚨🚨')
+          console.log('🚨🚨🚨 VISUAL COLLISION DETECTED! 🚨🚨🚨')
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-          console.log('Bird bounds:', birdBounds)
+          console.log('Bird bounds (exact):', birdCollisionBounds)
           console.log('Top pipe bounds:', topPipeBounds)
           console.log('Bottom pipe bounds:', bottomPipeBounds)
-          console.log('Using direct sprite bounds - matches visual pipe exactly!')
+          console.log('Using visual pipe bounds for collision!')
           if (!this.isGameOver) {
             this.gameOver()
           }
@@ -712,7 +692,7 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
-
+    
     // Additional collision check for bird falling below screen
     if (this.bird.y > 600) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
@@ -840,24 +820,22 @@ export class GameScene extends Phaser.Scene {
         pipeSet.topPipe.x -= pipeSpeed
         pipeSet.bottomPipe.x -= pipeSpeed
         
-        // No need to update collision data - using direct sprite bounds
+        // No need to update collision data - using visual pipe bounds directly
         
-        // Debug: Log pipe positions for sprite bounds collision detection
+        // Debug: Log pipe positions for visual collision detection
         if (Math.abs(pipeSet.topPipe.x - 200) < 50) { // When pipe is near bird
-          console.log('🔍 PIPE SPRITE POSITIONS:', {
+          console.log('🔍 PIPE POSITIONS:', {
             topPipe: {
               x: pipeSet.topPipe.x,
               y: pipeSet.topPipe.y,
               width: pipeSet.topPipe.width,
-              height: pipeSet.topPipe.height,
-              bounds: pipeSet.topPipe.getBounds()
+              height: pipeSet.topPipe.height
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               width: pipeSet.bottomPipe.width,
-              height: pipeSet.bottomPipe.height,
-              bounds: pipeSet.bottomPipe.getBounds()
+              height: pipeSet.bottomPipe.height
             }
           })
         }
@@ -906,8 +884,8 @@ export class GameScene extends Phaser.Scene {
           }
         }
         
-        // Check collision with bird using sprite bounds
-        const birdBounds = this.bird.getBounds()
+        // Check collision with bird using exact bounds
+        const birdCollisionBounds = this.bird.getBounds()
         
         const obstacleBounds = new Phaser.Geom.Rectangle(
           obstacle.collisionData.x,
@@ -916,7 +894,7 @@ export class GameScene extends Phaser.Scene {
           obstacle.collisionData.height
         )
         
-        if (Phaser.Geom.Rectangle.Overlaps(birdBounds, obstacleBounds)) {
+        if (Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, obstacleBounds)) {
           console.log('🚨🚨🚨 OBSTACLE COLLISION DETECTED! 🚨🚨🚨')
           console.log('Obstacle type:', obstacle.type)
           if (!this.isGameOver) {
@@ -1049,24 +1027,7 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
 
-    // Calculate collision bounds for invisible collision detection
-    const pipeWidth = topPipe.width
-    const pipeHeightValue = topPipe.height
-    
-    // Get the actual bounds that Phaser will use for collision detection
-    // Top pipe bounds (flipped pipe - extends upward from y position)
-    const topPipeLeft = x
-    const topPipeRight = x + pipeWidth
-    const topPipeTop = pipeHeight - pipeHeightValue // Top pipe extends upward
-    const topPipeBottom = pipeHeight
-    
-    // Bottom pipe bounds
-    const bottomPipeLeft = x
-    const bottomPipeRight = x + pipeWidth
-    const bottomPipeTop = pipeHeight + gap
-    const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
-    
-    // No need for custom collision data - using direct sprite bounds
+    // No need for invisible collision data - using visual pipe bounds directly
 
     // Create pipe set object
     const pipeSet = {
@@ -1078,7 +1039,7 @@ export class GameScene extends Phaser.Scene {
     // Add to active pipes
     this.activePipes.push(pipeSet)
     
-    console.log(`New pipe set created with BALANCED spacing (gap: ${gap}px) and SPRITE BOUNDS collision detection. Total active pipes: ${this.activePipes.length}`)
+    console.log(`New pipe set created with visual collision detection. Total active pipes: ${this.activePipes.length}`)
     
     // Add random obstacles to make the game more challenging
     this.spawnRandomObstacles(x, pipeHeight, gap)
