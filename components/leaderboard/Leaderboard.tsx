@@ -69,7 +69,7 @@ export const Leaderboard: FC<LeaderboardProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 max-h-screen ui-scroll pb-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold text-white flex items-center justify-center space-x-3">

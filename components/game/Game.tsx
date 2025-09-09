@@ -11,37 +11,6 @@ import { useHighScore } from '@/hooks/useHighScore'
 import { useQuestIntegration } from '@/hooks/useQuestIntegration'
 import { useSettings } from '@/hooks/useSettings'
 
-// Hook to detect mobile device and orientation
-const useMobileDetection = () => {
-  const [isMobile, setIsMobile] = useState(false)
-  const [isPortrait, setIsPortrait] = useState(false)
-  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
-      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-      const isSmallScreen = window.innerWidth <= 768
-      
-      setIsMobile(isMobileDevice || (isTouchDevice && isSmallScreen))
-      setIsPortrait(window.innerHeight > window.innerWidth)
-      setScreenSize({ width: window.innerWidth, height: window.innerHeight })
-    }
-
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    window.addEventListener('orientationchange', checkMobile)
-
-    return () => {
-      window.removeEventListener('resize', checkMobile)
-      window.removeEventListener('orientationchange', checkMobile)
-    }
-  }, [])
-
-  return { isMobile, isPortrait, screenSize }
-}
-
 interface GameProps {
   onBackToMenu: () => void
 }
@@ -53,12 +22,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const [isGameOver, setIsGameOver] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [score, setScore] = useState(0)
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const { gameState, updateHighScore } = useGameState()
   const { saveHighScore, getHighScore } = useHighScore()
   const { quests, acceptQuest } = useQuestIntegration(phaserGameRef.current)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
-  const { isMobile, isPortrait, screenSize } = useMobileDetection()
   
   // Debug quest integration
   useEffect(() => {
@@ -87,32 +54,32 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
 
-    // Calculate responsive dimensions
-    const getGameDimensions = () => {
-      if (isMobile) {
-        if (isPortrait) {
-          // Portrait: use full screen width, maintain aspect ratio
-          const width = Math.min(screenSize.width, 400)
-          const height = Math.min(screenSize.height, 600)
-          return { width, height }
-        } else {
-          // Landscape: use full screen
-          const width = Math.min(screenSize.width, 800)
-          const height = Math.min(screenSize.height, 400)
-          return { width, height }
-        }
+    // Get screen dimensions
+    const screenWidth = window.innerWidth
+    const screenHeight = window.innerHeight
+    const isMobile = screenWidth < 768
+    const isLandscape = screenWidth > screenHeight
+
+    // Calculate game dimensions based on device and orientation
+    let gameWidth = 800
+    let gameHeight = 600
+
+    if (isMobile) {
+      if (isLandscape) {
+        // Landscape mobile - use full width, maintain aspect ratio
+        gameWidth = Math.min(screenWidth, 1200)
+        gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
       } else {
-        // Desktop: use fixed dimensions
-        return { width: 800, height: 600 }
+        // Portrait mobile - use full height, maintain aspect ratio
+        gameHeight = Math.min(screenHeight * 0.8, 800) // 80% of screen height
+        gameWidth = Math.round(gameHeight * 1.33) // 4:3 aspect ratio
       }
     }
 
-    const dimensions = getGameDimensions()
-
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: dimensions.width,
-      height: dimensions.height,
+      width: gameWidth,
+      height: gameHeight,
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -124,10 +91,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: isMobile ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: dimensions.width,
-        height: dimensions.height,
+        width: gameWidth,
+        height: gameHeight,
       },
     }
 
@@ -181,13 +148,43 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       // Quest events are handled by useQuestIntegration hook
     })
 
+    // Handle window resize and orientation change
+    const handleResize = () => {
+      if (phaserGameRef.current) {
+        const screenWidth = window.innerWidth
+        const screenHeight = window.innerHeight
+        const isMobile = screenWidth < 768
+        const isLandscape = screenWidth > screenHeight
+
+        let gameWidth = 800
+        let gameHeight = 600
+
+        if (isMobile) {
+          if (isLandscape) {
+            gameWidth = Math.min(screenWidth, 1200)
+            gameHeight = Math.round(gameWidth * 0.75)
+          } else {
+            gameHeight = Math.min(screenHeight * 0.8, 800)
+            gameWidth = Math.round(gameHeight * 1.33)
+          }
+        }
+
+        phaserGameRef.current.scale.resize(gameWidth, gameHeight)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('orientationchange', handleResize)
+
     return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
       }
     }
-  }, [isMobile, isPortrait, screenSize]) // Recreate game when orientation changes
+  }, []) // Remove all dependencies to prevent game recreation
 
   // Update settings in game scene when settings change
   useEffect(() => {
@@ -227,198 +224,52 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     }
   }
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      // Enter fullscreen
-      if (gameRef.current?.requestFullscreen) {
-        gameRef.current.requestFullscreen()
-        setIsFullscreen(true)
-      }
-    } else {
-      // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-        setIsFullscreen(false)
-      }
-    }
-  }
-
-  // Handle fullscreen change events
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
-
-  // Mobile responsive layout
-  if (isMobile) {
-    return (
-      <div className={`${isPortrait ? 'portrait-fullscreen' : 'landscape-fullscreen'} mobile-game-container no-select`}>
-        {/* Mobile Game Header - Hidden in fullscreen */}
-        {!isFullscreen && (
-          <div className={`${isPortrait ? 'portrait-hide-ui' : 'landscape-hide-ui'} flex items-center justify-between w-full p-4 bg-black/20 backdrop-blur-md`}>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={onBackToMenu}
-                className="btn-secondary mobile-button text-sm px-3 py-2"
-              >
-                ← Menu
-              </button>
-              <button
-                onClick={handlePause}
-                className="btn-primary mobile-button text-sm px-3 py-2"
-              >
-                Pause
-              </button>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="text-center">
-                <p className="text-xs text-white/80">Score</p>
-                <p className="text-lg font-bold text-white">{score}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-white/80">High</p>
-                <p className="text-sm font-bold text-yellow-400">
-                  {gameState.highScore || 0}
-                </p>
-              </div>
-              <button
-                onClick={toggleFullscreen}
-                className="btn-primary mobile-button text-sm px-3 py-2"
-              >
-                {isFullscreen ? 'Exit' : 'Full'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Game Canvas */}
-        <div 
-          ref={gameRef}
-          className={`${isPortrait ? 'portrait-game-canvas' : 'landscape-game-canvas'} mobile-game-canvas game-canvas-container`}
-          style={{ 
-            width: isMobile ? '100vw' : '800px', 
-            height: isMobile ? '100vh' : '600px' 
-          }}
-          onTouchStart={(e) => {
-            // Prevent default touch behavior
-            e.preventDefault()
-            // Trigger bird flap on touch
-            if (phaserGameRef.current && !isGameOver && !isPaused) {
-              phaserGameRef.current.events.emit('flap')
-            }
-          }}
-        />
-
-        {/* Mobile Touch Controls */}
-        {isMobile && !isFullscreen && (
-          <div className="mobile-controls">
-            <button
-              className="mobile-control-button"
-              onTouchStart={(e) => {
-                e.preventDefault()
-                if (phaserGameRef.current && !isGameOver && !isPaused) {
-                  phaserGameRef.current.events.emit('flap')
-                }
-              }}
-              onClick={(e) => {
-                e.preventDefault()
-                if (phaserGameRef.current && !isGameOver && !isPaused) {
-                  phaserGameRef.current.events.emit('flap')
-                }
-              }}
-            >
-              🐦
-            </button>
-            <button
-              className="mobile-control-button"
-              onTouchStart={(e) => {
-                e.preventDefault()
-                handlePause()
-              }}
-              onClick={(e) => {
-                e.preventDefault()
-                handlePause()
-              }}
-            >
-              ⏸️
-            </button>
-          </div>
-        )}
-
-        {/* Mobile Game Over Modal */}
-        {isGameOver && (
-          <GameOverModal
-            score={score}
-            highScore={gameState.highScore || 0}
-            onRestart={handleRestart}
-            onBackToMenu={onBackToMenu}
-          />
-        )}
-
-        {/* Mobile Pause Modal */}
-        {isPaused && (
-          <PauseModal
-            onResume={handleResume}
-            onBackToMenu={onBackToMenu}
-          />
-        )}
-      </div>
-    )
-  }
-
-  // Desktop layout
   return (
-    <div className="flex flex-col items-center space-y-6">
-      {/* Desktop Game Header */}
-      <div className="flex items-center justify-between w-full max-w-4xl">
-        <div className="flex items-center space-x-4">
+    <div className="flex flex-col items-center space-y-4 sm:space-y-6 p-2 sm:p-4">
+      {/* Game Header */}
+      <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-4xl gap-4 sm:gap-0">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={onBackToMenu}
-            className="btn-secondary"
+            className="btn-secondary text-sm sm:text-base px-3 sm:px-4 py-2"
           >
             ← Back to Menu
           </button>
           <button
             onClick={handlePause}
-            className="btn-primary"
+            className="btn-primary text-sm sm:text-base px-3 sm:px-4 py-2"
           >
             Pause
           </button>
-          <button
-            onClick={toggleFullscreen}
-            className="btn-primary"
-          >
-            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-          </button>
         </div>
         
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4 sm:space-x-6">
           <div className="text-center">
-            <p className="text-sm text-white/80">Score</p>
-            <p className="text-2xl font-bold text-white">{score}</p>
+            <p className="text-xs sm:text-sm text-white/80">Score</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">{score}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-white/80">High Score</p>
-            <p className="text-xl font-bold text-yellow-400">
+            <p className="text-xs sm:text-sm text-white/80">High Score</p>
+            <p className="text-lg sm:text-xl font-bold text-yellow-400">
               {gameState.highScore || 0}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Desktop Game Canvas */}
+      {/* Game Canvas */}
       <div 
         ref={gameRef}
-        className="border-4 border-white/20 rounded-lg shadow-2xl"
-        style={{ width: '800px', height: '600px' }}
+        className="game-container border-4 border-white/20 rounded-lg shadow-2xl w-full max-w-4xl mx-auto"
+        style={{ 
+          width: '100%', 
+          height: 'auto',
+          aspectRatio: '4/3',
+          maxHeight: '80vh'
+        }}
       />
 
-      {/* Desktop Game Over Modal */}
+      {/* Game Over Modal */}
       {isGameOver && (
         <GameOverModal
           score={score}
@@ -428,7 +279,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         />
       )}
 
-      {/* Desktop Pause Modal */}
+      {/* Pause Modal */}
       {isPaused && (
         <PauseModal
           onResume={handleResume}

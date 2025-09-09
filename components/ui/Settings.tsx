@@ -70,7 +70,7 @@ export const Settings: FC<SettingsProps> = ({ onBackToMenu }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full max-h-screen ui-scroll pb-8">
+      <div className="max-w-4xl w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

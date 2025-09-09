@@ -47,19 +47,17 @@ export default function HomePage() {
     <WalletProvider>
       <AudioInitializer>
         <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-          {/* Header - Hidden in game mode on mobile */}
-          <header className={`fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10 ${
-            currentView === 'game' ? 'mobile-hidden md:block' : ''
-          }`}>
+          {/* Header */}
+          <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <h1 className="text-xl md:text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-white">
                   🐦 Solana Flappy Bird
                 </h1>
                 {currentView !== 'menu' && (
                   <button
                     onClick={() => setCurrentView('menu')}
-                    className="text-white/80 hover:text-white transition-colors mobile-button"
+                    className="text-white/80 hover:text-white transition-colors"
                   >
                     ← Back to Menu
                   </button>
@@ -70,16 +68,14 @@ export default function HomePage() {
           </header>
 
           {/* Main Content */}
-          <main className={`${currentView === 'game' ? 'pt-0' : 'pt-20'} pb-8`}>
-            <div className={`${currentView === 'game' ? '' : 'container mx-auto px-4'}`}>
+          <main className="pt-20 pb-8">
+            <div className="container mx-auto px-4">
               {renderView()}
             </div>
           </main>
 
-          {/* Footer - Hidden in game mode on mobile */}
-          <footer className={`fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10 ${
-            currentView === 'game' ? 'mobile-hidden md:block' : ''
-          }`}>
+          {/* Footer */}
+          <footer className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10">
             <div className="container mx-auto px-4 py-2 text-center text-white/60 text-sm">
               Powered by Solana • Built with Next.js & Phaser 3
             </div>

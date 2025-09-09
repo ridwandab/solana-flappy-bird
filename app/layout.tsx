@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     userScalable: false,
     viewportFit: 'cover',
   },
-  themeColor: '#1e1b4b',
+  themeColor: '#000000',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -34,13 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="format-detection" content="telephone=no" />
-      </head>
-      <body className={`${inter.className} bg-background text-foreground overflow-hidden`}>
+      <body className={`${inter.className} bg-background text-foreground`}>
         {children}
       </body>
     </html>

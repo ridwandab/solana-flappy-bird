@@ -49,12 +49,12 @@ export class GameScene extends Phaser.Scene {
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
-  private PIPE_RESPAWN_X = 800
+  private readonly PIPE_RESPAWN_X = 800
   private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
   private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 120  // Base gap between pipes (reduced for more challenge)
-  private readonly MIN_PIPE_GAP = 60    // Minimum gap (gets smaller over time, more challenging)
+  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
+  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -138,106 +138,6 @@ export class GameScene extends Phaser.Scene {
     console.log('Settings applied to game scene')
   }
 
-  private handleResponsiveCanvas() {
-    // Listen for resize events
-    this.scale.on('resize', this.onResize, this)
-    
-    // Set up responsive scaling
-    this.scale.on('orientationchange', this.onOrientationChange, this)
-    
-    // Initial responsive setup
-    this.onResize()
-  }
-
-  private onResize() {
-    const { width, height } = this.scale.gameSize
-    
-    // Adjust camera bounds
-    this.cameras.main.setBounds(0, 0, width, height)
-    
-    // Adjust physics world bounds
-    if (this.physics && this.physics.world) {
-      this.physics.world.setBounds(0, 0, width, height)
-    }
-    
-    // Reposition UI elements if they exist
-    this.repositionUIElements(width, height)
-    
-    console.log(`Canvas resized to: ${width}x${height}`)
-  }
-
-  private onOrientationChange() {
-    // Handle orientation change
-    const { width, height } = this.scale.gameSize
-    console.log(`Orientation changed to: ${width}x${height}`)
-    
-    // Reposition all game elements
-    this.repositionGameElements(width, height)
-  }
-
-  private repositionUIElements(width: number, height: number) {
-    // Reposition score text
-    if (this.scoreText) {
-      this.scoreText.setPosition(width / 2, 50)
-    }
-    
-    // Reposition difficulty text
-    if (this.difficultyText) {
-      this.difficultyText.setPosition(width / 2, 80)
-    }
-  }
-
-  private repositionGameElements(width: number, height: number) {
-    // Reposition bird
-    if (this.bird) {
-      this.bird.setPosition(width * 0.2, height / 2)
-    }
-    
-    // Reposition ground
-    if (this.ground) {
-      this.ground.setPosition(width / 2, height - 25)
-      this.ground.setSize(width, 50)
-    }
-    
-    // Reposition background elements
-    this.repositionBackground(width, height)
-    
-    // Reposition pipes
-    this.repositionPipes(width, height)
-  }
-
-  private repositionBackground(width: number, height: number) {
-    if (this.background1 && this.background2) {
-      // Update background positions and sizes
-      if (this.background1.type === 'TileSprite') {
-        (this.background1 as any).setPosition(width / 2, height / 2)
-        ;(this.background1 as any).setSize(width, height)
-        ;(this.background2 as any).setPosition(width + width / 2, height / 2)
-        ;(this.background2 as any).setSize(width, height)
-      } else {
-        // Rectangle backgrounds - cast to Rectangle type
-        const bg1 = this.background1 as Phaser.GameObjects.Rectangle
-        const bg2 = this.background2 as Phaser.GameObjects.Rectangle
-        bg1.setPosition(width / 2, height / 2)
-        bg1.setSize(width, height)
-        bg2.setPosition(width + width / 2, height / 2)
-        bg2.setSize(width, height)
-      }
-    }
-  }
-
-  private repositionPipes(width: number, height: number) {
-    // Update pipe spawn position
-    this.PIPE_RESPAWN_X = width + 100
-    
-    // Reposition existing pipes
-    this.pipes.children.entries.forEach((pipe: any) => {
-      if (pipe.x > width) {
-        pipe.x = this.PIPE_RESPAWN_X
-      }
-    })
-  }
-
   private initializeAudio() {
     try {
       const audioConfig: AudioConfig = {
@@ -261,9 +161,6 @@ export class GameScene extends Phaser.Scene {
     this.lastPipeSpawnTime = 0
     this.difficultyLevel = 0
     this.pipesPassed = 0
-
-    // Handle responsive canvas sizing
-    this.handleResponsiveCanvas()
 
     // Preload sprites
     this.load.image('pipe_sprite', '/Sprite-0003.png')
@@ -507,13 +404,6 @@ export class GameScene extends Phaser.Scene {
     // Initialize game
     this.isGameStarted = true
     this.initializeGame()
-    
-    // Set proper gravity immediately when game starts (like first time playing)
-    if (this.bird && this.bird.body) {
-      const gravityValue: number = (this.gameSettings?.gravity || this.GRAVITY) * 0.7 // Same as first flap
-      ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
-      console.log('Gravity set immediately on game start:', gravityValue)
-    }
   }
 
   private resetGameState() {
@@ -586,9 +476,6 @@ export class GameScene extends Phaser.Scene {
     // Reset input handlers
     this.input.removeAllListeners()
     
-    // Remove custom event listeners
-    this.events.removeListener('flap')
-    
     // Stop any active timers
     if (this.pipeTimer) {
       this.pipeTimer.destroy()
@@ -634,15 +521,8 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
         // Set gravity to 0 initially - will be set when game actually starts
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
-        // Stop any existing velocity completely
+        // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
-        // Reset angular velocity
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setAngularVelocity(0)
-        // Reset rotation
-        this.bird.setRotation(0)
-        // Reset position to center
-        this.bird.setPosition(currentX, currentY)
-        console.log('Bird physics initialized with zero gravity and velocity')
       }
       
       console.log('Bird converted from static to physics sprite')
@@ -660,10 +540,6 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
-        // Reset angular velocity
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setAngularVelocity(0)
-        // Reset rotation
-        this.bird.setRotation(0)
       }
     }
     
@@ -720,12 +596,6 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-UP', this.flap, this)
     this.input.on('pointerdown', this.flap, this)
     
-    // Add mobile touch support
-    this.input.on('pointerdown', this.flap, this)
-    
-    // Listen for flap events from mobile controls
-    this.events.on('flap', this.flap, this)
-    
     // Add restart input handlers
     this.input.keyboard?.on('keydown-R', this.handleRestart, this)
     this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
@@ -760,25 +630,103 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // SIMPLE COLLISION CHECK - Use Phaser's built-in collision detection
+    // COLLISION CHECK - Check all pipes every frame with Phaser collision
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 50 pixels)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-        // Use Phaser's built-in collision detection
-        const hitTopPipe = this.physics.overlap(this.bird, pipeSet.topPipe)
-        const hitBottomPipe = this.physics.overlap(this.bird, pipeSet.bottomPipe)
+      // Only check collision if pipe is close to bird (within 100 pixels)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+        // Use red lines as the actual collision area instead of pipe bounds
+        const birdBounds = this.bird.getBounds()
         
-        // Debug logging when pipe is close
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 30) {
-          console.log('🔍 SIMPLE COLLISION DEBUG:', {
-            bird: { x: this.bird.x, y: this.bird.y },
-            topPipe: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y },
-            bottomPipe: { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y },
-            hitTopPipe,
-            hitBottomPipe,
-            distance: Math.abs(pipeSet.topPipe.x - this.bird.x)
+        // Use exact bird bounds for maximum sensitivity
+        const birdCollisionBounds = birdBounds
+        
+        // Create collision rectangles based on red lines positions
+        let hitTopPipe = false
+        let hitBottomPipe = false
+        
+        if (pipeSet.topPipeCollision && pipeSet.topPipeCollision.length >= 4) {
+          // Get red lines positions for top pipe
+          const topLine = pipeSet.topPipeCollision[0] // Top line
+          const bottomLine = pipeSet.topPipeCollision[1] // Bottom line
+          const leftLine = pipeSet.topPipeCollision[2] // Left line
+          const rightLine = pipeSet.topPipeCollision[3] // Right line
+          
+          // Create collision rectangle from red lines
+          const topPipeCollisionRect = new Phaser.Geom.Rectangle(
+            leftLine.x,
+            topLine.y,
+            rightLine.x - leftLine.x,
+            bottomLine.y - topLine.y
+          )
+          
+          hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
+        }
+        
+        if (pipeSet.bottomPipeCollision && pipeSet.bottomPipeCollision.length >= 4) {
+          // Get red lines positions for bottom pipe
+          const topLine = pipeSet.bottomPipeCollision[0] // Top line
+          const bottomLine = pipeSet.bottomPipeCollision[1] // Bottom line
+          const leftLine = pipeSet.bottomPipeCollision[2] // Left line
+          const rightLine = pipeSet.bottomPipeCollision[3] // Right line
+          
+          // Create collision rectangle from red lines
+          const bottomPipeCollisionRect = new Phaser.Geom.Rectangle(
+            leftLine.x,
+            topLine.y,
+            rightLine.x - leftLine.x,
+            bottomLine.y - topLine.y
+          )
+          
+          hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
+        }
+        
+        // Visual debugging removed - collision detection works invisibly
+        
+        // Debug logging when pipe is very close
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
+          console.log('🔍 COLLISION DEBUG:', {
+            bird: {
+              x: this.bird.x,
+              y: this.bird.y,
+              width: this.bird.width,
+              height: this.bird.height,
+              originalBounds: {
+                x: birdBounds.x,
+                y: birdBounds.y,
+                width: birdBounds.width,
+                height: birdBounds.height
+              },
+              collisionBounds: {
+                x: birdCollisionBounds.x,
+                y: birdCollisionBounds.y,
+                width: birdCollisionBounds.width,
+                height: birdCollisionBounds.height
+              },
+              margin: 'none (exact bounds)'
+            },
+            collision: {
+              hitTopPipe,
+              hitBottomPipe,
+              distanceToTopPipe: Math.abs(pipeSet.topPipe.x - this.bird.x)
+            },
+            collisionData: {
+              topPipe: pipeSet.topPipeCollision ? pipeSet.topPipeCollision.map((data: any, index: number) => ({ 
+                index,
+                x: data.x, 
+                y: data.y, 
+                width: data.width, 
+                height: data.height 
+              })) : 'none',
+              bottomPipe: pipeSet.bottomPipeCollision ? pipeSet.bottomPipeCollision.map((data: any, index: number) => ({ 
+                index,
+                x: data.x, 
+                y: data.y, 
+                width: data.width, 
+                height: data.height 
+              })) : 'none'
+            }
           })
         }
         
@@ -787,6 +735,9 @@ export class GameScene extends Phaser.Scene {
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
+          console.log('Bird bounds (exact):', birdCollisionBounds)
+          console.log('Collision margin: none (exact bounds)')
+          console.log('Invisible collision detection used!')
           if (!this.isGameOver) {
             this.gameOver()
           }
@@ -796,35 +747,24 @@ export class GameScene extends Phaser.Scene {
     }
     
     // Additional collision check for bird falling below screen
-    if (this.bird && !this.isGameOver) {
-      const birdBounds = this.bird.getBounds()
-      const birdBottom = birdBounds.y + birdBounds.height - 12 // Use same margin as collision detection
-      
-      if (birdBottom > 600) {
-        console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y, birdBottom })
-        if (!this.isGameOver) {
-          this.gameOver()
-        }
+    if (this.bird.y > 600) {
+      console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
+      if (!this.isGameOver) {
+        this.gameOver()
       }
     }
     
     // Additional collision check for bird hitting ceiling (top of screen)
-    if (this.bird && !this.isGameOver) {
-      const birdBounds = this.bird.getBounds()
-      const birdTop = birdBounds.y + 12 // Bird top edge with same margin as collision detection
-      
-      if (birdTop <= 0) {
-        console.log('🚨 BIRD HIT CEILING! Game Over!', { birdY: this.bird.y, birdTop })
-        if (!this.isGameOver) {
-          this.gameOver()
-        }
+    if (this.bird.y < 0) {
+      console.log('🚨 BIRD HIT CEILING! Game Over!', { birdY: this.bird.y })
+      if (!this.isGameOver) {
+        this.gameOver()
       }
     }
     
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
-      const birdBounds = this.bird.getBounds()
-      const birdBottom = birdBounds.y + birdBounds.height - 12 // Bird bottom edge with same margin as collision detection
+      const birdBottom = this.bird.y + 25 // Bird bottom edge
       const groundTop = 580 // Ground top edge (ground is at y: 580, height: 40)
       
       if (birdBottom >= groundTop) {
@@ -844,17 +784,14 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || !this.isGameStarted) return
 
     if (this.bird.body) {
-      // Ensure gravity is set (should already be set in startGame, but just in case)
+      // Set gravity on first flap to start the game properly
       if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
-        // Use reduced gravity for smoother gameplay
-        const gravityValue: number = (this.gameSettings?.gravity || this.GRAVITY) * 0.7 // Reduce gravity by 30%
+        const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
-        console.log('Gravity activated on flap (fallback):', gravityValue)
+        console.log('Gravity activated on first flap:', gravityValue)
       }
       
-      // Use reduced flap force for smoother control
-      const flapForce = this.FLAP_FORCE * 0.8 // Reduce flap force by 20%
-      ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(flapForce)
+      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
       
       // Play flap sound using audio manager
       if (this.audioManager) {
@@ -1020,8 +957,17 @@ export class GameScene extends Phaser.Scene {
           }
         }
         
-        // Check collision with bird using Phaser's built-in collision detection
-        if (this.physics.overlap(this.bird, obstacle.sprite)) {
+        // Check collision with bird using exact bounds
+        const birdCollisionBounds = this.bird.getBounds()
+        
+        const obstacleBounds = new Phaser.Geom.Rectangle(
+          obstacle.collisionData.x,
+          obstacle.collisionData.y,
+          obstacle.collisionData.width,
+          obstacle.collisionData.height
+        )
+        
+        if (Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, obstacleBounds)) {
           console.log('🚨🚨🚨 OBSTACLE COLLISION DETECTED! 🚨🚨🚨')
           console.log('Obstacle type:', obstacle.type)
           if (!this.isGameOver) {
