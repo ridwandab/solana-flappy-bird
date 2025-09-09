@@ -482,6 +482,9 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background for game
     this.createScrollingBackground()
     
+    // Create pipes group for physics collision
+    this.pipes = this.physics.add.group()
+    
     // Convert existing bird from static sprite to physics sprite
     if (this.bird) {
       // Store current position and properties
@@ -570,6 +573,14 @@ export class GameScene extends Phaser.Scene {
         birdY: this.bird.y, 
         groundY: this.ground.y 
       })
+      if (!this.isGameOver) {
+        this.gameOver()
+      }
+    }, undefined, this)
+
+    // Physics - pipe collision (more reliable than manual detection)
+    this.physics.add.collider(this.bird, this.pipes, () => {
+      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit pipe! Game Over!')
       if (!this.isGameOver) {
         this.gameOver()
       }
@@ -1020,19 +1031,24 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe using the selected sprite
-    // Position it so the bottom of the flipped pipe is at pipeHeight
-    const topPipe = this.add.image(x, pipeHeight, pipeSpriteKey)
+    // Create top pipe as physics sprite
+    const topPipe = this.physics.add.image(x, pipeHeight, pipeSpriteKey)
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
+    topPipe.body!.setImmovable(true)  // Make it immovable for collision
     
     console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
-    // Create bottom pipe using the selected sprite
-    const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
+    // Create bottom pipe as physics sprite
+    const bottomPipe = this.physics.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
+    bottomPipe.body!.setImmovable(true)  // Make it immovable for collision
 
     // No need for invisible collision data - using visual pipe bounds directly
+
+    // Add pipes to physics group
+    this.pipes.add(topPipe)
+    this.pipes.add(bottomPipe)
 
     // Create pipe set object
     const pipeSet = {
