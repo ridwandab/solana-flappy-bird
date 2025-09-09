@@ -70,8 +70,8 @@ export default function HomePage() {
           </header>
 
           {/* Main Content */}
-          <main className={`${currentView === 'game' ? 'pt-0' : 'pt-20'} ${currentView === 'game' ? 'pb-0' : 'pb-8'}`}>
-            <div className={`${currentView === 'game' ? 'w-full h-full' : 'container mx-auto px-4'}`}>
+          <main className={`${currentView === 'game' ? 'pt-0' : 'pt-20'} pb-8`}>
+            <div className={`${currentView === 'game' ? '' : 'container mx-auto px-4'}`}>
               {renderView()}
             </div>
           </main>
