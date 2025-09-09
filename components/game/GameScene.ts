@@ -638,12 +638,13 @@ export class GameScene extends Phaser.Scene {
         const birdCollisionBounds = birdBounds
         
         // Check collision with precise pipe collision areas
-        // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
+        // Top pipe: since it's flipped with setScale(1, -1) and setOrigin(0, 0),
+        // the collision area is at the TOP of the visual pipe (not bottom)
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 50, // Bottom 50 pixels are solid (larger area)
+          topPipeBounds.y, // Top part is solid (flipped pipe)
           topPipeBounds.width,
-          50
+          50 // Top 50 pixels are solid
         )
         
         // Bottom pipe: collision area is at the top of the visual pipe
@@ -651,7 +652,7 @@ export class GameScene extends Phaser.Scene {
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          50 // Top 50 pixels are solid (larger area)
+          50 // Top 50 pixels are solid
         )
         
         let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
@@ -672,7 +673,7 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 50px (flipped pipe)'
+              note: 'Top pipe collision area is at top 50px (flipped pipe with setScale(1, -1))'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
@@ -690,14 +691,20 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (hitTopPipe || hitBottomPipe) {
-          console.log('🚨🚨🚨 PRECISE COLLISION DETECTED! 🚨🚨🚨')
+          console.log('🚨🚨🚨 DEFINITIVE COLLISION DETECTED! 🚨🚨🚨')
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
           console.log('Bird bounds (exact):', birdCollisionBounds)
           console.log('Top pipe collision rect:', topPipeCollisionRect)
           console.log('Bottom pipe collision rect:', bottomPipeCollisionRect)
-          console.log('Using precise pipe collision areas!')
+          console.log('Top pipe scale and origin:', { 
+            scaleX: pipeSet.topPipe.scaleX, 
+            scaleY: pipeSet.topPipe.scaleY,
+            originX: pipeSet.topPipe.originX,
+            originY: pipeSet.topPipe.originY
+          })
+          console.log('Using definitive pipe collision areas!')
           if (!this.isGameOver) {
             this.gameOver()
           }
