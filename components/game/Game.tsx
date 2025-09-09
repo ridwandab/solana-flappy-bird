@@ -51,8 +51,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   useEffect(() => {
     if (!gameRef.current) return
 
-    // Add fullscreen class to body
-    document.body.classList.add('game-fullscreen')
+    // Game initialization
 
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
@@ -63,14 +62,24 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const isMobile = screenWidth < 768
     const isLandscape = screenWidth > screenHeight
 
-    // Calculate game dimensions - FULLSCREEN from top to bottom
-    let gameWidth = screenWidth
-    let gameHeight = screenHeight
+    // Calculate game dimensions - responsive with proper aspect ratio
+    let gameWidth = 800
+    let gameHeight = 600
 
-    // For desktop, maintain reasonable size
-    if (!isMobile) {
-      gameWidth = Math.min(screenWidth, 1200)
-      gameHeight = Math.min(screenHeight, 800)
+    if (isMobile) {
+      if (isLandscape) {
+        // Landscape mobile - use full width, maintain aspect ratio
+        gameWidth = Math.min(screenWidth, 1000)
+        gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
+      } else {
+        // Portrait mobile - use full height, maintain aspect ratio
+        gameHeight = Math.min(screenHeight * 0.85, 700) // 85% of screen height
+        gameWidth = Math.round(gameHeight * 1.33) // 4:3 aspect ratio
+      }
+    } else {
+      // Desktop - reasonable size
+      gameWidth = Math.min(screenWidth * 0.8, 1000)
+      gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
     }
 
     const config: Phaser.Types.Core.GameConfig = {
@@ -88,11 +97,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: Phaser.Scale.RESIZE,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth,
         height: gameHeight,
-        fullscreenTarget: 'game-container',
       },
     }
 
@@ -154,14 +162,21 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         const isMobile = screenWidth < 768
         const isLandscape = screenWidth > screenHeight
 
-        // FULLSCREEN from top to bottom
-        let gameWidth = screenWidth
-        let gameHeight = screenHeight
+        // Responsive dimensions
+        let gameWidth = 800
+        let gameHeight = 600
 
-        // For desktop, maintain reasonable size
-        if (!isMobile) {
-          gameWidth = Math.min(screenWidth, 1200)
-          gameHeight = Math.min(screenHeight, 800)
+        if (isMobile) {
+          if (isLandscape) {
+            gameWidth = Math.min(screenWidth, 1000)
+            gameHeight = Math.round(gameWidth * 0.75)
+          } else {
+            gameHeight = Math.min(screenHeight * 0.85, 700)
+            gameWidth = Math.round(gameHeight * 1.33)
+          }
+        } else {
+          gameWidth = Math.min(screenWidth * 0.8, 1000)
+          gameHeight = Math.round(gameWidth * 0.75)
         }
 
         phaserGameRef.current.scale.resize(gameWidth, gameHeight)
@@ -172,9 +187,6 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     window.addEventListener('orientationchange', handleResize)
 
     return () => {
-      // Remove fullscreen class from body
-      document.body.classList.remove('game-fullscreen')
-      
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleResize)
       if (phaserGameRef.current) {
@@ -255,16 +267,17 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         </div>
       </div>
 
-      {/* Game Canvas - FULLSCREEN */}
+      {/* Game Canvas */}
       <div 
         ref={gameRef}
         id="game-container"
-        className="game-container w-full h-screen fixed top-0 left-0 z-10"
+        className="game-container border-4 border-white/20 rounded-lg shadow-2xl mx-auto"
         style={{ 
-          width: '100vw', 
-          height: '100vh',
-          maxWidth: '100vw',
-          maxHeight: '100vh'
+          width: '100%', 
+          height: 'auto',
+          aspectRatio: '4/3',
+          maxWidth: '1000px',
+          maxHeight: '700px'
         }}
       />
 

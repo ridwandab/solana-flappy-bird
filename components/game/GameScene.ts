@@ -204,31 +204,37 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createScrollingBackground() {
+    // Get screen dimensions for full background
+    const screenWidth = this.scale.width
+    const screenHeight = this.scale.height
+    const centerX = screenWidth / 2
+    const centerY = screenHeight / 2
+    
     // Check if background sprite is loaded, if not create fallback
     if (this.textures.exists('background_sprite')) {
-      // Create two background tiles for seamless scrolling
-      this.background1 = this.add.tileSprite(400, 300, 800, 600, 'background_sprite')
-      this.background2 = this.add.tileSprite(1200, 300, 800, 600, 'background_sprite')
+      // Create two background tiles for seamless scrolling - full screen
+      this.background1 = this.add.tileSprite(centerX, centerY, screenWidth, screenHeight, 'background_sprite')
+      this.background2 = this.add.tileSprite(centerX + screenWidth, centerY, screenWidth, screenHeight, 'background_sprite')
       
-      console.log('Scrolling background created with Background5.png')
+      console.log('Full screen scrolling background created with Background5.png')
     } else {
-      // Create fallback background with night city theme colors
-      this.background1 = this.add.rectangle(400, 300, 800, 600, 0x1a1a2e)
-      this.background2 = this.add.rectangle(1200, 300, 800, 600, 0x1a1a2e)
+      // Create fallback background with night city theme colors - full screen
+      this.background1 = this.add.rectangle(centerX, centerY, screenWidth, screenHeight, 0x1a1a2e)
+      this.background2 = this.add.rectangle(centerX + screenWidth, centerY, screenWidth, screenHeight, 0x1a1a2e)
       
-      // Add some stars for night effect
-      for (let i = 0; i < 50; i++) {
+      // Add some stars for night effect - full screen
+      for (let i = 0; i < 100; i++) {
         const star = this.add.circle(
-          Phaser.Math.Between(0, 800), 
-          Phaser.Math.Between(0, 400), 
-          1, 
+          Phaser.Math.Between(0, screenWidth), 
+          Phaser.Math.Between(0, screenHeight), 
+          2, 
           0xffffff, 
           0.8
         )
         star.setScrollFactor(0)
       }
       
-      console.log('Fallback background created - waiting for Background5.png to load')
+      console.log('Full screen fallback background created - waiting for Background5.png to load')
     }
     
     // Set scroll factors to 0 so they don't move with camera
@@ -301,13 +307,15 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create ground
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
+    // Create ground - full screen width
+    const screenWidth = this.scale.width
+    const screenHeight = this.scale.height
+    this.ground = this.add.rectangle(screenWidth / 2, screenHeight - 20, screenWidth, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.startScreenElements.push(this.ground)
 
-    // Create bird for start screen (static, no physics)
-    this.bird = this.add.sprite(200, 300, 'bird_default')
+    // Create bird for start screen (static, no physics) - centered
+    this.bird = this.add.sprite(screenWidth / 2, screenHeight / 2, 'bird_default')
     this.bird.setScale(0.2)
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -328,8 +336,8 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Create title
-    const title = this.add.text(400, 200, '🐦 SOLANA FLAPPY BIRD', {
+    // Create title - centered
+    const title = this.add.text(screenWidth / 2, screenHeight * 0.3, '🐦 SOLANA FLAPPY BIRD', {
       fontSize: '48px',
       color: '#ffffff',
       stroke: '#000000',
@@ -340,14 +348,14 @@ export class GameScene extends Phaser.Scene {
     title.setScrollFactor(0)
     this.startScreenElements.push(title)
 
-    // Create start button
-    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
+    // Create start button - centered
+    const startButton = this.add.rectangle(screenWidth / 2, screenHeight * 0.6, 200, 60, 0x00ff00)
     startButton.setScrollFactor(0)
     startButton.setInteractive()
     startButton.setStrokeStyle(4, 0x000000)
     this.startScreenElements.push(startButton)
 
-    const startText = this.add.text(400, 350, 'START', {
+    const startText = this.add.text(screenWidth / 2, screenHeight * 0.6, 'START', {
       fontSize: '32px',
       color: '#000000',
       fontFamily: 'Arial',
