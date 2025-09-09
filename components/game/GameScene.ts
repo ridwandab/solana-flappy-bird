@@ -636,23 +636,41 @@ export class GameScene extends Phaser.Scene {
       
       // Only check collision if pipe is close to bird (within 100 pixels)
       if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
-        // Use actual visual pipe bounds for collision detection
+        // Use precise collision detection for pipes
         const birdBounds = this.bird.getBounds()
+        
+        // Create precise collision rectangles for pipes (only the solid parts)
         const topPipeBounds = pipeSet.topPipe.getBounds()
         const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
         
         // Use exact bird bounds for maximum sensitivity
         const birdCollisionBounds = birdBounds
         
-        // Check collision using actual visual pipe bounds - this matches what player sees
-        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
-        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
+        // Check collision with precise pipe collision areas
+        // Top pipe: only check collision with the bottom part (where it's solid)
+        const topPipeCollisionRect = new Phaser.Geom.Rectangle(
+          topPipeBounds.x,
+          topPipeBounds.y + topPipeBounds.height - 20, // Only bottom 20 pixels are solid
+          topPipeBounds.width,
+          20
+        )
+        
+        // Bottom pipe: only check collision with the top part (where it's solid)
+        const bottomPipeCollisionRect = new Phaser.Geom.Rectangle(
+          bottomPipeBounds.x,
+          bottomPipeBounds.y, // Top part is solid
+          bottomPipeBounds.width,
+          20 // Only top 20 pixels are solid
+        )
+        
+        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
+        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
         
         // Visual debugging removed - collision detection works invisibly
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-          console.log('🔍 VISUAL COLLISION DEBUG:', {
+          console.log('🔍 PRECISE COLLISION DEBUG:', {
             bird: {
               x: this.bird.x,
               y: this.bird.y,
@@ -661,12 +679,14 @@ export class GameScene extends Phaser.Scene {
             topPipe: {
               x: pipeSet.topPipe.x,
               y: pipeSet.topPipe.y,
-              bounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height }
+              fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
+              collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height }
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
-              bounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height }
+              fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
+              collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height }
             },
             collision: {
               hitTopPipe,
@@ -677,14 +697,14 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (hitTopPipe || hitBottomPipe) {
-          console.log('🚨🚨🚨 VISUAL COLLISION DETECTED! 🚨🚨🚨')
+          console.log('🚨🚨🚨 PRECISE COLLISION DETECTED! 🚨🚨🚨')
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
           console.log('Bird bounds (exact):', birdCollisionBounds)
-          console.log('Top pipe bounds:', topPipeBounds)
-          console.log('Bottom pipe bounds:', bottomPipeBounds)
-          console.log('Using visual pipe bounds for collision!')
+          console.log('Top pipe collision rect:', topPipeCollisionRect)
+          console.log('Bottom pipe collision rect:', bottomPipeCollisionRect)
+          console.log('Using precise pipe collision areas!')
           if (!this.isGameOver) {
             this.gameOver()
           }
