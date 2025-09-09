@@ -628,11 +628,11 @@ export class GameScene extends Phaser.Scene {
         const birdCollisionBounds = birdBounds
         
         // Check collision with precise pipe collision areas
-        // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
-        // But we need to account for the flip - the solid part is actually at the top of the flipped pipe
+        // Top pipe: this is the pipe that extends from top of screen downward
+        // The collision area should cover the solid part of the pipe (the bottom part of the visual pipe)
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y, // Top of the flipped pipe (which is visually at the bottom)
+          topPipeBounds.y + topPipeBounds.height - 100, // Bottom 100 pixels of the top pipe
           topPipeBounds.width,
           100
         )
@@ -684,7 +684,7 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at top 100px (flipped pipe - corrected)'
+              note: 'Top pipe collision area is at bottom 100px (solid part of top pipe)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
