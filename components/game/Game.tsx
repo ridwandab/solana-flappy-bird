@@ -24,16 +24,27 @@ const useMobileDetection = () => {
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
       const isSmallScreen = window.innerWidth <= 768
       
-      setIsMobile(isMobileDevice || (isTouchDevice && isSmallScreen))
+      // More aggressive mobile detection
+      const isMobile = isMobileDevice || (isTouchDevice && isSmallScreen) || window.innerWidth <= 768
+      setIsMobile(isMobile)
       
-      // Force portrait mode for desktop, use actual orientation for mobile
-      if (isMobileDevice || (isTouchDevice && isSmallScreen)) {
-        setIsPortrait(window.innerHeight > window.innerWidth)
+      // Force portrait mode for desktop (screen width > 768), use actual orientation for mobile
+      let portraitMode
+      if (window.innerWidth > 768) {
+        // Desktop: always portrait
+        portraitMode = true
+        console.log('Desktop detected - forcing portrait mode')
       } else {
-        // Desktop always uses portrait mode
-        setIsPortrait(true)
+        // Mobile: use actual orientation
+        portraitMode = window.innerHeight > window.innerWidth
+        console.log('Mobile detected - using actual orientation:', portraitMode ? 'portrait' : 'landscape')
       }
       
+      console.log('Screen size:', window.innerWidth, 'x', window.innerHeight)
+      console.log('Is mobile:', isMobile)
+      console.log('Is portrait:', portraitMode)
+      
+      setIsPortrait(portraitMode)
       setScreenSize({ width: window.innerWidth, height: window.innerHeight })
     }
 
@@ -104,9 +115,12 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
           const height = Math.min(screenSize.height, 600)
           return { width, height }
         } else {
-          // Desktop portrait: use larger dimensions but still portrait
-          const width = Math.min(screenSize.width, 500)
-          const height = Math.min(screenSize.height, 700)
+          // Desktop portrait: force portrait aspect ratio
+          const maxWidth = Math.min(screenSize.width, 400)
+          const maxHeight = Math.min(screenSize.height, 600)
+          // Ensure portrait aspect ratio (height > width)
+          const width = Math.min(maxWidth, maxHeight * 0.67) // 2:3 aspect ratio
+          const height = Math.min(maxHeight, width * 1.5)
           return { width, height }
         }
       } else {
@@ -311,7 +325,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
           className={`${isPortrait ? 'portrait-game-canvas' : 'landscape-game-canvas'} mobile-game-canvas game-canvas-container`}
           style={{ 
             width: '100vw', 
-            height: isPortrait ? '100vh' : '100vh'
+            height: '100vh'
           }}
           onTouchStart={(e) => {
             // Prevent default touch behavior
