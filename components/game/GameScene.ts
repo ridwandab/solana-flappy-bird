@@ -801,17 +801,10 @@ export class GameScene extends Phaser.Scene {
         const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionBounds)
         const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionBounds)
         
-        // Additional check: ensure bird is not in the safe gap between pipes
-        const birdCenterY = birdCollisionBounds.y + birdCollisionBounds.height / 2
-        const topPipeBottom = topPipeCollisionBounds.y + topPipeCollisionBounds.height
-        const bottomPipeTop = bottomPipeCollisionBounds.y
-        const safeGapTop = topPipeBottom + 10 // 10px buffer below top pipe
-        const safeGapBottom = bottomPipeTop - 10 // 10px buffer above bottom pipe
-        
-        // Only trigger collision if bird is actually touching pipe AND not in safe gap
-        const inSafeGap = birdCenterY >= safeGapTop && birdCenterY <= safeGapBottom
-        const actuallyHitTopPipe = hitTopPipe && !inSafeGap
-        const actuallyHitBottomPipe = hitBottomPipe && !inSafeGap
+        // Simple collision check - if bird overlaps with pipe, it's a collision
+        // No complex safe gap logic, just direct visual collision
+        const actuallyHitTopPipe = hitTopPipe
+        const actuallyHitBottomPipe = hitBottomPipe
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 25) {
@@ -846,10 +839,6 @@ export class GameScene extends Phaser.Scene {
             collision: {
               hitTopPipe: actuallyHitTopPipe,
               hitBottomPipe: actuallyHitBottomPipe,
-              inSafeGap,
-              safeGapTop,
-              safeGapBottom,
-              birdCenterY,
               distanceToTopPipe: Math.abs(pipeSet.topPipe.x - this.bird.x)
             }
           })
@@ -857,9 +846,8 @@ export class GameScene extends Phaser.Scene {
         
         if (actuallyHitTopPipe || actuallyHitBottomPipe) {
           console.log('🚨🚨🚨 EXACT VISUAL COLLISION DETECTED! 🚨🚨🚨')
-          console.log('Actually hit top pipe:', actuallyHitTopPipe)
-          console.log('Actually hit bottom pipe:', actuallyHitBottomPipe)
-          console.log('In safe gap:', inSafeGap)
+          console.log('Hit top pipe:', actuallyHitTopPipe)
+          console.log('Hit bottom pipe:', actuallyHitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
           console.log('Collision matches visual bounds exactly')
           if (!this.isGameOver) {
