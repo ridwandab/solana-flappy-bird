@@ -27,6 +27,7 @@ export class GameScene extends Phaser.Scene {
   private bird!: Phaser.GameObjects.Sprite
   private pipes!: Phaser.GameObjects.Group
   private background!: Phaser.GameObjects.Rectangle
+  private ground!: Phaser.GameObjects.Rectangle
   private scoreText!: Phaser.GameObjects.Text
   private difficultyText!: Phaser.GameObjects.Text
   
@@ -299,7 +300,10 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // No ground - cleaner look
+    // Create ground
+    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
+    this.ground.setScrollFactor(0)
+    this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics)
     this.bird = this.add.sprite(200, 300, 'bird_default')
@@ -560,7 +564,16 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
-    // No ground collision - bird can fall off screen
+    // Physics - ground collision
+    this.physics.add.collider(this.bird, this.ground, () => {
+      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit ground! Game Over!', { 
+        birdY: this.bird.y, 
+        groundY: this.ground.y 
+      })
+      if (!this.isGameOver) {
+        this.gameOver()
+      }
+    }, undefined, this)
 
     // Input - only for flapping during gameplay
     this.input.keyboard?.on('keydown-SPACE', this.flap, this)
@@ -618,9 +631,9 @@ export class GameScene extends Phaser.Scene {
         // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 50, // Bottom 50 pixels are solid (larger area)
+          topPipeBounds.y + topPipeBounds.height - 80, // Bottom 80 pixels are solid (larger area)
           topPipeBounds.width,
-          50
+          80
         )
         
         // Bottom pipe: collision area is at the top of the visual pipe
@@ -628,7 +641,7 @@ export class GameScene extends Phaser.Scene {
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          50 // Top 50 pixels are solid (larger area)
+          80 // Top 80 pixels are solid (larger area)
         )
         
         let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
@@ -649,14 +662,14 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 50px (flipped pipe)'
+              note: 'Top pipe collision area is at bottom 80px (flipped pipe)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
               collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height },
-              note: 'Bottom pipe collision area is at top 50px'
+              note: 'Bottom pipe collision area is at top 80px'
             },
             collision: {
               hitTopPipe,
@@ -699,7 +712,22 @@ export class GameScene extends Phaser.Scene {
       }
     }
     
-    // No ground collision detection - bird can fall off screen
+    // Manual ground collision detection for more accuracy
+    if (this.bird && !this.isGameOver) {
+      const birdBottom = this.bird.y + 25 // Bird bottom edge
+      const groundTop = 580 // Ground top edge (ground is at y: 580, height: 40)
+      
+      if (birdBottom >= groundTop) {
+        console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
+          birdY: this.bird.y, 
+          birdBottom, 
+          groundTop 
+        })
+        if (!this.isGameOver) {
+          this.gameOver()
+        }
+      }
+    }
   }
 
   private flap() {
