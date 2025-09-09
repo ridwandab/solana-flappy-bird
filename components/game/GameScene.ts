@@ -645,22 +645,38 @@ export class GameScene extends Phaser.Scene {
           100 // Top 100 pixels are solid
         )
         
-        // Use full pipe bounds for collision detection (more reliable)
-        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
-        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
+        // Check collision with only the solid parts of pipes (not the gap)
+        // Top pipe: only check collision with the bottom part (solid part)
+        const topPipeSolidRect = new Phaser.Geom.Rectangle(
+          topPipeBounds.x,
+          topPipeBounds.y + topPipeBounds.height - 80, // Bottom 80 pixels are solid
+          topPipeBounds.width,
+          80
+        )
+        
+        // Bottom pipe: only check collision with the top part (solid part)
+        const bottomPipeSolidRect = new Phaser.Geom.Rectangle(
+          bottomPipeBounds.x,
+          bottomPipeBounds.y, // Top 80 pixels are solid
+          bottomPipeBounds.width,
+          80
+        )
+        
+        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeSolidRect)
+        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeSolidRect)
         
         // Visual debugging for collision areas (temporary)
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
           // Draw collision rectangles for debugging
           const graphics = this.add.graphics()
           
-          // Top pipe collision (red)
+          // Top pipe solid part collision (red)
           graphics.lineStyle(3, 0xff0000, 1)
-          graphics.strokeRect(topPipeCollisionRect.x, topPipeCollisionRect.y, topPipeCollisionRect.width, topPipeCollisionRect.height)
+          graphics.strokeRect(topPipeSolidRect.x, topPipeSolidRect.y, topPipeSolidRect.width, topPipeSolidRect.height)
           
-          // Bottom pipe collision (green)
+          // Bottom pipe solid part collision (green)
           graphics.lineStyle(3, 0x00ff00, 1)
-          graphics.strokeRect(bottomPipeCollisionRect.x, bottomPipeCollisionRect.y, bottomPipeCollisionRect.width, bottomPipeCollisionRect.height)
+          graphics.strokeRect(bottomPipeSolidRect.x, bottomPipeSolidRect.y, bottomPipeSolidRect.width, bottomPipeSolidRect.height)
           
           // Bird collision (blue)
           graphics.lineStyle(3, 0x0000ff, 1)
@@ -706,11 +722,12 @@ export class GameScene extends Phaser.Scene {
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
           console.log('🔍 COLLISION CHECK:', {
             bird: { x: this.bird.x, y: this.bird.y, bounds: birdCollisionBounds },
-            topPipe: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y, bounds: topPipeBounds },
-            bottomPipe: { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y, bounds: bottomPipeBounds },
+            topPipeSolid: { x: topPipeSolidRect.x, y: topPipeSolidRect.y, bounds: topPipeSolidRect },
+            bottomPipeSolid: { x: bottomPipeSolidRect.x, y: bottomPipeSolidRect.y, bounds: bottomPipeSolidRect },
             hitTopPipe,
             hitBottomPipe,
-            distance: Math.abs(pipeSet.topPipe.x - this.bird.x)
+            distance: Math.abs(pipeSet.topPipe.x - this.bird.x),
+            note: 'Only solid parts of pipes cause collision, gap is safe'
           })
         }
         
