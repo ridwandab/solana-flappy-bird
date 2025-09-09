@@ -645,8 +645,9 @@ export class GameScene extends Phaser.Scene {
           100 // Top 100 pixels are solid
         )
         
-        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
-        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
+        // Use full pipe bounds for collision detection (more reliable)
+        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
+        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
         
         // Visual debugging for collision areas (temporary)
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
@@ -701,14 +702,26 @@ export class GameScene extends Phaser.Scene {
           })
         }
         
+        // Always log collision detection when pipe is close
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
+          console.log('🔍 COLLISION CHECK:', {
+            bird: { x: this.bird.x, y: this.bird.y, bounds: birdCollisionBounds },
+            topPipe: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y, bounds: topPipeBounds },
+            bottomPipe: { x: pipeSet.bottomPipe.x, y: pipeSet.bottomPipe.y, bounds: bottomPipeBounds },
+            hitTopPipe,
+            hitBottomPipe,
+            distance: Math.abs(pipeSet.topPipe.x - this.bird.x)
+          })
+        }
+        
         if (hitTopPipe || hitBottomPipe) {
           console.log('🚨🚨🚨 PIPE COLLISION DETECTED! GAME OVER! 🚨🚨🚨')
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
           console.log('Bird bounds:', birdCollisionBounds)
-          console.log('Top pipe collision rect:', topPipeCollisionRect)
-          console.log('Bottom pipe collision rect:', bottomPipeCollisionRect)
+          console.log('Top pipe bounds:', topPipeBounds)
+          console.log('Bottom pipe bounds:', bottomPipeBounds)
           console.log('COLLISION DETECTION WORKING - TRIGGERING GAME OVER!')
           if (!this.isGameOver) {
             this.gameOver()
