@@ -51,8 +51,6 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   useEffect(() => {
     if (!gameRef.current) return
 
-    // Game initialization
-
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
 
@@ -62,24 +60,20 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const isMobile = screenWidth < 768
     const isLandscape = screenWidth > screenHeight
 
-    // Calculate game dimensions - responsive with proper aspect ratio
+    // Calculate game dimensions based on device and orientation
     let gameWidth = 800
     let gameHeight = 600
 
     if (isMobile) {
       if (isLandscape) {
         // Landscape mobile - use full width, maintain aspect ratio
-        gameWidth = Math.min(screenWidth, 1000)
+        gameWidth = Math.min(screenWidth, 1200)
         gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
       } else {
         // Portrait mobile - use full height, maintain aspect ratio
-        gameHeight = Math.min(screenHeight * 0.85, 700) // 85% of screen height
+        gameHeight = Math.min(screenHeight * 0.8, 800) // 80% of screen height
         gameWidth = Math.round(gameHeight * 1.33) // 4:3 aspect ratio
       }
-    } else {
-      // Desktop - reasonable size
-      gameWidth = Math.min(screenWidth * 0.8, 1000)
-      gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
     }
 
     const config: Phaser.Types.Core.GameConfig = {
@@ -97,7 +91,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: gameWidth,
         height: gameHeight,
@@ -162,21 +156,17 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         const isMobile = screenWidth < 768
         const isLandscape = screenWidth > screenHeight
 
-        // Responsive dimensions
         let gameWidth = 800
         let gameHeight = 600
 
         if (isMobile) {
           if (isLandscape) {
-            gameWidth = Math.min(screenWidth, 1000)
+            gameWidth = Math.min(screenWidth, 1200)
             gameHeight = Math.round(gameWidth * 0.75)
           } else {
-            gameHeight = Math.min(screenHeight * 0.85, 700)
+            gameHeight = Math.min(screenHeight * 0.8, 800)
             gameWidth = Math.round(gameHeight * 1.33)
           }
-        } else {
-          gameWidth = Math.min(screenWidth * 0.8, 1000)
-          gameHeight = Math.round(gameWidth * 0.75)
         }
 
         phaserGameRef.current.scale.resize(gameWidth, gameHeight)
@@ -270,14 +260,12 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       {/* Game Canvas */}
       <div 
         ref={gameRef}
-        id="game-container"
-        className="game-container border-4 border-white/20 rounded-lg shadow-2xl mx-auto"
+        className="game-container border-4 border-white/20 rounded-lg shadow-2xl w-full max-w-4xl mx-auto"
         style={{ 
           width: '100%', 
           height: 'auto',
           aspectRatio: '4/3',
-          maxWidth: '1000px',
-          maxHeight: '700px'
+          maxHeight: '80vh'
         }}
       />
 
