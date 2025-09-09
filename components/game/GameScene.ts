@@ -628,10 +628,11 @@ export class GameScene extends Phaser.Scene {
         const birdCollisionBounds = birdBounds
         
         // Check collision with precise pipe collision areas
-        // Top pipe: since it's flipped, we need to check the bottom part of the visual pipe
+        // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
+        // But we need to account for the flip - the solid part is actually at the top of the flipped pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 100, // Bottom 100 pixels of flipped pipe
+          topPipeBounds.y, // Top of the flipped pipe (which is visually at the bottom)
           topPipeBounds.width,
           100
         )
@@ -648,18 +649,24 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
         
         // Visual debugging for collision areas (temporary)
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
           // Draw collision rectangles for debugging
           const graphics = this.add.graphics()
-          graphics.lineStyle(2, 0xff0000, 1)
+          
+          // Top pipe collision (red)
+          graphics.lineStyle(3, 0xff0000, 1)
           graphics.strokeRect(topPipeCollisionRect.x, topPipeCollisionRect.y, topPipeCollisionRect.width, topPipeCollisionRect.height)
-          graphics.lineStyle(2, 0x00ff00, 1)
+          
+          // Bottom pipe collision (green)
+          graphics.lineStyle(3, 0x00ff00, 1)
           graphics.strokeRect(bottomPipeCollisionRect.x, bottomPipeCollisionRect.y, bottomPipeCollisionRect.width, bottomPipeCollisionRect.height)
-          graphics.lineStyle(2, 0x0000ff, 1)
+          
+          // Bird collision (blue)
+          graphics.lineStyle(3, 0x0000ff, 1)
           graphics.strokeRect(birdCollisionBounds.x, birdCollisionBounds.y, birdCollisionBounds.width, birdCollisionBounds.height)
           
-          // Remove graphics after 100ms
-          this.time.delayedCall(100, () => {
+          // Remove graphics after 200ms
+          this.time.delayedCall(200, () => {
             graphics.destroy()
           })
         }
@@ -677,7 +684,7 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 100px (flipped pipe)'
+              note: 'Top pipe collision area is at top 100px (flipped pipe - corrected)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
