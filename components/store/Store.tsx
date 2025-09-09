@@ -86,7 +86,7 @@ export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
   )
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 max-h-screen ui-scroll pb-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

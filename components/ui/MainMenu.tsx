@@ -50,7 +50,7 @@ export const MainMenu: FC<MainMenuProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
+      <div className="max-w-4xl w-full max-h-screen ui-scroll pb-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center space-x-4 mb-6">
