@@ -225,37 +225,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center space-y-4 sm:space-y-6 px-2 sm:px-4 py-4 sm:py-6">
-      {/* Game Header */}
-      <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-4xl gap-4 sm:gap-0">
-        <div className="flex items-center space-x-2 sm:space-x-4">
-          <button
-            onClick={onBackToMenu}
-            className="btn-secondary text-sm sm:text-base px-3 sm:px-4 py-2"
-          >
-            ← Back to Menu
-          </button>
-          <button
-            onClick={handlePause}
-            className="btn-primary text-sm sm:text-base px-3 sm:px-4 py-2"
-          >
-            Pause
-          </button>
-        </div>
-        
-        <div className="flex items-center space-x-4 sm:space-x-6">
-          <div className="text-center">
-            <p className="text-xs sm:text-sm text-white/80">Score</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{score}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs sm:text-sm text-white/80">High Score</p>
-            <p className="text-lg sm:text-xl font-bold text-yellow-400">
-              {gameState.highScore || 0}
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-start space-y-2 px-2 sm:px-4 pt-2 sm:pt-4">
+      {/* No header - cleaner look */}
 
       {/* Game Canvas */}
       <div 

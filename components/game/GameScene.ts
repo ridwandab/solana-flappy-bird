@@ -27,7 +27,6 @@ export class GameScene extends Phaser.Scene {
   private bird!: Phaser.GameObjects.Sprite
   private pipes!: Phaser.GameObjects.Group
   private background!: Phaser.GameObjects.Rectangle
-  private ground!: Phaser.GameObjects.Rectangle
   private scoreText!: Phaser.GameObjects.Text
   private difficultyText!: Phaser.GameObjects.Text
   
@@ -300,10 +299,7 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create ground
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
-    this.ground.setScrollFactor(0)
-    this.startScreenElements.push(this.ground)
+    // No ground - cleaner look
 
     // Create bird for start screen (static, no physics)
     this.bird = this.add.sprite(200, 300, 'bird_default')
@@ -327,24 +323,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Create bird icon
-    const birdIcon = this.add.image(400, 150, 'bird_default')
-    birdIcon.setScale(1.2) // Reduced from 2 to 1.2 for better size
-    birdIcon.setOrigin(0.5, 0.5)
-    birdIcon.setScrollFactor(0)
-    this.startScreenElements.push(birdIcon)
-
-    // Create title
-    const title = this.add.text(400, 200, 'SOLANA FLAPPY BIRD', {
-      fontSize: '48px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 4,
-      fontFamily: 'Arial'
-    })
-    title.setOrigin(0.5, 0.5)
-    title.setScrollFactor(0)
-    this.startScreenElements.push(title)
+    // No title or icon - just the game
 
     // Create start button
     const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
@@ -581,16 +560,7 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
-    // Physics
-    this.physics.add.collider(this.bird, this.ground, () => {
-      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit ground! Game Over!', { 
-        birdY: this.bird.y, 
-        groundY: this.ground.y 
-      })
-      if (!this.isGameOver) {
-        this.gameOver()
-      }
-    }, undefined, this)
+    // No ground collision - bird can fall off screen
 
     // Input - only for flapping during gameplay
     this.input.keyboard?.on('keydown-SPACE', this.flap, this)
@@ -729,22 +699,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
     
-    // Manual ground collision detection for more accuracy
-    if (this.bird && !this.isGameOver) {
-      const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 580 // Ground top edge (ground is at y: 580, height: 40)
-      
-      if (birdBottom >= groundTop) {
-        console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
-          birdY: this.bird.y, 
-          birdBottom, 
-          groundTop 
-        })
-        if (!this.isGameOver) {
-          this.gameOver()
-        }
-      }
-    }
+    // No ground collision detection - bird can fall off screen
   }
 
   private flap() {
