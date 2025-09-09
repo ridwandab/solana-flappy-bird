@@ -771,10 +771,10 @@ export class GameScene extends Phaser.Scene {
         
         // Create bird collision box that matches visual bird size exactly
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
-          birdBounds.x + 8, // Small margin to match visual bird
-          birdBounds.y + 8, // Small margin to match visual bird
-          birdBounds.width - 16, // Reduce width to match visual bird
-          birdBounds.height - 16 // Reduce height to match visual bird
+          birdBounds.x + 12, // Medium margin to match visual bird
+          birdBounds.y + 12, // Medium margin to match visual bird
+          birdBounds.width - 24, // Reduce width to match visual bird
+          birdBounds.height - 24 // Reduce height to match visual bird
         )
         
         // Get pipe bounds - use exact visual bounds
@@ -782,23 +782,36 @@ export class GameScene extends Phaser.Scene {
         const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
         
         // Create pipe collision boxes that match visual pipe size exactly
+        // Only check collision on the actual pipe body, not the gap
         const topPipeCollisionBounds = new Phaser.Geom.Rectangle(
-          topPipeBounds.x + 2, // Very small margin to match visual pipe exactly
-          topPipeBounds.y + 2, // Very small margin to match visual pipe exactly
-          topPipeBounds.width - 4, // Reduce width slightly to match visual pipe
-          topPipeBounds.height - 4 // Reduce height slightly to match visual pipe
+          topPipeBounds.x + 4, // Small margin to match visual pipe exactly
+          topPipeBounds.y + 4, // Small margin to match visual pipe exactly
+          topPipeBounds.width - 8, // Reduce width to match visual pipe
+          topPipeBounds.height - 8 // Reduce height to match visual pipe
         )
         
         const bottomPipeCollisionBounds = new Phaser.Geom.Rectangle(
-          bottomPipeBounds.x + 2, // Very small margin to match visual pipe exactly
-          bottomPipeBounds.y + 2, // Very small margin to match visual pipe exactly
-          bottomPipeBounds.width - 4, // Reduce width slightly to match visual pipe
-          bottomPipeBounds.height - 4 // Reduce height slightly to match visual pipe
+          bottomPipeBounds.x + 4, // Small margin to match visual pipe exactly
+          bottomPipeBounds.y + 4, // Small margin to match visual pipe exactly
+          bottomPipeBounds.width - 8, // Reduce width to match visual pipe
+          bottomPipeBounds.height - 8 // Reduce height to match visual pipe
         )
         
         // Check collision with exact visual bounds
         const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionBounds)
         const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionBounds)
+        
+        // Additional check: ensure bird is not in the safe gap between pipes
+        const birdCenterY = birdCollisionBounds.y + birdCollisionBounds.height / 2
+        const topPipeBottom = topPipeCollisionBounds.y + topPipeCollisionBounds.height
+        const bottomPipeTop = bottomPipeCollisionBounds.y
+        const safeGapTop = topPipeBottom + 10 // 10px buffer below top pipe
+        const safeGapBottom = bottomPipeTop - 10 // 10px buffer above bottom pipe
+        
+        // Only trigger collision if bird is actually touching pipe AND not in safe gap
+        const inSafeGap = birdCenterY >= safeGapTop && birdCenterY <= safeGapBottom
+        const actuallyHitTopPipe = hitTopPipe && !inSafeGap
+        const actuallyHitBottomPipe = hitBottomPipe && !inSafeGap
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 25) {
@@ -818,7 +831,7 @@ export class GameScene extends Phaser.Scene {
                 width: birdCollisionBounds.width,
                 height: birdCollisionBounds.height
               },
-              margin: '8px margin (matches visual bird exactly)'
+              margin: '12px margin (matches visual bird exactly)'
             },
             pipes: {
               topPipe: {
@@ -831,17 +844,22 @@ export class GameScene extends Phaser.Scene {
               }
             },
             collision: {
-              hitTopPipe,
-              hitBottomPipe,
+              hitTopPipe: actuallyHitTopPipe,
+              hitBottomPipe: actuallyHitBottomPipe,
+              inSafeGap,
+              safeGapTop,
+              safeGapBottom,
+              birdCenterY,
               distanceToTopPipe: Math.abs(pipeSet.topPipe.x - this.bird.x)
             }
           })
         }
         
-        if (hitTopPipe || hitBottomPipe) {
+        if (actuallyHitTopPipe || actuallyHitBottomPipe) {
           console.log('🚨🚨🚨 EXACT VISUAL COLLISION DETECTED! 🚨🚨🚨')
-          console.log('Hit top pipe:', hitTopPipe)
-          console.log('Hit bottom pipe:', hitBottomPipe)
+          console.log('Actually hit top pipe:', actuallyHitTopPipe)
+          console.log('Actually hit bottom pipe:', actuallyHitBottomPipe)
+          console.log('In safe gap:', inSafeGap)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
           console.log('Collision matches visual bounds exactly')
           if (!this.isGameOver) {
@@ -855,7 +873,7 @@ export class GameScene extends Phaser.Scene {
     // Additional collision check for bird falling below screen
     if (this.bird && !this.isGameOver) {
       const birdBounds = this.bird.getBounds()
-      const birdBottom = birdBounds.y + birdBounds.height - 8 // Use same margin as collision detection
+      const birdBottom = birdBounds.y + birdBounds.height - 12 // Use same margin as collision detection
       
       if (birdBottom > 600) {
         console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y, birdBottom })
@@ -868,7 +886,7 @@ export class GameScene extends Phaser.Scene {
     // Additional collision check for bird hitting ceiling (top of screen)
     if (this.bird && !this.isGameOver) {
       const birdBounds = this.bird.getBounds()
-      const birdTop = birdBounds.y + 8 // Bird top edge with same margin as collision detection
+      const birdTop = birdBounds.y + 12 // Bird top edge with same margin as collision detection
       
       if (birdTop <= 0) {
         console.log('🚨 BIRD HIT CEILING! Game Over!', { birdY: this.bird.y, birdTop })
@@ -881,7 +899,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBounds = this.bird.getBounds()
-      const birdBottom = birdBounds.y + birdBounds.height - 8 // Bird bottom edge with same margin as collision detection
+      const birdBottom = birdBounds.y + birdBounds.height - 12 // Bird bottom edge with same margin as collision detection
       const groundTop = 580 // Ground top edge (ground is at y: 580, height: 40)
       
       if (birdBottom >= groundTop) {
@@ -1080,10 +1098,10 @@ export class GameScene extends Phaser.Scene {
         // Check collision with bird using exact visual bounds (same as pipe collision)
         const birdBounds = this.bird.getBounds()
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
-          birdBounds.x + 8, // Small margin to match visual bird (same as pipe collision)
-          birdBounds.y + 8, // Small margin to match visual bird (same as pipe collision)
-          birdBounds.width - 16, // Reduce width to match visual bird (same as pipe collision)
-          birdBounds.height - 16 // Reduce height to match visual bird (same as pipe collision)
+          birdBounds.x + 12, // Medium margin to match visual bird (same as pipe collision)
+          birdBounds.y + 12, // Medium margin to match visual bird (same as pipe collision)
+          birdBounds.width - 24, // Reduce width to match visual bird (same as pipe collision)
+          birdBounds.height - 24 // Reduce height to match visual bird (same as pipe collision)
         )
         
         const obstacleBounds = new Phaser.Geom.Rectangle(
