@@ -114,10 +114,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       
       // Force desktop to always use portrait dimensions
       if (!isMobile) {
-        // Desktop: force portrait dimensions - height > width
-        const width = Math.min(safeWidth, 400)
-        const height = Math.min(safeHeight, 600)
-        console.log('Desktop dimensions:', width, 'x', height, '(portrait)')
+        // Desktop: use full screen dimensions but maintain portrait aspect ratio
+        const width = safeWidth
+        const height = safeHeight
+        console.log('Desktop dimensions:', width, 'x', height, '(portrait fullscreen)')
         return { width, height }
       } else if (isPortrait) {
         // Mobile portrait
@@ -149,7 +149,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: isMobile ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: dimensions.width,
         height: dimensions.height,
