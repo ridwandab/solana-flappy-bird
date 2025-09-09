@@ -647,20 +647,20 @@ export class GameScene extends Phaser.Scene {
         const birdCollisionBounds = birdBounds
         
         // Check collision with precise pipe collision areas
-        // Top pipe: only check collision with the bottom part (where it's solid)
+        // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 20, // Only bottom 20 pixels are solid
+          topPipeBounds.y + topPipeBounds.height - 30, // Bottom 30 pixels are solid (more area)
           topPipeBounds.width,
-          20
+          30
         )
         
-        // Bottom pipe: only check collision with the top part (where it's solid)
+        // Bottom pipe: collision area is at the top of the visual pipe
         const bottomPipeCollisionRect = new Phaser.Geom.Rectangle(
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          20 // Only top 20 pixels are solid
+          30 // Top 30 pixels are solid (more area)
         )
         
         let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
@@ -670,7 +670,7 @@ export class GameScene extends Phaser.Scene {
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-          console.log('🔍 PRECISE COLLISION DEBUG:', {
+          console.log('🔍 ENHANCED COLLISION DEBUG:', {
             bird: {
               x: this.bird.x,
               y: this.bird.y,
@@ -680,13 +680,15 @@ export class GameScene extends Phaser.Scene {
               x: pipeSet.topPipe.x,
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
-              collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height }
+              collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
+              note: 'Top pipe collision area is at bottom 30px (flipped pipe)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
-              collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height }
+              collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height },
+              note: 'Bottom pipe collision area is at top 30px'
             },
             collision: {
               hitTopPipe,

@@ -225,7 +225,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="flex flex-col items-center space-y-4 sm:space-y-6 p-2 sm:p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center space-y-4 sm:space-y-6 p-2 sm:p-4">
       {/* Game Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between w-full max-w-4xl gap-4 sm:gap-0">
         <div className="flex items-center space-x-2 sm:space-x-4">
@@ -260,12 +260,13 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       {/* Game Canvas */}
       <div 
         ref={gameRef}
-        className="game-container border-4 border-white/20 rounded-lg shadow-2xl w-full max-w-4xl mx-auto"
+        className="game-container border-4 border-white/20 rounded-lg shadow-2xl mx-auto"
         style={{ 
           width: '100%', 
           height: 'auto',
           aspectRatio: '4/3',
-          maxHeight: '80vh'
+          maxWidth: '800px',
+          maxHeight: '600px'
         }}
       />
 
