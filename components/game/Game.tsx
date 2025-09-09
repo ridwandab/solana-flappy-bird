@@ -108,23 +108,20 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     // Calculate responsive dimensions
     const getGameDimensions = () => {
-      if (isPortrait) {
-        // Portrait: use full screen width, maintain aspect ratio
-        if (isMobile) {
-          const width = Math.min(screenSize.width, 400)
-          const height = Math.min(screenSize.height, 600)
-          return { width, height }
-        } else {
-          // Desktop portrait: force portrait aspect ratio
-          const maxWidth = Math.min(screenSize.width, 400)
-          const maxHeight = Math.min(screenSize.height, 600)
-          // Ensure portrait aspect ratio (height > width)
-          const width = Math.min(maxWidth, maxHeight * 0.67) // 2:3 aspect ratio
-          const height = Math.min(maxHeight, width * 1.5)
-          return { width, height }
-        }
+      // Force desktop to always use portrait dimensions
+      if (!isMobile) {
+        // Desktop: always portrait dimensions
+        const width = 400
+        const height = 600
+        console.log('Desktop dimensions:', width, 'x', height)
+        return { width, height }
+      } else if (isPortrait) {
+        // Mobile portrait
+        const width = Math.min(screenSize.width, 400)
+        const height = Math.min(screenSize.height, 600)
+        return { width, height }
       } else {
-        // Landscape: only for mobile
+        // Mobile landscape
         const width = Math.min(screenSize.width, 800)
         const height = Math.min(screenSize.height, 400)
         return { width, height }
@@ -148,7 +145,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: Phaser.Scale.RESIZE,
+        mode: isMobile ? Phaser.Scale.RESIZE : Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: dimensions.width,
         height: dimensions.height,

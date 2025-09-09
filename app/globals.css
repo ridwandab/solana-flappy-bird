@@ -197,6 +197,17 @@
     .portrait-game-canvas {
       height: 100vh !important;
       width: 100vw !important;
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+    }
+
+    /* Force desktop to use portrait aspect ratio */
+    @media (min-width: 769px) {
+      .portrait-game-canvas canvas {
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        aspect-ratio: 2/3 !important;
+      }
     }
 
     .portrait-hide-ui {
