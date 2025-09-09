@@ -25,7 +25,15 @@ const useMobileDetection = () => {
       const isSmallScreen = window.innerWidth <= 768
       
       setIsMobile(isMobileDevice || (isTouchDevice && isSmallScreen))
-      setIsPortrait(window.innerHeight > window.innerWidth)
+      
+      // Force portrait mode for desktop, use actual orientation for mobile
+      if (isMobileDevice || (isTouchDevice && isSmallScreen)) {
+        setIsPortrait(window.innerHeight > window.innerWidth)
+      } else {
+        // Desktop always uses portrait mode
+        setIsPortrait(true)
+      }
+      
       setScreenSize({ width: window.innerWidth, height: window.innerHeight })
     }
 
@@ -91,11 +99,18 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const getGameDimensions = () => {
       if (isPortrait) {
         // Portrait: use full screen width, maintain aspect ratio
-        const width = Math.min(screenSize.width, 400)
-        const height = Math.min(screenSize.height, 600)
-        return { width, height }
+        if (isMobile) {
+          const width = Math.min(screenSize.width, 400)
+          const height = Math.min(screenSize.height, 600)
+          return { width, height }
+        } else {
+          // Desktop portrait: use larger dimensions but still portrait
+          const width = Math.min(screenSize.width, 500)
+          const height = Math.min(screenSize.height, 700)
+          return { width, height }
+        }
       } else {
-        // Landscape: use full screen
+        // Landscape: only for mobile
         const width = Math.min(screenSize.width, 800)
         const height = Math.min(screenSize.height, 400)
         return { width, height }

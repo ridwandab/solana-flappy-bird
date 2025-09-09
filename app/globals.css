@@ -184,7 +184,7 @@
       display: block;
     }
 
-    /* Desktop portrait mode - full screen height */
+    /* Desktop always uses portrait mode */
     .portrait-fullscreen {
       height: 100vh !important;
       width: 100vw !important;
@@ -203,7 +203,7 @@
       display: none !important;
     }
 
-    /* Desktop landscape mode */
+    /* Desktop landscape mode - force to portrait */
     .landscape-fullscreen {
       height: 100vh !important;
       width: 100vw !important;
