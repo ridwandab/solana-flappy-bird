@@ -54,7 +54,13 @@ export const MainMenu: FC<MainMenuProps> = ({
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
-            <div className="text-4xl sm:text-6xl">🐦</div>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20">
+              <img 
+                src="/Bird2-export.png" 
+                alt="Solana Flappy Bird" 
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
                 Solana Flappy Bird

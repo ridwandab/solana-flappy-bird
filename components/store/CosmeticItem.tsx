@@ -64,8 +64,14 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
             className="w-full h-full object-cover rounded-lg"
           />
         ) : (
-          <div className="text-4xl text-white/40">
-            {cosmetic.type === 'bird' ? '🐦' : cosmetic.type === 'background' ? '🌅' : cosmetic.type === 'pipe' ? '🚰' : '✨'}
+          <div className="text-4xl text-white/40 flex items-center justify-center">
+            {cosmetic.type === 'bird' ? (
+              <img 
+                src="/Bird2-export.png" 
+                alt="Bird" 
+                className="w-8 h-8 object-contain"
+              />
+            ) : cosmetic.type === 'background' ? '🌅' : cosmetic.type === 'pipe' ? '🚰' : '✨'}
           </div>
         )}
       </div>
