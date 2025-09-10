@@ -47,7 +47,7 @@ export const Game: FC = () => {
       {/* Game Container - centered with better spacing */}
       <div 
         ref={gameRef} 
-        className="border-4 border-purple-400 rounded-xl shadow-2xl bg-purple-100/10 backdrop-blur-sm"
+        className="shadow-2xl"
         style={{ width: '800px', height: '700px' }}
       />
     </div>
