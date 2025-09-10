@@ -51,15 +51,8 @@ export default function HomePage() {
           <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
             <div className="container mx-auto px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-8 h-8">
-                  <img 
-                    src="/Bird2-export.png" 
-                    alt="Solana Flappy Bird" 
-                    className="w-full h-full object-contain"
-                  />
-                </div>
                 <h1 className="text-2xl font-bold text-white">
-                  Solana Flappy Bird
+                  🐦 Solana Flappy Bird
                 </h1>
                 {currentView !== 'menu' && (
                   <button

@@ -54,32 +54,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const physicsConfig = getGamePhysicsConfig()
     const graphicsConfig = getGraphicsConfig()
 
-    // Get screen dimensions
-    const screenWidth = window.innerWidth
-    const screenHeight = window.innerHeight
-    const isMobile = screenWidth < 768
-    const isLandscape = screenWidth > screenHeight
-
-    // Calculate game dimensions based on device and orientation
-    let gameWidth = 800
-    let gameHeight = 600
-
-    if (isMobile) {
-      if (isLandscape) {
-        // Landscape mobile - use full width, maintain aspect ratio
-        gameWidth = Math.min(screenWidth, 1200)
-        gameHeight = Math.round(gameWidth * 0.75) // 4:3 aspect ratio
-      } else {
-        // Portrait mobile - use full height, maintain aspect ratio
-        gameHeight = Math.min(screenHeight * 0.8, 800) // 80% of screen height
-        gameWidth = Math.round(gameHeight * 1.33) // 4:3 aspect ratio
-      }
-    }
-
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: gameWidth,
-      height: gameHeight,
+      width: 800,
+      height: 600,
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -91,10 +69,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: [GameScene],
       scale: {
-        mode: Phaser.Scale.RESIZE,
+        mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: gameWidth,
-        height: gameHeight,
       },
     }
 
@@ -148,37 +124,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       // Quest events are handled by useQuestIntegration hook
     })
 
-    // Handle window resize and orientation change
-    const handleResize = () => {
-      if (phaserGameRef.current) {
-        const screenWidth = window.innerWidth
-        const screenHeight = window.innerHeight
-        const isMobile = screenWidth < 768
-        const isLandscape = screenWidth > screenHeight
-
-        let gameWidth = 800
-        let gameHeight = 600
-
-        if (isMobile) {
-          if (isLandscape) {
-            gameWidth = Math.min(screenWidth, 1200)
-            gameHeight = Math.round(gameWidth * 0.75)
-          } else {
-            gameHeight = Math.min(screenHeight * 0.8, 800)
-            gameWidth = Math.round(gameHeight * 1.33)
-          }
-        }
-
-        phaserGameRef.current.scale.resize(gameWidth, gameHeight)
-      }
-    }
-
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('orientationchange', handleResize)
-
     return () => {
-      window.removeEventListener('resize', handleResize)
-      window.removeEventListener('orientationchange', handleResize)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
@@ -225,22 +171,43 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pt-2 px-2 sm:px-4">
-      {/* No header - minimal design */}
+    <div className="flex flex-col items-center space-y-6">
+      {/* Game Header */}
+      <div className="flex items-center justify-between w-full max-w-4xl">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onBackToMenu}
+            className="btn-secondary"
+          >
+            ← Back to Menu
+          </button>
+          <button
+            onClick={handlePause}
+            className="btn-primary"
+          >
+            Pause
+          </button>
+        </div>
+        
+        <div className="flex items-center space-x-6">
+          <div className="text-center">
+            <p className="text-sm text-white/80">Score</p>
+            <p className="text-2xl font-bold text-white">{score}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-white/80">High Score</p>
+            <p className="text-xl font-bold text-yellow-400">
+              {gameState.highScore || 0}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Game Canvas */}
       <div 
         ref={gameRef}
-        className="game-container border-4 border-white/20 rounded-lg shadow-2xl mx-auto"
-        style={{ 
-          width: '100%', 
-          height: 'auto',
-          aspectRatio: '4/3',
-          maxWidth: '800px',
-          maxHeight: '600px',
-          marginLeft: 'auto',
-          marginRight: 'auto'
-        }}
+        className="border-4 border-white/20 rounded-lg shadow-2xl"
+        style={{ width: '800px', height: '600px' }}
       />
 
       {/* Game Over Modal */}
