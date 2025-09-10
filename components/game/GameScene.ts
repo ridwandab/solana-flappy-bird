@@ -307,7 +307,7 @@ export class GameScene extends Phaser.Scene {
     this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics)
-    this.bird = this.add.sprite(200, 300, 'bird_default')
+    this.bird = this.add.sprite(400, 300, 'bird_default')
     this.bird.setScale(0.2)
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
