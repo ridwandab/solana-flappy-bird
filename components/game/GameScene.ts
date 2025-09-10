@@ -1334,18 +1334,24 @@ export class GameScene extends Phaser.Scene {
     gameOverText.setOrigin(0.5)
     
     // Score display
-    const scoreText = this.add.text(400, 260, `Your Score: ${this.score}`, {
+    const scoreText = this.add.text(400, 260, `Score: ${this.score}`, {
       fontSize: '24px',
-      color: '#ffffff',
-      fontFamily: 'Arial'
+      color: '#ffff00',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
     })
     scoreText.setOrigin(0.5)
     
-    // High score display (you can implement high score tracking later)
-    const highScoreText = this.add.text(400, 290, `High Score: ${this.score}`, {
+    // High score display - get from localStorage or use current score
+    const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
+    const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
+    localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+    
+    const highScoreText = this.add.text(400, 290, `High Score: ${currentHighScore}`, {
       fontSize: '20px',
-      color: '#ffff00',
-      fontFamily: 'Arial'
+      color: '#00ff00',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
     })
     highScoreText.setOrigin(0.5)
     
