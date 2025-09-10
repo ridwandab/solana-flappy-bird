@@ -48,10 +48,10 @@ export class GameScene extends Phaser.Scene {
   private readonly GRAVITY = 30  // Extremely low gravity for very easy control
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
-  private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
+  private readonly PIPE_SPAWN_DELAY = 3000  // Longer delay between pipes (3 seconds) for easier gameplay
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
-  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
+  private readonly BASE_PIPE_SPACING = 600  // Base distance between pipe sets (in pixels) - increased for easier gameplay
+  private readonly MIN_PIPE_SPACING = 350   // Minimum distance (gets closer over time) - increased for easier gameplay
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
   private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
   private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
