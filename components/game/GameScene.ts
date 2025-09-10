@@ -44,9 +44,9 @@ export class GameScene extends Phaser.Scene {
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
   
-  // Game physics constants
-  private readonly GRAVITY = 30  // Extremely low gravity for very easy control
-  private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
+  // Game physics constants - will be overridden by settings
+  private readonly DEFAULT_GRAVITY = 30  // Default gravity if settings not available
+  private readonly DEFAULT_FLAP_FORCE = -350  // Default flap force if settings not available
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2500  // Balanced delay between pipes (2.5 seconds) for closer spacing
   private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
@@ -465,7 +465,7 @@ export class GameScene extends Phaser.Scene {
     
     // Reset world gravity to settings value
     if (this.physics && this.physics.world) {
-      const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
+      const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
       this.physics.world.gravity.y = gravityValue
       console.log('World gravity reset to:', gravityValue)
     }
@@ -758,12 +758,13 @@ export class GameScene extends Phaser.Scene {
     if (this.bird.body) {
       // Set gravity on first flap to start the game properly
       if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
-        const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
+        const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
         console.log('Gravity activated on first flap:', gravityValue)
       }
       
-      (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
+      const flapForceValue: number = this.gameSettings?.flapForce || this.DEFAULT_FLAP_FORCE
+      ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(flapForceValue)
       
       // Play flap sound using audio manager
       if (this.audioManager) {
@@ -1290,8 +1291,8 @@ export class GameScene extends Phaser.Scene {
     this.bird.setInteractive(false)
     this.bird.removeInteractive()
     
-    // Disable all input to prevent input errors
-    this.input.enabled = false
+    // Don't disable input completely - we need it for the restart button
+    // this.input.enabled = false
     
     // Add visual effect to show bird is frozen
     this.bird.setTint(0x888888) // Make bird slightly grayed out
