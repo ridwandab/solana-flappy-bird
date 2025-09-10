@@ -1235,6 +1235,7 @@ export class GameScene extends Phaser.Scene {
 
     // Emit score event to React
     this.game.events.emit('score', this.score)
+    this.game.events.emit('scoreUpdate', this.score)
 
     // Emit quest event for score achievement
     this.emitQuestEvent('score_achieved', { 

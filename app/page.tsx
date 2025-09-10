@@ -61,7 +61,14 @@ export default function HomePage() {
                     Solana Flappy Bird
                   </h1>
                 </div>
-                {/* Back to Menu button removed */}
+                {currentView !== 'menu' && (
+                  <button
+                    onClick={() => setCurrentView('menu')}
+                    className="text-white/80 hover:text-white transition-colors ml-4"
+                  >
+                    ← Kembali ke Menu
+                  </button>
+                )}
               </div>
               {/* WalletMultiButton is now part of WalletProvider */}
             </div>
