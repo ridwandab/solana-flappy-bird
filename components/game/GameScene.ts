@@ -704,8 +704,9 @@ export class GameScene extends Phaser.Scene {
         
         // Additional check: Ensure bird cannot pass through the gap between pipes
         // Check if bird is horizontally aligned with the pipe gap
-        const pipeLeft = pipeSet.topPipe.x // Use exact pipe position
-        const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width // Use exact pipe width
+        const pipeCollisionMargin = 15 // Match the pipe collision margin
+        const pipeLeft = pipeSet.topPipe.x + pipeCollisionMargin // Use pipe position with margin
+        const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width - pipeCollisionMargin // Use pipe width with margin
         const birdLeft = this.bird.x - 8 // bird left edge (match bird collision margin)
         const birdRight = this.bird.x + 8 // bird right edge (match bird collision margin)
         
@@ -726,7 +727,8 @@ export class GameScene extends Phaser.Scene {
               birdLeft,
               birdRight,
               pipeWidth: pipeSet.topPipe.width,
-              pipeHeight: pipeSet.topPipe.height
+              pipeHeight: pipeSet.topPipe.height,
+              pipeCollisionMargin
             })
             if (!this.isGameOver) {
               this.gameOver()
@@ -1147,20 +1149,21 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeTop = pipeHeight + gap
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
-    // Create collision rectangles that exactly match the visual pipe size
-    // Use the actual pipe bounds for precise collision detection
+    // Create collision rectangles that are smaller than visual pipe for better gameplay
+    // Add margin so bird must actually touch the pipe visually
+    const pipeCollisionMargin = 15 // Reduce collision area by 15 pixels on each side
     const topPipeCollisionRect = { 
-      x: topPipeLeft, 
-      y: topPipeTop, 
-      width: pipeWidth, 
-      height: pipeHeightValue
+      x: topPipeLeft + pipeCollisionMargin, 
+      y: topPipeTop + pipeCollisionMargin, 
+      width: pipeWidth - (pipeCollisionMargin * 2), 
+      height: pipeHeightValue - (pipeCollisionMargin * 2)
     }
     
     const bottomPipeCollisionRect = { 
-      x: bottomPipeLeft, 
-      y: bottomPipeTop, 
-      width: pipeWidth, 
-      height: pipeHeightValue
+      x: bottomPipeLeft + pipeCollisionMargin, 
+      y: bottomPipeTop + pipeCollisionMargin, 
+      width: pipeWidth - (pipeCollisionMargin * 2), 
+      height: pipeHeightValue - (pipeCollisionMargin * 2)
     }
     
     console.log('🔍 PIPE COLLISION DATA:', {
