@@ -1062,24 +1062,21 @@ export class GameScene extends Phaser.Scene {
     topPipe.displayHeight = topPipeHeight  // Set height to match gap
     topPipe.displayWidth = 80  // Set width larger for better visibility
     
-    // Use collision detection that matches the ORIGINAL sprite size, not manual size
-    // Get the original sprite dimensions
-    const topOriginalWidth = topPipe.texture.source[0].width
-    const topOriginalHeight = topPipe.texture.source[0].height
-    const topScaleX = topPipe.scaleX
-    const topScaleY = Math.abs(topPipe.scaleY)  // Use absolute value for flipped sprite
+    // Use collision detection that matches the VISUAL pipe size exactly
+    // Use the display dimensions that are actually shown on screen
+    const visualWidth = topPipe.displayWidth
+    const visualHeight = topPipe.displayHeight
     
-    // Calculate actual collision size based on original sprite and scale
-    const topCollisionWidth = topOriginalWidth * topScaleX
-    const topCollisionHeight = topOriginalHeight * topScaleY
+    // Set collision to match the visual pipe dimensions exactly
+    topPipe.body.setSize(visualWidth, visualHeight)
+    topPipe.body.setOffset(-visualWidth/2, -visualHeight/2)
     
-    // Set collision to match the actual sprite dimensions
-    topPipe.body.setSize(topCollisionWidth, topCollisionHeight)
-    topPipe.body.setOffset(-topCollisionWidth/2, -topCollisionHeight/2)
+    // Force update collision bounds to ensure it takes effect
+    topPipe.body.updateFromGameObject()
     
     // Enable debug visualization for collision box
     topPipe.body.debugBodyColor = 0xff0000  // Red collision box
-    console.log(`Top pipe collision based on original sprite: ${topOriginalWidth}x${topOriginalHeight} scaled to ${topCollisionWidth}x${topCollisionHeight}`)
+    console.log(`Top pipe collision matches visual size: ${visualWidth}x${visualHeight}`)
     
     console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} using Sprite-0003.png`)
 
@@ -1092,24 +1089,21 @@ export class GameScene extends Phaser.Scene {
     bottomPipe.displayHeight = bottomPipeHeight  // Set height to match remaining space
     bottomPipe.displayWidth = 80  // Set width larger for better visibility
     
-    // Use collision detection that matches the ORIGINAL sprite size, not manual size
-    // Get the original sprite dimensions
-    const bottomOriginalWidth = bottomPipe.texture.source[0].width
-    const bottomOriginalHeight = bottomPipe.texture.source[0].height
-    const bottomScaleX = bottomPipe.scaleX
-    const bottomScaleY = Math.abs(bottomPipe.scaleY)  // Use absolute value for flipped sprite
+    // Use collision detection that matches the VISUAL pipe size exactly
+    // Use the display dimensions that are actually shown on screen
+    const bottomVisualWidth = bottomPipe.displayWidth
+    const bottomVisualHeight = bottomPipe.displayHeight
     
-    // Calculate actual collision size based on original sprite and scale
-    const bottomCollisionWidth = bottomOriginalWidth * bottomScaleX
-    const bottomCollisionHeight = bottomOriginalHeight * bottomScaleY
+    // Set collision to match the visual pipe dimensions exactly
+    bottomPipe.body.setSize(bottomVisualWidth, bottomVisualHeight)
+    bottomPipe.body.setOffset(-bottomVisualWidth/2, -bottomVisualHeight/2)
     
-    // Set collision to match the actual sprite dimensions
-    bottomPipe.body.setSize(bottomCollisionWidth, bottomCollisionHeight)
-    bottomPipe.body.setOffset(-bottomCollisionWidth/2, -bottomCollisionHeight/2)
+    // Force update collision bounds to ensure it takes effect
+    bottomPipe.body.updateFromGameObject()
     
     // Enable debug visualization for collision box
     bottomPipe.body.debugBodyColor = 0xff0000  // Red collision box
-    console.log(`Bottom pipe collision based on original sprite: ${bottomOriginalWidth}x${bottomOriginalHeight} scaled to ${bottomCollisionWidth}x${bottomCollisionHeight}`)
+    console.log(`Bottom pipe collision matches visual size: ${bottomVisualWidth}x${bottomVisualHeight}`)
 
     // No need for invisible collision data - using visual pipe bounds directly
 
