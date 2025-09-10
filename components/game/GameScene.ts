@@ -50,8 +50,8 @@ export class GameScene extends Phaser.Scene {
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
-  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
+  private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels)
+  private readonly MIN_PIPE_SPACING = 350   // Minimum distance (gets closer over time)
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
   private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
   private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
@@ -485,8 +485,8 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background for game
     this.createScrollingBackground()
     
-    // Create pipes group for physics collision (static group)
-    this.pipes = this.physics.add.staticGroup()
+    // Create pipes group for physics collision (dynamic group)
+    this.pipes = this.physics.add.group()
     
     // Convert existing bird from static sprite to physics sprite
     if (this.bird) {
@@ -582,8 +582,16 @@ export class GameScene extends Phaser.Scene {
     }, undefined, this)
 
     // Physics - pipe collision (more reliable than manual detection)
-    this.physics.add.collider(this.bird, this.pipes, () => {
-      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit pipe! Game Over!')
+    this.physics.add.collider(this.bird, this.pipes, (bird, pipe) => {
+      const birdSprite = bird as Phaser.GameObjects.Sprite
+      const pipeSprite = pipe as Phaser.GameObjects.Sprite
+      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit pipe! Game Over!', {
+        birdX: birdSprite.x,
+        birdY: birdSprite.y,
+        pipeX: pipeSprite.x,
+        pipeY: pipeSprite.y,
+        pipeType: pipeSprite.texture.key
+      })
       if (!this.isGameOver) {
         this.gameOver()
       }
@@ -1043,16 +1051,22 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe as static physics sprite (no gravity, no movement)
-    const topPipe = this.physics.add.staticImage(x, pipeHeight, pipeSpriteKey)
+    // Create top pipe as dynamic physics sprite with disabled gravity
+    const topPipe = this.physics.add.image(x, pipeHeight, pipeSpriteKey)
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
+    topPipe.body!.setImmovable(true)  // Make it immovable for collision
+    topPipe.body!.setGravityY(0)  // No gravity for pipes
+    topPipe.body!.setVelocity(0, 0)  // No velocity
     
     console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
-    // Create bottom pipe as static physics sprite (no gravity, no movement)
-    const bottomPipe = this.physics.add.staticImage(x, pipeHeight + gap, pipeSpriteKey)
+    // Create bottom pipe as dynamic physics sprite with disabled gravity
+    const bottomPipe = this.physics.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
+    bottomPipe.body!.setImmovable(true)  // Make it immovable for collision
+    bottomPipe.body!.setGravityY(0)  // No gravity for pipes
+    bottomPipe.body!.setVelocity(0, 0)  // No velocity
 
     // No need for invisible collision data - using visual pipe bounds directly
 
@@ -1060,7 +1074,8 @@ export class GameScene extends Phaser.Scene {
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
     
-    console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
+    console.log(`Pipes added to physics group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
+    console.log(`Pipes group size: ${this.pipes.children.size}`)
 
     // Create pipe set object
     const pipeSet = {
