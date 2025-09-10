@@ -620,7 +620,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 2 // Positive margin - bird must actually touch pipe visually
+        const birdCollisionMargin = 8 // Increased margin for more accurate collision detection
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -702,7 +702,7 @@ export class GameScene extends Phaser.Scene {
           })
         }
         
-        // Check for right side collision - bird hitting the right side of the pipe
+        // Comprehensive pipe collision detection - prevent any penetration
         let hitRightSide = false
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const pipeLeft = pipeSet.topPipeCollision.x
@@ -710,55 +710,67 @@ export class GameScene extends Phaser.Scene {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
-          // Check if bird is inside the pipe horizontally (between left and right edges)
-          if (this.bird.x >= pipeLeft && this.bird.x <= pipeRight) {
-            // Check if bird is NOT in the safe gap (should hit the pipe)
-            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+          // Get bird bounds with collision margin
+          const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
+          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
+          const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
+          const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
+          
+          // Check if bird is overlapping with pipe area horizontally
+          const birdOverlapsPipeHorizontally = birdRight > pipeLeft && birdLeft < pipeRight
+          
+          if (birdOverlapsPipeHorizontally) {
+            // Check if bird is NOT in the safe gap vertically
+            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+            
+            if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 PIPE PENETRATION DETECTED! Bird inside pipe but not in safe gap!', {
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeLeft,
-                pipeRight,
-                gapTop,
-                gapBottom,
-                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
-                birdInPipeArea: this.bird.x >= pipeLeft && this.bird.x <= pipeRight
+              console.log('🚨 COMPREHENSIVE PIPE COLLISION DETECTED!', {
+                birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+                pipeBounds: { left: pipeLeft, right: pipeRight },
+                gapBounds: { top: gapTop, bottom: gapBottom },
+                birdInSafeGap,
+                birdOverlapsPipeHorizontally,
+                collisionDetails: {
+                  birdLeftOverlaps: birdLeft < pipeRight,
+                  birdRightOverlaps: birdRight > pipeLeft,
+                  birdAboveGap: birdBottom < gapTop,
+                  birdBelowGap: birdTop > gapBottom
+                }
               })
             }
           }
           
-          // Additional check: prevent bird from going through the entire pipe structure
-          // If bird is at the right edge and moving right, check if it would hit the pipe
-          if (this.bird.x >= pipeRight - 10 && this.bird.x <= pipeRight + 10) {
-            // Check if bird is at a height where it would hit the pipe (not in the gap)
-            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+          // Additional strict check: if bird is very close to pipe edges
+          const strictMargin = 15 // Increased margin for stricter collision
+          if ((birdRight >= pipeLeft - strictMargin && birdRight <= pipeLeft + strictMargin) ||
+              (birdLeft >= pipeRight - strictMargin && birdLeft <= pipeRight + strictMargin)) {
+            if (birdTop < gapTop || birdBottom > gapBottom) {
               hitRightSide = true
-              console.log('🚨 RIGHT EDGE COLLISION DETECTED! Bird hitting right edge of pipe!', {
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeRight,
-                gapTop,
-                gapBottom,
-                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
-                distanceFromRight: this.bird.x - pipeRight
+              console.log('🚨 STRICT EDGE COLLISION DETECTED!', {
+                birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+                pipeBounds: { left: pipeLeft, right: pipeRight },
+                gapBounds: { top: gapTop, bottom: gapBottom },
+                strictMargin
               })
             }
           }
           
-          // Check for left side collision - prevent bird from going through pipe from left side
-          if (this.bird.x >= pipeLeft - 10 && this.bird.x <= pipeLeft + 10) {
-            // Check if bird is at a height where it would hit the pipe (not in the gap)
-            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+          // Ultra-strict check: prevent any penetration from any direction
+          if (birdLeft < pipeRight && birdRight > pipeLeft) {
+            // Bird is horizontally overlapping with pipe
+            if (birdTop < gapTop || birdBottom > gapBottom) {
               hitRightSide = true
-              console.log('🚨 LEFT EDGE COLLISION DETECTED! Bird hitting left edge of pipe!', {
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeLeft,
-                gapTop,
-                gapBottom,
-                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
-                distanceFromLeft: this.bird.x - pipeLeft
+              console.log('🚨 ULTRA-STRICT PENETRATION DETECTED!', {
+                birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+                pipeBounds: { left: pipeLeft, right: pipeRight },
+                gapBounds: { top: gapTop, bottom: gapBottom },
+                penetrationType: {
+                  fromLeft: birdLeft < pipeLeft && birdRight > pipeLeft,
+                  fromRight: birdLeft < pipeRight && birdRight > pipeRight,
+                  fromTop: birdTop < gapTop,
+                  fromBottom: birdBottom > gapBottom
+                }
               })
             }
           }
