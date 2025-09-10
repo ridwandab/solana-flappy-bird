@@ -639,8 +639,8 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Make bird collision area larger to allow closer approach to pipes
-        const birdCollisionMargin = -8 // Negative margin - bird can get very close to pipes before collision
+        // Make bird collision area smaller to match visual sprite better
+        const birdCollisionMargin = 2 // Positive margin - bird must actually touch pipe visually
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -946,7 +946,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = -8
+        const birdCollisionMargin = 2
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -1112,19 +1112,20 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Use the full pipe dimensions for more accurate collision detection
+    // Reduce collision area to match visual pipe more accurately
+    const collisionMargin = 10 // Reduce collision area by 10 pixels on each side
     const topPipeCollisionRect = { 
-      x: topPipeLeft, 
-      y: topPipeTop, 
-      width: pipeWidth, 
-      height: pipeHeightValue 
+      x: topPipeLeft + collisionMargin, 
+      y: topPipeTop + collisionMargin, 
+      width: pipeWidth - (collisionMargin * 2), 
+      height: pipeHeightValue - (collisionMargin * 2)
     }
     
     const bottomPipeCollisionRect = { 
-      x: bottomPipeLeft, 
-      y: bottomPipeTop, 
-      width: pipeWidth, 
-      height: pipeHeightValue 
+      x: bottomPipeLeft + collisionMargin, 
+      y: bottomPipeTop + collisionMargin, 
+      width: pipeWidth - (collisionMargin * 2), 
+      height: pipeHeightValue - (collisionMargin * 2)
     }
 
     // Create pipe set object
