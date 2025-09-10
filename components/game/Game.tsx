@@ -43,11 +43,11 @@ export const Game: FC = () => {
   }, [])
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 pt-2">
-      {/* Game Container - positioned right below header */}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      {/* Game Container - centered with better spacing */}
       <div 
         ref={gameRef} 
-        className="border-4 border-purple-500 rounded-lg shadow-2xl"
+        className="border-4 border-purple-400 rounded-xl shadow-2xl bg-purple-100/10 backdrop-blur-sm"
         style={{ width: '800px', height: '700px' }}
       />
     </div>

@@ -577,8 +577,8 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', this.flap, this)
     
     // Add restart input handlers
-    this.input.keyboard?.on('keydown-R', this.handleRestart, this)
-    this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
+    this.input.keyboard?.on('keydown-R', this.handleStart, this)
+    this.input.keyboard?.on('keydown-ENTER', this.handleStart, this)
 
     // Start spawning first pipe after a delay
     this.time.delayedCall(1500, () => {
@@ -774,9 +774,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private handleRestart() {
+  private handleStart() {
     if (this.isGameOver) {
-      console.log('Restarting game...')
+      console.log('Starting new game...')
       // Reset game state and go back to start screen
       this.resetGameState()
       this.createStartScreen()
@@ -1378,7 +1378,7 @@ export class GameScene extends Phaser.Scene {
     })
     
     startBtn.on('pointerdown', () => {
-      this.handleRestart()
+      this.handleStart()
     })
     
     // Main Menu button removed - keeping only START button
