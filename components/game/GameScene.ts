@@ -515,6 +515,8 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
         // Set collision size to match visual bird size
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
+        // Enable debug visualization for collision box
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).debugBodyColor = 0x00ff00  // Green collision box
       }
       
       console.log('Bird converted from static to physics sprite')
@@ -534,6 +536,8 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
         // Set collision size to match visual bird size
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
+        // Enable debug visualization for collision box
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).debugBodyColor = 0x00ff00  // Green collision box
       }
     }
     
@@ -1075,12 +1079,16 @@ export class GameScene extends Phaser.Scene {
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
     
-    // Set collision size to match sprite dimensions (larger pipes)
+    // Enable debug visualization for collision boxes
     if (topPipe.body) {
-      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(80, topPipeHeight)
+      // Enable debug visualization for collision box
+      ;(topPipe.body as Phaser.Physics.Arcade.StaticBody).debugBodyColor = 0xff0000  // Red collision box
+      console.log(`Top pipe collision using default size with visual dimensions: ${topPipe.displayWidth}x${topPipe.displayHeight}`)
     }
     if (bottomPipe.body) {
-      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(80, bottomPipeHeight)
+      // Enable debug visualization for collision box
+      ;(bottomPipe.body as Phaser.Physics.Arcade.StaticBody).debugBodyColor = 0xff0000  // Red collision box
+      console.log(`Bottom pipe collision using default size with visual dimensions: ${bottomPipe.displayWidth}x${bottomPipe.displayHeight}`)
     }
     
     console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
