@@ -225,8 +225,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start space-y-2 px-2 sm:px-4 pt-2 sm:pt-4">
-      {/* No header - cleaner look */}
+    <div className="min-h-screen flex flex-col items-center justify-start pt-2 px-2 sm:px-4">
+      {/* No header - minimal design */}
 
       {/* Game Canvas */}
       <div 

@@ -44,17 +44,17 @@ export class GameScene extends Phaser.Scene {
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
   
-  // Game physics constants (Flappy Bird original values)
-  private readonly GRAVITY = 600  // Original Flappy Bird gravity
-  private readonly FLAP_FORCE = -400  // Original Flappy Bird flap force
-  private readonly PIPE_SPEED = 2  // Original Flappy Bird pipe speed
-  private readonly PIPE_SPAWN_DELAY = 1500  // Original Flappy Bird pipe spawn delay
+  // Game physics constants
+  private readonly GRAVITY = 30  // Extremely low gravity for very easy control
+  private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
+  private readonly PIPE_SPEED = 3  // Slower speed for better visibility
+  private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 300  // Original Flappy Bird pipe spacing
-  private readonly MIN_PIPE_SPACING = 300   // Original Flappy Bird spacing (no change)
-  private readonly MAX_ACTIVE_PIPES = 2  // Original Flappy Bird max pipes
-  private readonly BASE_PIPE_GAP = 180  // Larger pipe gap for better gameplay
-  private readonly MIN_PIPE_GAP = 160    // Larger minimum gap for easier passage
+  private readonly BASE_PIPE_SPACING = 400  // Base distance between pipe sets (in pixels)
+  private readonly MIN_PIPE_SPACING = 200   // Minimum distance (gets closer over time)
+  private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
+  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
+  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -160,9 +160,6 @@ export class GameScene extends Phaser.Scene {
     this.lastPipeSpawnTime = 0
     this.difficultyLevel = 0
     this.pipesPassed = 0
-
-    // Setup physics world - no gravity for pipes
-    this.physics.world.gravity.y = 0  // No world gravity
 
     // Preload sprites
     this.load.image('pipe_sprite', '/Sprite-0003.png')
@@ -303,10 +300,7 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create invisible ground for collision only
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x000000, 0)
-    this.ground.setScrollFactor(0)
-    this.startScreenElements.push(this.ground)
+    // No ground - clean minimal design
 
     // Create bird for start screen (static, no physics)
     this.bird = this.add.sprite(200, 300, 'bird_default')
@@ -330,16 +324,16 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // No title or icon - just the game
+    // No icon or title - minimal start screen
 
     // Create start button
-    const startButton = this.add.rectangle(400, 300, 200, 60, 0x00ff00)
+    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
     startButton.setScrollFactor(0)
     startButton.setInteractive()
     startButton.setStrokeStyle(4, 0x000000)
     this.startScreenElements.push(startButton)
 
-    const startText = this.add.text(400, 300, 'START', {
+    const startText = this.add.text(400, 350, 'START', {
       fontSize: '32px',
       color: '#000000',
       fontFamily: 'Arial',
@@ -364,7 +358,7 @@ export class GameScene extends Phaser.Scene {
     })
 
     // Instructions
-    const instructions = this.add.text(400, 400, 'Tap to flap and avoid pipes!\nCollect SOL rewards by completing quests!', {
+    const instructions = this.add.text(400, 450, 'Tap to flap and avoid pipes!\nCollect SOL rewards by completing quests!', {
       fontSize: '20px',
       color: '#ffffff',
       stroke: '#000000',
@@ -485,9 +479,6 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background for game
     this.createScrollingBackground()
     
-    // Create pipes group for physics collision (static group)
-    this.pipes = this.physics.add.staticGroup()
-    
     // Convert existing bird from static sprite to physics sprite
     if (this.bird) {
       // Store current position and properties
@@ -505,39 +496,31 @@ export class GameScene extends Phaser.Scene {
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
       
-      // Apply physics properties (Flappy Bird original)
+      // Apply physics properties
       if (this.bird.body) {
-        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(false)  // No world bounds collision
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0)  // No bounce
-        // Set gravity immediately (Flappy Bird style)
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
+        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
+        // Set gravity to 0 initially - will be set when game actually starts
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
-        // Set collision size to match visual bird size
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
-        // Enable debug visualization for collision box
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).debugBodyColor = 0x00ff00  // Green collision box
       }
       
       console.log('Bird converted from static to physics sprite')
     } else {
-      // Create new bird if none exists (Flappy Bird original position)
-      this.bird = this.physics.add.sprite(100, 250, 'bird_default')
+      // Create new bird if none exists
+      this.bird = this.physics.add.sprite(200, 300, 'bird_default')
       this.bird.setScale(0.2)
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
       
       if (this.bird.body) {
-        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(false)  // No world bounds collision
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0)  // No bounce
-        // Set gravity immediately (Flappy Bird style)
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
+        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
+        // Set gravity to 0 initially - will be set when game actually starts
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
-        // Set collision size to match visual bird size
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
-        // Enable debug visualization for collision box
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).debugBodyColor = 0x00ff00  // Green collision box
       }
     }
     
@@ -578,32 +561,7 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
-    // Physics - ground collision (Flappy Bird original)
-    this.physics.add.collider(this.bird, this.ground, () => {
-      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit ground! Game Over!', { 
-        birdY: this.bird.y, 
-        groundY: this.ground.y 
-      })
-      if (!this.isGameOver) {
-        this.gameOver()
-      }
-    }, undefined, this)
-
-    // Physics - pipe collision (more reliable than manual detection)
-    this.physics.add.collider(this.bird, this.pipes, (bird, pipe) => {
-      const birdSprite = bird as Phaser.GameObjects.Sprite
-      const pipeSprite = pipe as Phaser.GameObjects.Sprite
-      console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit pipe! Game Over!', {
-        birdX: birdSprite.x,
-        birdY: birdSprite.y,
-        pipeX: pipeSprite.x,
-        pipeY: pipeSprite.y,
-        pipeType: pipeSprite.texture.key
-      })
-      if (!this.isGameOver) {
-        this.gameOver()
-      }
-    }, undefined, this)
+    // No ground collision - clean minimal design
 
     // Input - only for flapping during gameplay
     this.input.keyboard?.on('keydown-SPACE', this.flap, this)
@@ -629,14 +587,10 @@ export class GameScene extends Phaser.Scene {
 
     if (this.isGameOver || !this.isGameStarted) return
 
-    // Apply bird gravity and rotation (Flappy Bird original)
+    // Rotate bird based on velocity
     if (this.bird.body) {
-      // Apply gravity to bird (original Flappy Bird gravity)
-      (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
-      
-      // Rotate bird based on velocity (original Flappy Bird rotation)
       const velocity = this.bird.body.velocity.y
-      this.bird.angle = Math.min(Math.max(velocity * 0.2, -30), 90)
+      this.bird.angle = Math.min(Math.max(velocity * 0.1, -90), 90)
     }
 
     // Update pipes movement and management
@@ -662,13 +616,12 @@ export class GameScene extends Phaser.Scene {
         const birdCollisionBounds = birdBounds
         
         // Check collision with precise pipe collision areas
-        // Top pipe: this is the pipe that extends from top of screen downward
-        // The collision area should cover the solid part of the pipe (the bottom part of the visual pipe)
+        // Top pipe: since it's flipped, the collision area is at the bottom of the visual pipe
         const topPipeCollisionRect = new Phaser.Geom.Rectangle(
           topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 100, // Bottom 100 pixels of the top pipe
+          topPipeBounds.y + topPipeBounds.height - 50, // Bottom 50 pixels are solid (larger area)
           topPipeBounds.width,
-          100
+          50
         )
         
         // Bottom pipe: collision area is at the top of the visual pipe
@@ -676,51 +629,13 @@ export class GameScene extends Phaser.Scene {
           bottomPipeBounds.x,
           bottomPipeBounds.y, // Top part is solid
           bottomPipeBounds.width,
-          100 // Top 100 pixels are solid
+          50 // Top 50 pixels are solid (larger area)
         )
         
-        // Check collision with only the solid parts of pipes (not the gap)
-        // Top pipe: only check collision with the bottom part (solid part)
-        const topPipeSolidRect = new Phaser.Geom.Rectangle(
-          topPipeBounds.x,
-          topPipeBounds.y + topPipeBounds.height - 80, // Bottom 80 pixels are solid
-          topPipeBounds.width,
-          80
-        )
+        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
+        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
         
-        // Bottom pipe: only check collision with the top part (solid part)
-        const bottomPipeSolidRect = new Phaser.Geom.Rectangle(
-          bottomPipeBounds.x,
-          bottomPipeBounds.y, // Top 80 pixels are solid
-          bottomPipeBounds.width,
-          80
-        )
-        
-        let hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeSolidRect)
-        let hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeSolidRect)
-        
-        // Visual debugging for collision areas (temporary)
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
-          // Draw collision rectangles for debugging
-          const graphics = this.add.graphics()
-          
-          // Top pipe solid part collision (red)
-          graphics.lineStyle(3, 0xff0000, 1)
-          graphics.strokeRect(topPipeSolidRect.x, topPipeSolidRect.y, topPipeSolidRect.width, topPipeSolidRect.height)
-          
-          // Bottom pipe solid part collision (green)
-          graphics.lineStyle(3, 0x00ff00, 1)
-          graphics.strokeRect(bottomPipeSolidRect.x, bottomPipeSolidRect.y, bottomPipeSolidRect.width, bottomPipeSolidRect.height)
-          
-          // Bird collision (blue)
-          graphics.lineStyle(3, 0x0000ff, 1)
-          graphics.strokeRect(birdCollisionBounds.x, birdCollisionBounds.y, birdCollisionBounds.width, birdCollisionBounds.height)
-          
-          // Remove graphics after 200ms
-          this.time.delayedCall(200, () => {
-            graphics.destroy()
-          })
-        }
+        // Visual debugging removed - collision detection works invisibly
         
         // Debug logging when pipe is very close
         if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
@@ -735,14 +650,14 @@ export class GameScene extends Phaser.Scene {
               y: pipeSet.topPipe.y,
               fullBounds: { x: topPipeBounds.x, y: topPipeBounds.y, width: topPipeBounds.width, height: topPipeBounds.height },
               collisionRect: { x: topPipeCollisionRect.x, y: topPipeCollisionRect.y, width: topPipeCollisionRect.width, height: topPipeCollisionRect.height },
-              note: 'Top pipe collision area is at bottom 100px (solid part of top pipe)'
+              note: 'Top pipe collision area is at bottom 50px (flipped pipe)'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
               fullBounds: { x: bottomPipeBounds.x, y: bottomPipeBounds.y, width: bottomPipeBounds.width, height: bottomPipeBounds.height },
               collisionRect: { x: bottomPipeCollisionRect.x, y: bottomPipeCollisionRect.y, width: bottomPipeCollisionRect.width, height: bottomPipeCollisionRect.height },
-              note: 'Bottom pipe collision area is at top 100px'
+              note: 'Bottom pipe collision area is at top 50px'
             },
             collision: {
               hitTopPipe,
@@ -752,28 +667,15 @@ export class GameScene extends Phaser.Scene {
           })
         }
         
-        // Always log collision detection when pipe is close
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
-          console.log('🔍 COLLISION CHECK:', {
-            bird: { x: this.bird.x, y: this.bird.y, bounds: birdCollisionBounds },
-            topPipeSolid: { x: topPipeSolidRect.x, y: topPipeSolidRect.y, bounds: topPipeSolidRect },
-            bottomPipeSolid: { x: bottomPipeSolidRect.x, y: bottomPipeSolidRect.y, bounds: bottomPipeSolidRect },
-            hitTopPipe,
-            hitBottomPipe,
-            distance: Math.abs(pipeSet.topPipe.x - this.bird.x),
-            note: 'Only solid parts of pipes cause collision, gap is safe'
-          })
-        }
-        
         if (hitTopPipe || hitBottomPipe) {
-          console.log('🚨🚨🚨 PIPE COLLISION DETECTED! GAME OVER! 🚨🚨🚨')
+          console.log('🚨🚨🚨 PRECISE COLLISION DETECTED! 🚨🚨🚨')
           console.log('Hit top pipe:', hitTopPipe)
           console.log('Hit bottom pipe:', hitBottomPipe)
           console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
-          console.log('Bird bounds:', birdCollisionBounds)
-          console.log('Top pipe bounds:', topPipeBounds)
-          console.log('Bottom pipe bounds:', bottomPipeBounds)
-          console.log('COLLISION DETECTION WORKING - TRIGGERING GAME OVER!')
+          console.log('Bird bounds (exact):', birdCollisionBounds)
+          console.log('Top pipe collision rect:', topPipeCollisionRect)
+          console.log('Bottom pipe collision rect:', bottomPipeCollisionRect)
+          console.log('Using precise pipe collision areas!')
           if (!this.isGameOver) {
             this.gameOver()
           }
@@ -820,7 +722,13 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || !this.isGameStarted) return
 
     if (this.bird.body) {
-      // Original Flappy Bird flap behavior
+      // Set gravity on first flap to start the game properly
+      if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
+        const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
+        console.log('Gravity activated on first flap:', gravityValue)
+      }
+      
       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
       
       // Play flap sound using audio manager
@@ -902,11 +810,6 @@ export class GameScene extends Phaser.Scene {
         const pipeSpeed = this.gameSettings?.pipeSpeed || this.PIPE_SPEED
         pipeSet.topPipe.x -= pipeSpeed
         pipeSet.bottomPipe.x -= pipeSpeed
-        
-        // Debug log for first pipe
-        if (i === 0) {
-          console.log(`Moving pipes - Top: ${pipeSet.topPipe.x}, ${pipeSet.topPipe.y}, Bottom: ${pipeSet.bottomPipe.x}, ${pipeSet.bottomPipe.y}`)
-        }
         
         // No need to update collision data - using visual pipe bounds directly
         
@@ -1053,70 +956,19 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe using Sprite-0003.png (proper pipe sprite)
-    // Top pipe extends from top of screen to gap
-    const topPipeHeight = pipeHeight
-    const topPipe = this.physics.add.staticImage(x, topPipeHeight / 2, 'pipe_sprite')
-    topPipe.setScale(1, -1)  // Flip vertically for top pipe
-    topPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
-    topPipe.displayHeight = topPipeHeight  // Set height to match gap
-    topPipe.displayWidth = 80  // Set width larger for better visibility
+    // Create top pipe using the selected sprite
+    // Position it so the bottom of the flipped pipe is at pipeHeight
+    const topPipe = this.add.image(x, pipeHeight, pipeSpriteKey)
+    topPipe.setScale(1, -1)  // Flip vertically
+    topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
     
-    // Use collision detection that matches the VISUAL pipe size exactly
-    // Use the display dimensions that are actually shown on screen
-    const visualWidth = topPipe.displayWidth
-    const visualHeight = topPipe.displayHeight
-    
-    // Set collision to match the visual pipe dimensions exactly
-    topPipe.body.setSize(visualWidth, visualHeight)
-    topPipe.body.setOffset(-visualWidth/2, -visualHeight/2)
-    
-    // Force update collision bounds to ensure it takes effect
-    topPipe.body.updateFromGameObject()
-    
-    // Enable debug visualization for collision box
-    topPipe.body.debugBodyColor = 0xff0000  // Red collision box
-    console.log(`Top pipe collision matches visual size: ${visualWidth}x${visualHeight}`)
-    
-    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} using Sprite-0003.png`)
+    console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
-    // Create bottom pipe using Sprite-0003.png (proper pipe sprite)
-    // Bottom pipe extends from gap to bottom of screen
-    const bottomPipeY = pipeHeight + gap + (600 - (pipeHeight + gap)) / 2
-    const bottomPipeHeight = 600 - (pipeHeight + gap)
-    const bottomPipe = this.physics.add.staticImage(x, bottomPipeY, 'pipe_sprite')
-    bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
-    bottomPipe.displayHeight = bottomPipeHeight  // Set height to match remaining space
-    bottomPipe.displayWidth = 80  // Set width larger for better visibility
-    
-    // Use collision detection that matches the VISUAL pipe size exactly
-    // Use the display dimensions that are actually shown on screen
-    const bottomVisualWidth = bottomPipe.displayWidth
-    const bottomVisualHeight = bottomPipe.displayHeight
-    
-    // Set collision to match the visual pipe dimensions exactly
-    bottomPipe.body.setSize(bottomVisualWidth, bottomVisualHeight)
-    bottomPipe.body.setOffset(-bottomVisualWidth/2, -bottomVisualHeight/2)
-    
-    // Force update collision bounds to ensure it takes effect
-    bottomPipe.body.updateFromGameObject()
-    
-    // Enable debug visualization for collision box
-    bottomPipe.body.debugBodyColor = 0xff0000  // Red collision box
-    console.log(`Bottom pipe collision matches visual size: ${bottomVisualWidth}x${bottomVisualHeight}`)
+    // Create bottom pipe using the selected sprite
+    const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
+    bottomPipe.setOrigin(0, 0)
 
     // No need for invisible collision data - using visual pipe bounds directly
-
-    // Add pipes to physics group
-    this.pipes.add(topPipe)
-    this.pipes.add(bottomPipe)
-    
-    // Collision detection already set above - no need for duplicate settings
-    
-    console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
-    console.log(`Pipes group size: ${this.pipes.children.size}`)
-    console.log(`Top pipe collision size: 80x${topPipeHeight}, Bottom pipe collision size: 80x${bottomPipeHeight}`)
-    console.log(`Pipe gap: ${Math.round(gap)}px, Using Sprite-0003.png for pipes with proper collision detection`)
 
     // Create pipe set object
     const pipeSet = {
