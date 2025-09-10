@@ -704,7 +704,7 @@ export class GameScene extends Phaser.Scene {
         
         // Additional check: Ensure bird cannot pass through the gap between pipes
         // Check if bird is horizontally aligned with the pipe gap
-        const pipeCollisionMargin = 15 // Match the pipe collision margin
+        const pipeCollisionMargin = 25 // Match the pipe collision margin
         const pipeLeft = pipeSet.topPipe.x + pipeCollisionMargin // Use pipe position with margin
         const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width - pipeCollisionMargin // Use pipe width with margin
         const birdLeft = this.bird.x - 8 // bird left edge (match bird collision margin)
@@ -1151,7 +1151,7 @@ export class GameScene extends Phaser.Scene {
     
     // Create collision rectangles that are smaller than visual pipe for better gameplay
     // Add margin so bird must actually touch the pipe visually
-    const pipeCollisionMargin = 15 // Reduce collision area by 15 pixels on each side
+    const pipeCollisionMargin = 25 // Reduce collision area by 25 pixels on each side
     const topPipeCollisionRect = { 
       x: topPipeLeft + pipeCollisionMargin, 
       y: topPipeTop + pipeCollisionMargin, 
