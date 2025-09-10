@@ -48,10 +48,10 @@ export class GameScene extends Phaser.Scene {
   private readonly GRAVITY = 30  // Extremely low gravity for very easy control
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
-  private readonly PIPE_SPAWN_DELAY = 3500  // Much longer delay between pipes (3.5 seconds) for significantly increased spacing
-  private readonly PIPE_RESPAWN_X = 1000  // Increased respawn position to accommodate larger pipe spacing
-  private readonly BASE_PIPE_SPACING = 800  // Base distance between pipe sets (in pixels) - very large spacing
-  private readonly MIN_PIPE_SPACING = 600   // Minimum distance - still large but allows for difficulty progression
+  private readonly PIPE_SPAWN_DELAY = 2500  // Balanced delay between pipes (2.5 seconds) for closer spacing
+  private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
+  private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
+  private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
   private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
   private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
@@ -601,7 +601,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
 
     // Start spawning first pipe after a delay
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(1500, () => {
       this.spawnPipe()
     })
 
