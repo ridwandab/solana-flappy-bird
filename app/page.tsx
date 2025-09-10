@@ -47,46 +47,10 @@ export default function HomePage() {
     <WalletProvider>
       <AudioInitializer>
         <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-          {/* Header */}
-          <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
-            <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  <img 
-                    src="/Bird2-export.png" 
-                    alt="Solana Flappy Bird" 
-                    className="w-8 h-8"
-                  />
-                  <h1 className="text-2xl font-bold text-white">
-                    Solana Flappy Bird
-                  </h1>
-                </div>
-                {currentView !== 'menu' && (
-                  <button
-                    onClick={() => setCurrentView('menu')}
-                    className="text-white/80 hover:text-white transition-colors ml-4"
-                  >
-                    ← Kembali ke Menu
-                  </button>
-                )}
-              </div>
-              {/* WalletMultiButton is now part of WalletProvider */}
-            </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="pt-20 pb-8">
-            <div className="container mx-auto px-4">
-              {renderView()}
-            </div>
+          {/* Fullscreen Content */}
+          <main className="min-h-screen">
+            {renderView()}
           </main>
-
-          {/* Footer */}
-          <footer className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10">
-            <div className="container mx-auto px-4 py-2 text-center text-white/60 text-sm">
-              Powered by Solana • Built with Next.js & Phaser 3
-            </div>
-          </footer>
         </div>
       </AudioInitializer>
     </WalletProvider>

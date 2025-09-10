@@ -14,8 +14,8 @@ export const Game: FC = () => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 600,
+      width: window.innerWidth,
+      height: window.innerHeight,
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -27,14 +27,24 @@ export const Game: FC = () => {
       },
       scene: GameScene,
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH
       }
     }
 
     phaserGameRef.current = new Phaser.Game(config)
 
+    // Handle window resize
+    const handleResize = () => {
+      if (phaserGameRef.current) {
+        phaserGameRef.current.scale.resize(window.innerWidth, window.innerHeight)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+
     return () => {
+      window.removeEventListener('resize', handleResize)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
@@ -43,12 +53,12 @@ export const Game: FC = () => {
   }, [])
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 pt-2">
-      {/* Game Container - positioned right below header */}
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      {/* Fullscreen Game Container */}
       <div 
         ref={gameRef} 
-        className="border-4 border-purple-500 rounded-lg shadow-2xl"
-        style={{ width: '800px', height: '600px' }}
+        className="w-full h-screen"
+        style={{ width: '100vw', height: '100vh' }}
       />
     </div>
   )
