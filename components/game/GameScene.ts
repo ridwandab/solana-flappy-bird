@@ -49,9 +49,9 @@ export class GameScene extends Phaser.Scene {
   private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 3500  // Much longer delay between pipes (3.5 seconds) for significantly increased spacing
-  private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 700  // Base distance between pipe sets (in pixels) - significantly increased spacing
-  private readonly MIN_PIPE_SPACING = 700   // Minimum distance - same as base for consistent spacing
+  private readonly PIPE_RESPAWN_X = 1000  // Increased respawn position to accommodate larger pipe spacing
+  private readonly BASE_PIPE_SPACING = 800  // Base distance between pipe sets (in pixels) - very large spacing
+  private readonly MIN_PIPE_SPACING = 600   // Minimum distance - still large but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
   private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
   private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
@@ -805,7 +805,9 @@ export class GameScene extends Phaser.Scene {
   private getCurrentPipeSpacing(): number {
     // Calculate current pipe spacing based on difficulty level
     const progress = Math.min(this.difficultyLevel / 20, 1) // Max difficulty at level 20
-    return this.BASE_PIPE_SPACING - (this.BASE_PIPE_SPACING - this.MIN_PIPE_SPACING) * progress
+    const spacing = this.BASE_PIPE_SPACING - (this.BASE_PIPE_SPACING - this.MIN_PIPE_SPACING) * progress
+    console.log(`🔍 PIPE SPACING DEBUG: Base=${this.BASE_PIPE_SPACING}, Min=${this.MIN_PIPE_SPACING}, Progress=${progress}, Current=${spacing}`)
+    return spacing
   }
 
   private getCurrentPipeGap(): number {
