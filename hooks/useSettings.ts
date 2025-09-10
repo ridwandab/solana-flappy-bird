@@ -49,7 +49,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   gravity: 30,  // Extremely low gravity for very easy control
   flapForce: -350,  // Moderate flap force for smooth jumping
   pipeSpeed: 3,
-  pipeSpawnDelay: 2800,
+  pipeSpawnDelay: 3500,
   
   // Privacy Settings
   showOnLeaderboard: true,
