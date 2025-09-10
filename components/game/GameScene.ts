@@ -1045,16 +1045,24 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe as static physics sprite (no gravity, no movement)
-    const topPipe = this.physics.add.staticImage(x, pipeHeight, pipeSpriteKey)
-    topPipe.setScale(1, -1)  // Flip vertically
+    // Create top pipe as simple green rectangle with black border (Flappy Bird original style)
+    // Top pipe extends from top of screen to gap
+    const topPipeHeight = pipeHeight
+    const topPipe = this.add.rectangle(x, topPipeHeight / 2, 52, topPipeHeight, 0x00ff00)
     topPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
+    topPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
+    this.physics.add.existing(topPipe, true)  // Make it static physics body
     
-    console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
+    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} as green rectangle`)
 
-    // Create bottom pipe as static physics sprite (no gravity, no movement)
-    const bottomPipe = this.physics.add.staticImage(x, pipeHeight + gap, pipeSpriteKey)
+    // Create bottom pipe as simple green rectangle with black border (Flappy Bird original style)
+    // Bottom pipe extends from gap to bottom of screen
+    const bottomPipeY = pipeHeight + gap + (600 - (pipeHeight + gap)) / 2
+    const bottomPipeHeight = 600 - (pipeHeight + gap)
+    const bottomPipe = this.add.rectangle(x, bottomPipeY, 52, bottomPipeHeight, 0x00ff00)
     bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
+    bottomPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
+    this.physics.add.existing(bottomPipe, true)  // Make it static physics body
 
     // No need for invisible collision data - using visual pipe bounds directly
 
