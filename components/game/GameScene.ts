@@ -648,41 +648,29 @@ export class GameScene extends Phaser.Scene {
           birdBounds.height - (birdCollisionMargin * 2)
         )
         
-        // Create collision rectangles based on red lines positions
+        // Create collision rectangles based on pipe collision data
         let hitTopPipe = false
         let hitBottomPipe = false
         
-        if (pipeSet.topPipeCollision && pipeSet.topPipeCollision.length >= 4) {
-          // Get red lines positions for top pipe
-          const topLine = pipeSet.topPipeCollision[0] // Top line
-          const bottomLine = pipeSet.topPipeCollision[1] // Bottom line
-          const leftLine = pipeSet.topPipeCollision[2] // Left line
-          const rightLine = pipeSet.topPipeCollision[3] // Right line
-          
-          // Create collision rectangle from red lines
+        if (pipeSet.topPipeCollision) {
+          // Use the stored collision rectangle for top pipe
           const topPipeCollisionRect = new Phaser.Geom.Rectangle(
-            leftLine.x,
-            topLine.y,
-            rightLine.x - leftLine.x,
-            bottomLine.y - topLine.y
+            pipeSet.topPipeCollision.x,
+            pipeSet.topPipeCollision.y,
+            pipeSet.topPipeCollision.width,
+            pipeSet.topPipeCollision.height
           )
           
           hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
         }
         
-        if (pipeSet.bottomPipeCollision && pipeSet.bottomPipeCollision.length >= 4) {
-          // Get red lines positions for bottom pipe
-          const topLine = pipeSet.bottomPipeCollision[0] // Top line
-          const bottomLine = pipeSet.bottomPipeCollision[1] // Bottom line
-          const leftLine = pipeSet.bottomPipeCollision[2] // Left line
-          const rightLine = pipeSet.bottomPipeCollision[3] // Right line
-          
-          // Create collision rectangle from red lines
+        if (pipeSet.bottomPipeCollision) {
+          // Use the stored collision rectangle for bottom pipe
           const bottomPipeCollisionRect = new Phaser.Geom.Rectangle(
-            leftLine.x,
-            topLine.y,
-            rightLine.x - leftLine.x,
-            bottomLine.y - topLine.y
+            pipeSet.bottomPipeCollision.x,
+            pipeSet.bottomPipeCollision.y,
+            pipeSet.bottomPipeCollision.width,
+            pipeSet.bottomPipeCollision.height
           )
           
           hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
@@ -717,22 +705,20 @@ export class GameScene extends Phaser.Scene {
               hitBottomPipe,
               distanceToTopPipe: Math.abs(pipeSet.topPipe.x - this.bird.x)
             },
-            collisionData: {
-              topPipe: pipeSet.topPipeCollision ? pipeSet.topPipeCollision.map((data: any, index: number) => ({ 
-                index,
-                x: data.x, 
-                y: data.y, 
-                width: data.width, 
-                height: data.height 
-              })) : 'none',
-              bottomPipe: pipeSet.bottomPipeCollision ? pipeSet.bottomPipeCollision.map((data: any, index: number) => ({ 
-                index,
-                x: data.x, 
-                y: data.y, 
-                width: data.width, 
-                height: data.height 
-              })) : 'none'
-            }
+             collisionData: {
+               topPipe: pipeSet.topPipeCollision ? {
+                 x: pipeSet.topPipeCollision.x, 
+                 y: pipeSet.topPipeCollision.y, 
+                 width: pipeSet.topPipeCollision.width, 
+                 height: pipeSet.topPipeCollision.height 
+               } : 'none',
+               bottomPipe: pipeSet.bottomPipeCollision ? {
+                 x: pipeSet.bottomPipeCollision.x, 
+                 y: pipeSet.bottomPipeCollision.y, 
+                 width: pipeSet.bottomPipeCollision.width, 
+                 height: pipeSet.bottomPipeCollision.height 
+               } : 'none'
+             }
           })
         }
         
@@ -882,14 +868,10 @@ export class GameScene extends Phaser.Scene {
         
         // Update invisible collision data positions with pipes
         if (pipeSet.topPipeCollision) {
-          pipeSet.topPipeCollision.forEach((collisionData: any) => {
-            collisionData.x -= pipeSpeed
-          })
+          pipeSet.topPipeCollision.x -= pipeSpeed
         }
         if (pipeSet.bottomPipeCollision) {
-          pipeSet.bottomPipeCollision.forEach((collisionData: any) => {
-            collisionData.x -= pipeSpeed
-          })
+          pipeSet.bottomPipeCollision.x -= pipeSpeed
         }
         
         // Debug: Log collision data positions for collision detection
@@ -898,24 +880,22 @@ export class GameScene extends Phaser.Scene {
             topPipe: {
               x: pipeSet.topPipe.x,
               y: pipeSet.topPipe.y,
-              collisionData: pipeSet.topPipeCollision ? pipeSet.topPipeCollision.map((data: any, index: number) => ({ 
-                index,
-                x: data.x, 
-                y: data.y,
-                width: data.width,
-                height: data.height
-              })) : 'none'
+              collisionData: pipeSet.topPipeCollision ? {
+                x: pipeSet.topPipeCollision.x, 
+                y: pipeSet.topPipeCollision.y,
+                width: pipeSet.topPipeCollision.width,
+                height: pipeSet.topPipeCollision.height
+              } : 'none'
             },
             bottomPipe: {
               x: pipeSet.bottomPipe.x,
               y: pipeSet.bottomPipe.y,
-              collisionData: pipeSet.bottomPipeCollision ? pipeSet.bottomPipeCollision.map((data: any, index: number) => ({ 
-                index,
-                x: data.x, 
-                y: data.y,
-                width: data.width,
-                height: data.height
-              })) : 'none'
+              collisionData: pipeSet.bottomPipeCollision ? {
+                x: pipeSet.bottomPipeCollision.x, 
+                y: pipeSet.bottomPipeCollision.y,
+                width: pipeSet.bottomPipeCollision.width,
+                height: pipeSet.bottomPipeCollision.height
+              } : 'none'
             }
           })
         }
@@ -1131,24 +1111,29 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeTop = pipeHeight + gap
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
-    // Create invisible collision rectangles for collision detection
-    const topPipeCollisionTop = { x: topPipeLeft + pipeWidth/2, y: topPipeTop, width: pipeWidth, height: 2 }
-    const topPipeCollisionBottom = { x: topPipeLeft + pipeWidth/2, y: topPipeBottom, width: pipeWidth, height: 2 }
-    const topPipeCollisionLeft = { x: topPipeLeft, y: topPipeTop + pipeHeightValue/2, width: 2, height: pipeHeightValue }
-    const topPipeCollisionRight = { x: topPipeRight, y: topPipeTop + pipeHeightValue/2, width: 2, height: pipeHeightValue }
+    // Create invisible collision rectangles that match the visual pipe size
+    // Use the full pipe dimensions for more accurate collision detection
+    const topPipeCollisionRect = { 
+      x: topPipeLeft, 
+      y: topPipeTop, 
+      width: pipeWidth, 
+      height: pipeHeightValue 
+    }
     
-    const bottomPipeCollisionTop = { x: bottomPipeLeft + pipeWidth/2, y: bottomPipeTop, width: pipeWidth, height: 2 }
-    const bottomPipeCollisionBottom = { x: bottomPipeLeft + pipeWidth/2, y: bottomPipeBottom, width: pipeWidth, height: 2 }
-    const bottomPipeCollisionLeft = { x: bottomPipeLeft, y: bottomPipeTop + pipeHeightValue/2, width: 2, height: pipeHeightValue }
-    const bottomPipeCollisionRight = { x: bottomPipeRight, y: bottomPipeTop + pipeHeightValue/2, width: 2, height: pipeHeightValue }
+    const bottomPipeCollisionRect = { 
+      x: bottomPipeLeft, 
+      y: bottomPipeTop, 
+      width: pipeWidth, 
+      height: pipeHeightValue 
+    }
 
     // Create pipe set object
     const pipeSet = {
       topPipe: topPipe,
       bottomPipe: bottomPipe,
       // Store invisible collision data for collision detection
-      topPipeCollision: [topPipeCollisionTop, topPipeCollisionBottom, topPipeCollisionLeft, topPipeCollisionRight],
-      bottomPipeCollision: [bottomPipeCollisionTop, bottomPipeCollisionBottom, bottomPipeCollisionLeft, bottomPipeCollisionRight],
+      topPipeCollision: topPipeCollisionRect,
+      bottomPipeCollision: bottomPipeCollisionRect,
       scored: false
     }
 
