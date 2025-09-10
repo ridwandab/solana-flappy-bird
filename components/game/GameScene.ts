@@ -513,6 +513,8 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
+        // Set collision size to match visual bird size
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
       }
       
       console.log('Bird converted from static to physics sprite')
@@ -530,6 +532,8 @@ export class GameScene extends Phaser.Scene {
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
+        // Set collision size to match visual bird size
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setSize(34, 24)  // Flappy Bird original collision size
       }
     }
     
@@ -1053,7 +1057,12 @@ export class GameScene extends Phaser.Scene {
     topPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
     this.physics.add.existing(topPipe, true)  // Make it static physics body
     
-    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} as green rectangle`)
+    // Set collision size to match visual size
+    if (topPipe.body) {
+      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(52, topPipeHeight)
+    }
+    
+    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2}, size: 52x${topPipeHeight}`)
 
     // Create bottom pipe as simple green rectangle with black border (Flappy Bird original style)
     // Bottom pipe extends from gap to bottom of screen
@@ -1063,6 +1072,11 @@ export class GameScene extends Phaser.Scene {
     bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
     bottomPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
     this.physics.add.existing(bottomPipe, true)  // Make it static physics body
+    
+    // Set collision size to match visual size
+    if (bottomPipe.body) {
+      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(52, bottomPipeHeight)
+    }
 
     // No need for invisible collision data - using visual pipe bounds directly
 
@@ -1072,7 +1086,8 @@ export class GameScene extends Phaser.Scene {
     
     console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
     console.log(`Pipes group size: ${this.pipes.children.size}`)
-    console.log(`Pipe sprite key: ${pipeSpriteKey}, Top pipe scale: ${topPipe.scaleX}, ${topPipe.scaleY}`)
+    console.log(`Top pipe collision size: 52x${topPipeHeight}, Bottom pipe collision size: 52x${bottomPipeHeight}`)
+    console.log(`Bird collision size: 34x24 (Flappy Bird original)`)
 
     // Create pipe set object
     const pipeSet = {
