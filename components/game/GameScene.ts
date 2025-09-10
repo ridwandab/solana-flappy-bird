@@ -53,8 +53,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 300  // Original Flappy Bird pipe spacing
   private readonly MIN_PIPE_SPACING = 300   // Original Flappy Bird spacing (no change)
   private readonly MAX_ACTIVE_PIPES = 2  // Original Flappy Bird max pipes
-  private readonly BASE_PIPE_GAP = 120  // Original Flappy Bird pipe gap
-  private readonly MIN_PIPE_GAP = 120    // Original Flappy Bird gap (no change)
+  private readonly BASE_PIPE_GAP = 180  // Larger pipe gap for better gameplay
+  private readonly MIN_PIPE_GAP = 160    // Larger minimum gap for easier passage
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -1056,7 +1056,7 @@ export class GameScene extends Phaser.Scene {
     topPipe.setScale(1, -1)  // Flip vertically for top pipe
     topPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
     topPipe.displayHeight = topPipeHeight  // Set height to match gap
-    topPipe.displayWidth = 52  // Set width to match original
+    topPipe.displayWidth = 80  // Set width larger for better visibility
     
     console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} using Sprite-0003.png`)
 
@@ -1067,7 +1067,7 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.physics.add.staticImage(x, bottomPipeY, 'pipe_sprite')
     bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
     bottomPipe.displayHeight = bottomPipeHeight  // Set height to match remaining space
-    bottomPipe.displayWidth = 52  // Set width to match original
+    bottomPipe.displayWidth = 80  // Set width larger for better visibility
 
     // No need for invisible collision data - using visual pipe bounds directly
 
@@ -1075,18 +1075,18 @@ export class GameScene extends Phaser.Scene {
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
     
-    // Set collision size to match sprite dimensions
+    // Set collision size to match sprite dimensions (larger pipes)
     if (topPipe.body) {
-      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(52, topPipeHeight)
+      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(80, topPipeHeight)
     }
     if (bottomPipe.body) {
-      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(52, bottomPipeHeight)
+      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(80, bottomPipeHeight)
     }
     
     console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
     console.log(`Pipes group size: ${this.pipes.children.size}`)
-    console.log(`Top pipe collision size: 52x${topPipeHeight}, Bottom pipe collision size: 52x${bottomPipeHeight}`)
-    console.log(`Using Sprite-0003.png for pipes with proper collision detection`)
+    console.log(`Top pipe collision size: 80x${topPipeHeight}, Bottom pipe collision size: 80x${bottomPipeHeight}`)
+    console.log(`Pipe gap: ${Math.round(gap)}px, Using Sprite-0003.png for pipes with proper collision detection`)
 
     // Create pipe set object
     const pipeSet = {
