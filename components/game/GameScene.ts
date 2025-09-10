@@ -614,8 +614,8 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 100 pixels)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+      // Check collision for all pipes that are on screen (not just close ones)
+      if (pipeSet.topPipe.x > -50 && pipeSet.topPipe.x < 850) {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
@@ -700,6 +700,37 @@ export class GameScene extends Phaser.Scene {
                } : 'none'
              }
           })
+        }
+        
+        // Additional check: Ensure bird cannot pass through the gap between pipes
+        // Check if bird is horizontally aligned with the pipe gap
+        const pipeLeft = pipeSet.topPipe.x
+        const pipeRight = pipeSet.topPipe.x + 80 // pipe width
+        const birdLeft = this.bird.x - 10 // bird left edge
+        const birdRight = this.bird.x + 10 // bird right edge
+        
+        // If bird is horizontally overlapping with pipe area
+        if (birdRight > pipeLeft && birdLeft < pipeRight) {
+          // Get gap information from pipe set
+          const gapTop = pipeSet.topPipe.y + pipeSet.topPipe.height
+          const gapBottom = pipeSet.bottomPipe.y
+          
+          // If bird is NOT in the gap, it should hit the pipe
+          if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+            console.log('🚨 BIRD OUTSIDE GAP! Should hit pipe!', {
+              birdY: this.bird.y,
+              gapTop,
+              gapBottom,
+              pipeLeft,
+              pipeRight,
+              birdLeft,
+              birdRight
+            })
+            if (!this.isGameOver) {
+              this.gameOver()
+            }
+            return
+          }
         }
         
         if (hitTopPipe || hitBottomPipe) {
@@ -1115,8 +1146,8 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Reduce collision area to match visual pipe more accurately
-    const collisionMargin = 10 // Reduce collision area by 10 pixels on each side
+    // Create collision area that covers the full pipe width and height
+    const collisionMargin = 0 // No margin - use full pipe area for collision
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMargin, 
       y: topPipeTop + collisionMargin, 
