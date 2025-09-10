@@ -301,9 +301,10 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create ground
+    // Create invisible ground for collision detection only
     this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
+    this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics)

@@ -66,9 +66,9 @@ export const Game: FC = () => {
   }, [])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 pt-8">
       {/* Score Display */}
-      <div className="mb-4 flex space-x-8 text-white">
+      <div className="mb-6 flex space-x-8 text-white">
         <div className="text-center">
           <div className="text-lg font-semibold">Score</div>
           <div className="text-2xl font-bold text-yellow-400">{currentScore}</div>
