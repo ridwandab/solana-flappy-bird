@@ -640,7 +640,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 1 // Reduce bird collision area by 1 pixel on each side (extremely sensitive)
+        const birdCollisionMargin = 0 // No margin - exact collision for visual accuracy
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -966,7 +966,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = 1
+        const birdCollisionMargin = 0
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
