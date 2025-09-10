@@ -161,6 +161,9 @@ export class GameScene extends Phaser.Scene {
     this.difficultyLevel = 0
     this.pipesPassed = 0
 
+    // Setup physics world - no gravity for pipes
+    this.physics.world.gravity.y = 0  // No world gravity
+
     // Preload sprites
     this.load.image('pipe_sprite', '/Sprite-0003.png')
     this.load.image('background_sprite', '/Background5.png')
@@ -610,8 +613,12 @@ export class GameScene extends Phaser.Scene {
 
     if (this.isGameOver || !this.isGameStarted) return
 
-    // Rotate bird based on velocity
+    // Apply bird gravity and rotation
     if (this.bird.body) {
+      // Apply gravity to bird
+      (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(600)  // Bird gravity for falling
+      
+      // Rotate bird based on velocity
       const velocity = this.bird.body.velocity.y
       this.bird.angle = Math.min(Math.max(velocity * 0.1, -90), 90)
     }
@@ -1036,6 +1043,8 @@ export class GameScene extends Phaser.Scene {
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
     topPipe.body!.setImmovable(true)  // Make it immovable for collision
+    topPipe.body!.setGravityY(0)  // No gravity for pipes
+    topPipe.body!.setVelocityX(0)  // No horizontal velocity
     
     console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
@@ -1043,6 +1052,8 @@ export class GameScene extends Phaser.Scene {
     const bottomPipe = this.physics.add.image(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
     bottomPipe.body!.setImmovable(true)  // Make it immovable for collision
+    bottomPipe.body!.setGravityY(0)  // No gravity for pipes
+    bottomPipe.body!.setVelocityX(0)  // No horizontal velocity
 
     // No need for invisible collision data - using visual pipe bounds directly
 
