@@ -640,7 +640,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area larger to allow closer approach to pipes
-        const birdCollisionMargin = -2 // Negative margin - bird can get closer to pipes before collision
+        const birdCollisionMargin = -4 // Negative margin - bird can get much closer to pipes before collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -966,7 +966,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = -2
+        const birdCollisionMargin = -4
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
