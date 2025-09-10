@@ -47,10 +47,21 @@ export default function HomePage() {
     <WalletProvider>
       <AudioInitializer>
         <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-          {/* Fullscreen Content */}
-          <main className="min-h-screen">
-            {renderView()}
+          {/* Header removed - clean interface */}
+
+          {/* Main Content */}
+          <main className="pt-0 pb-8">
+            <div className="container mx-auto px-4">
+              {renderView()}
+            </div>
           </main>
+
+          {/* Footer */}
+          <footer className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10">
+            <div className="container mx-auto px-4 py-2 text-center text-white/60 text-sm">
+              Powered by Solana • Built with Next.js & Phaser 3
+            </div>
+          </footer>
         </div>
       </AudioInitializer>
     </WalletProvider>
