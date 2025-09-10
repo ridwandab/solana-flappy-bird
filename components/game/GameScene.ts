@@ -45,8 +45,8 @@ export class GameScene extends Phaser.Scene {
   private scoreSound!: Phaser.Sound.BaseSound
   
   // Game physics constants - will be overridden by settings
-  private readonly DEFAULT_GRAVITY = 30  // Default gravity if settings not available
-  private readonly DEFAULT_FLAP_FORCE = -350  // Default flap force if settings not available
+  private readonly DEFAULT_GRAVITY = 600  // Default gravity for quick falling like original Flappy Bird
+  private readonly DEFAULT_FLAP_FORCE = -400  // Default flap force for quick jumping
   private readonly PIPE_SPEED = 3  // Slower speed for better visibility
   private readonly PIPE_SPAWN_DELAY = 2500  // Balanced delay between pipes (2.5 seconds) for closer spacing
   private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
