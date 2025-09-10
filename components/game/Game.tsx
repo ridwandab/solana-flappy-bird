@@ -4,7 +4,11 @@ import { FC, useEffect, useRef } from 'react'
 import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 
-export const Game: FC = () => {
+interface GameProps {
+  onBackToMenu?: () => void
+}
+
+export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
@@ -34,13 +38,23 @@ export const Game: FC = () => {
 
     phaserGameRef.current = new Phaser.Game(config)
 
+    // Add event listener for goToMainMenu
+    if (phaserGameRef.current) {
+      phaserGameRef.current.events.on('goToMainMenu', () => {
+        console.log('Main Menu button clicked - going back to menu')
+        if (onBackToMenu) {
+          onBackToMenu()
+        }
+      })
+    }
+
     return () => {
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
       }
     }
-  }, [])
+  }, [onBackToMenu])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">

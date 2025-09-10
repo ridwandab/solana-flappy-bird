@@ -21,7 +21,7 @@ export default function HomePage() {
   const renderView = () => {
     switch (currentView) {
       case 'game':
-        return <Game />
+        return <Game onBackToMenu={() => setCurrentView('menu')} />
       case 'store':
         return <Store />
       case 'leaderboard':
