@@ -744,6 +744,42 @@ export class GameScene extends Phaser.Scene {
               })
             }
           }
+          
+          // Check for right side collision - prevent bird from going through pipe from right side
+          // If bird is to the right of the pipe and moving left, check if it would hit the pipe
+          if (this.bird.x > pipeRight && this.bird.x < pipeRight + 20) {
+            // Check if bird is at a height where it would hit the pipe (not in the gap)
+            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+              hitSideCollision = true
+              console.log('🚨 RIGHT SIDE COLLISION DETECTED! Bird hitting pipe from right side!', {
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeRight,
+                gapTop,
+                gapBottom,
+                distanceFromPipe: this.bird.x - pipeRight
+              })
+            }
+          }
+          
+          // Additional comprehensive check: if bird is anywhere in the pipe area (left to right)
+          // and not in the safe gap, it should hit the pipe
+          if (this.bird.x >= pipeLeft - 10 && this.bird.x <= pipeRight + 10) {
+            // Check if bird is NOT in the safe vertical gap
+            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+              hitSideCollision = true
+              console.log('🚨 COMPREHENSIVE SIDE COLLISION DETECTED! Bird in pipe area but not in safe gap!', {
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeLeft,
+                pipeRight,
+                gapTop,
+                gapBottom,
+                inSafeGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
+                birdInPipeArea: this.bird.x >= pipeLeft - 10 && this.bird.x <= pipeRight + 10
+              })
+            }
+          }
         }
 
         if (hitTopPipe || hitBottomPipe || hitSideCollision) {
@@ -1159,9 +1195,9 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeTop = pipeHeight + gap
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
-    // Create invisible collision rectangles that match the visual pipe size
-    // Reduce collision area to match visual pipe more accurately
-    const collisionMargin = 10 // Reduce collision area by 10 pixels on each side
+    // Create invisible collision rectangles that match the visual pipe size exactly
+    // Use minimal margin to ensure collision matches visual pipe
+    const collisionMargin = 2 // Minimal margin to ensure collision matches visual pipe
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMargin, 
       y: topPipeTop + collisionMargin, 
@@ -1190,6 +1226,21 @@ export class GameScene extends Phaser.Scene {
     this.activePipes.push(pipeSet)
     
     console.log(`New pipe set created with invisible collision detection. Total active pipes: ${this.activePipes.length}`)
+    console.log('🔍 PIPE COLLISION DATA:', {
+      topPipe: {
+        visual: { x: topPipeLeft, y: topPipeTop, width: pipeWidth, height: pipeHeightValue },
+        collision: topPipeCollisionRect
+      },
+      bottomPipe: {
+        visual: { x: bottomPipeLeft, y: bottomPipeTop, width: pipeWidth, height: pipeHeightValue },
+        collision: bottomPipeCollisionRect
+      },
+      gap: {
+        top: topPipeTop + pipeHeightValue,
+        bottom: bottomPipeTop,
+        height: gap
+      }
+    })
     
     // Add random obstacles to make the game more challenging
     this.spawnRandomObstacles(x, pipeHeight, gap)
