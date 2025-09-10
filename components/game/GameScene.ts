@@ -328,17 +328,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Create title
-    const title = this.add.text(400, 200, '🐦 SOLANA FLAPPY BIRD', {
-      fontSize: '48px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 4,
-      fontFamily: 'Arial'
-    })
-    title.setOrigin(0.5, 0.5)
-    title.setScrollFactor(0)
-    this.startScreenElements.push(title)
+    // Title removed - keeping only character and start button
 
     // Create start button
     const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
@@ -371,18 +361,7 @@ export class GameScene extends Phaser.Scene {
       this.startGame()
     })
 
-    // Instructions
-    const instructions = this.add.text(400, 450, 'Tap to flap and avoid pipes!\nCollect SOL rewards by completing quests!', {
-      fontSize: '20px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 2,
-      fontFamily: 'Arial',
-      align: 'center'
-    })
-    instructions.setOrigin(0.5, 0.5)
-    instructions.setScrollFactor(0)
-    this.startScreenElements.push(instructions)
+    // Instructions removed - keeping only character and start button
   }
 
   private startGame() {
