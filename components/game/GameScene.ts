@@ -1062,6 +1062,13 @@ export class GameScene extends Phaser.Scene {
     topPipe.displayHeight = topPipeHeight  // Set height to match gap
     topPipe.displayWidth = 80  // Set width larger for better visibility
     
+    // Ensure collision detection matches visual size exactly
+    topPipe.body.setSize(topPipe.displayWidth, topPipe.displayHeight)
+    topPipe.body.setOffset(-topPipe.displayWidth/2, -topPipe.displayHeight/2)
+    
+    // Enable debug visualization for collision box
+    topPipe.body.debugBodyColor = 0xff0000  // Red collision box
+    
     console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} using Sprite-0003.png`)
 
     // Create bottom pipe using Sprite-0003.png (proper pipe sprite)
@@ -1072,6 +1079,13 @@ export class GameScene extends Phaser.Scene {
     bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
     bottomPipe.displayHeight = bottomPipeHeight  // Set height to match remaining space
     bottomPipe.displayWidth = 80  // Set width larger for better visibility
+    
+    // Ensure collision detection matches visual size exactly
+    bottomPipe.body.setSize(bottomPipe.displayWidth, bottomPipe.displayHeight)
+    bottomPipe.body.setOffset(-bottomPipe.displayWidth/2, -bottomPipe.displayHeight/2)
+    
+    // Enable debug visualization for collision box
+    bottomPipe.body.debugBodyColor = 0xff0000  // Red collision box
 
     // No need for invisible collision data - using visual pipe bounds directly
 
@@ -1079,16 +1093,22 @@ export class GameScene extends Phaser.Scene {
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
     
-    // Enable debug visualization for collision boxes
+    // Set precise collision detection to match visual pipe dimensions exactly
     if (topPipe.body) {
-      // Enable debug visualization for collision box
-      ;(topPipe.body as Phaser.Physics.Arcade.StaticBody).debugBodyColor = 0xff0000  // Red collision box
-      console.log(`Top pipe collision using default size with visual dimensions: ${topPipe.displayWidth}x${topPipe.displayHeight}`)
+      // Use the exact visual dimensions for collision
+      const body = topPipe.body as Phaser.Physics.Arcade.StaticBody
+      body.setSize(topPipe.displayWidth, topPipe.displayHeight)
+      body.setOffset(-topPipe.displayWidth/2, -topPipe.displayHeight/2)
+      body.debugBodyColor = 0xff0000  // Red collision box
+      console.log(`Top pipe collision set to exact visual size: ${topPipe.displayWidth}x${topPipe.displayHeight} at offset: ${-topPipe.displayWidth/2}, ${-topPipe.displayHeight/2}`)
     }
     if (bottomPipe.body) {
-      // Enable debug visualization for collision box
-      ;(bottomPipe.body as Phaser.Physics.Arcade.StaticBody).debugBodyColor = 0xff0000  // Red collision box
-      console.log(`Bottom pipe collision using default size with visual dimensions: ${bottomPipe.displayWidth}x${bottomPipe.displayHeight}`)
+      // Use the exact visual dimensions for collision
+      const body = bottomPipe.body as Phaser.Physics.Arcade.StaticBody
+      body.setSize(bottomPipe.displayWidth, bottomPipe.displayHeight)
+      body.setOffset(-bottomPipe.displayWidth/2, -bottomPipe.displayHeight/2)
+      body.debugBodyColor = 0xff0000  // Red collision box
+      console.log(`Bottom pipe collision set to exact visual size: ${bottomPipe.displayWidth}x${bottomPipe.displayHeight} at offset: ${-bottomPipe.displayWidth/2}, ${-bottomPipe.displayHeight/2}`)
     }
     
     console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
