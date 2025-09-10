@@ -639,8 +639,8 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 0 // No margin - exact collision for visual accuracy
+        // Make bird collision area larger to allow closer approach to pipes
+        const birdCollisionMargin = -2 // Negative margin - bird can get closer to pipes before collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -966,7 +966,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = 0
+        const birdCollisionMargin = -2
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
