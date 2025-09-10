@@ -5,11 +5,7 @@ import { Trophy, Medal, Award, Star } from 'lucide-react'
 import { useLeaderboard } from '@/hooks/useLeaderboard'
 import { formatAddress } from '@/lib/utils'
 
-interface LeaderboardProps {
-  onBackToMenu: () => void
-}
-
-export const Leaderboard: FC<LeaderboardProps> = ({ onBackToMenu }) => {
+export const Leaderboard: FC = () => {
   const { leaderboard, isLoading, error, loadLeaderboard } = useLeaderboard()
   const [timeFilter, setTimeFilter] = useState<'all' | 'daily' | 'weekly' | 'monthly'>('all')
 
@@ -167,15 +163,7 @@ export const Leaderboard: FC<LeaderboardProps> = ({ onBackToMenu }) => {
         )}
       </div>
 
-      {/* Back Button */}
-      <div className="text-center">
-        <button
-          onClick={onBackToMenu}
-          className="btn-secondary"
-        >
-          ← Back to Menu
-        </button>
-      </div>
+      {/* Back Button removed */}
     </div>
   )
 }

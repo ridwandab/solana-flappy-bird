@@ -9,11 +9,7 @@ import { CosmeticItem } from './CosmeticItem'
 import { useCosmetics } from '@/hooks/useCosmetics'
 import { useBalance } from '@/hooks/useBalance'
 
-interface StoreProps {
-  onBackToMenu: () => void
-}
-
-export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
+export const Store: FC = () => {
   const { publicKey } = useWallet()
   const { connection } = useConnection()
   const { cosmetics, purchaseCosmetic, getUserCosmetics, selectCosmetic, getSelectedCosmetic } = useCosmetics()
@@ -197,14 +193,7 @@ export const Store: FC<StoreProps> = ({ onBackToMenu }) => {
       </div>
 
       {/* Back Button */}
-      <div className="text-center">
-        <button
-          onClick={onBackToMenu}
-          className="btn-secondary"
-        >
-          ← Back to Menu
-        </button>
-      </div>
+      {/* Back to Menu button removed */}
     </div>
   )
 }

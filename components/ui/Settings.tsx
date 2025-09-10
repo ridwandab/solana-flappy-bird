@@ -20,11 +20,7 @@ import {
 } from 'lucide-react'
 import { useSettings, GameSettings } from '@/hooks/useSettings'
 
-interface SettingsProps {
-  onBackToMenu: () => void
-}
-
-export const Settings: FC<SettingsProps> = ({ onBackToMenu }) => {
+export const Settings: FC = () => {
   const { publicKey } = useWallet()
   const { 
     settings, 
@@ -83,12 +79,7 @@ export const Settings: FC<SettingsProps> = ({ onBackToMenu }) => {
             </p>
           </div>
           
-          <button
-            onClick={onBackToMenu}
-            className="px-6 py-3 bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg transition-colors flex items-center space-x-2"
-          >
-            <span>← Back to Menu</span>
-          </button>
+          {/* Back to Menu button removed */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

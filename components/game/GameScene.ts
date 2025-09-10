@@ -185,9 +185,9 @@ export class GameScene extends Phaser.Scene {
       console.log('All sprites preloaded successfully')
       // Reload background with actual sprite if it was using fallback
       this.reloadBackgroundWithSprite()
-      
-      // Initialize audio manager
-      this.initializeAudio()
+
+    // Initialize audio manager
+    this.initializeAudio()
 
       // Apply settings after audio manager is initialized
       this.applySettings()
@@ -198,7 +198,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Create start screen after sprites are loaded
-      this.createStartScreen()
+    this.createStartScreen()
     })
     this.load.start()
   }
@@ -301,7 +301,10 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Ground removed - keeping only character and making whole screen clickable
+    // Create ground
+    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
+    this.ground.setScrollFactor(0)
+    this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics)
     this.bird = this.add.sprite(400, 300, 'bird_default')
@@ -309,7 +312,7 @@ export class GameScene extends Phaser.Scene {
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
     this.startScreenElements.push(this.bird)
-    
+
     // Apply cosmetic if selected
     if (this.selectedCosmetic) {
       console.log(`Applying selected cosmetic on start screen: ${this.selectedCosmetic}`)
@@ -325,21 +328,40 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Title and start button removed - making whole screen clickable
+    // Title removed - keeping only character and start button
 
-    // Make entire screen clickable to start game
-    this.input.on('pointerdown', () => {
-      if (!this.isGameStarted) {
-        this.startGame()
-      }
+    // Create start button
+    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
+    startButton.setScrollFactor(0)
+    startButton.setInteractive()
+    startButton.setStrokeStyle(4, 0x000000)
+    this.startScreenElements.push(startButton)
+
+    const startText = this.add.text(400, 350, 'START', {
+      fontSize: '32px',
+      color: '#000000',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
     })
-    
-    // Also handle keyboard input for starting game
-    this.input.keyboard?.on('keydown-SPACE', () => {
-      if (!this.isGameStarted) {
-        this.startGame()
-      }
+    startText.setOrigin(0.5, 0.5)
+    startText.setScrollFactor(0)
+    this.startScreenElements.push(startText)
+
+    // Add hover effects
+    startButton.on('pointerover', () => {
+      startButton.setFillStyle(0x00cc00)
     })
+
+    startButton.on('pointerout', () => {
+      startButton.setFillStyle(0x00ff00)
+    })
+
+    // Start game when clicked
+    startButton.on('pointerdown', () => {
+      this.startGame()
+    })
+
+    // Instructions removed - keeping only character and start button
   }
 
   private startGame() {
@@ -508,11 +530,11 @@ export class GameScene extends Phaser.Scene {
       console.log('No cosmetic selected, using default bird (Bird2-export.png)')
       // Check if texture exists before setting
       if (this.textures.exists('bird_default')) {
-        this.bird.setTexture('bird_default')
+      this.bird.setTexture('bird_default')
         console.log('Applied default bird texture successfully')
       } else {
-        console.log('Bird2-export.png not loaded, creating placeholder')
-        this.createDefaultBird()
+      console.log('Bird2-export.png not loaded, creating placeholder')
+      this.createDefaultBird()
       }
     }
 
@@ -548,11 +570,7 @@ export class GameScene extends Phaser.Scene {
       }
     }, undefined, this)
 
-    // Input - only for flapping during gameplay (remove start screen handlers first)
-    this.input.removeAllListeners('pointerdown')
-    this.input.keyboard?.removeAllListeners('keydown-SPACE')
-    
-    // Add game input handlers
+    // Input - only for flapping during gameplay
     this.input.keyboard?.on('keydown-SPACE', this.flap, this)
     this.input.keyboard?.on('keydown-UP', this.flap, this)
     this.input.on('pointerdown', this.flap, this)
@@ -699,7 +717,7 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
-    
+
     // Additional collision check for bird falling below screen
     if (this.bird.y > 600) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
@@ -1354,36 +1372,7 @@ export class GameScene extends Phaser.Scene {
       this.handleRestart()
     })
     
-    // Main Menu button
-    const mainMenuBtn = this.add.rectangle(400, 400, 200, 40, 0x666666)
-    mainMenuBtn.setStrokeStyle(2, 0x888888)
-    mainMenuBtn.setInteractive()
-    
-    const mainMenuText = this.add.text(400, 400, 'Main Menu', {
-      fontSize: '18px',
-      color: '#ffffff',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
-    })
-    mainMenuText.setOrigin(0.5)
-    
-    // Re-enable input for button interactions
-    this.input.enabled = true
-    
-    // Button interactions (START button interactions are already handled above)
-    
-    mainMenuBtn.on('pointerdown', () => {
-      console.log('Main Menu clicked')
-      this.game.events.emit('backToMenu')
-    })
-    
-    mainMenuBtn.on('pointerover', () => {
-      mainMenuBtn.setFillStyle(0x888888)
-    })
-    
-    mainMenuBtn.on('pointerout', () => {
-      mainMenuBtn.setFillStyle(0x666666)
-    })
+    // Main Menu button removed - keeping only START button
   }
 
   private loadSounds() {

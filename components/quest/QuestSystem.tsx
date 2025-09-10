@@ -30,11 +30,7 @@ interface Quest {
   category: string
 }
 
-interface QuestSystemProps {
-  onBackToMenu: () => void
-}
-
-export const QuestSystem: FC<QuestSystemProps> = ({ onBackToMenu }) => {
+export const QuestSystem: FC = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
   const [quests, setQuests] = useState<Quest[]>([])
@@ -250,12 +246,7 @@ export const QuestSystem: FC<QuestSystemProps> = ({ onBackToMenu }) => {
           </p>
         </div>
         
-        <button
-          onClick={onBackToMenu}
-          className="px-6 py-3 bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <span>← Back to Menu</span>
-        </button>
+        {/* Back to Menu button removed */}
       </div>
 
       {/* Quest Categories */}
