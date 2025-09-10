@@ -47,10 +47,26 @@ export default function HomePage() {
     <WalletProvider>
       <AudioInitializer>
         <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-          {/* Header removed - clean interface */}
+          {/* Header - only show for non-game views */}
+          {currentView !== 'game' && (
+            <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
+              <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img src="/Bird2-export.png" alt="Solana Flappy Bird" className="w-8 h-8" />
+                  <h1 className="text-2xl font-bold text-white">Solana Flappy Bird</h1>
+                </div>
+                <button 
+                  onClick={() => setCurrentView('menu')} 
+                  className="text-white/80 hover:text-white transition-colors ml-4"
+                >
+                  ← Kembali ke Menu
+                </button>
+              </div>
+            </header>
+          )}
 
           {/* Main Content */}
-          <main className="pt-0 pb-8">
+          <main className={currentView === 'game' ? 'pt-0 pb-8' : 'pt-20 pb-8'}>
             <div className="container mx-auto px-4">
               {renderView()}
             </div>
