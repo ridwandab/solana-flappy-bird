@@ -620,7 +620,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 2 // Positive margin - bird must actually touch pipe visually
+        const birdCollisionMargin = 5 // Positive margin - bird must actually touch pipe visually
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -704,10 +704,10 @@ export class GameScene extends Phaser.Scene {
         
         // Additional check: Ensure bird cannot pass through the gap between pipes
         // Check if bird is horizontally aligned with the pipe gap
-        const pipeLeft = pipeSet.topPipe.x
-        const pipeRight = pipeSet.topPipe.x + 80 // pipe width
-        const birdLeft = this.bird.x - 10 // bird left edge
-        const birdRight = this.bird.x + 10 // bird right edge
+        const pipeLeft = pipeSet.topPipe.x + 8 // Add collision margin
+        const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width - 8 // Subtract collision margin
+        const birdLeft = this.bird.x - 5 // bird left edge (smaller margin)
+        const birdRight = this.bird.x + 5 // bird right edge (smaller margin)
         
         // If bird is horizontally overlapping with pipe area
         if (birdRight > pipeLeft && birdLeft < pipeRight) {
@@ -964,7 +964,7 @@ export class GameScene extends Phaser.Scene {
         
         // Check collision with bird
         const birdBounds = this.bird.getBounds()
-        const birdCollisionMargin = 2
+        const birdCollisionMargin = 5 // Match the main collision margin
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -1146,8 +1146,8 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Create collision area that covers the full pipe width and height
-    const collisionMargin = 0 // No margin - use full pipe area for collision
+    // Create collision area that is slightly smaller than visual pipe for better gameplay
+    const collisionMargin = 8 // Reduce collision area by 8 pixels on each side for better gameplay
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMargin, 
       y: topPipeTop + collisionMargin, 
