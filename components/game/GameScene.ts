@@ -806,7 +806,7 @@ export class GameScene extends Phaser.Scene {
     // Calculate current pipe spacing based on difficulty level
     const progress = Math.min(this.difficultyLevel / 20, 1) // Max difficulty at level 20
     const spacing = this.BASE_PIPE_SPACING - (this.BASE_PIPE_SPACING - this.MIN_PIPE_SPACING) * progress
-    console.log(`🔍 PIPE SPACING DEBUG: Base=${this.BASE_PIPE_SPACING}, Min=${this.MIN_PIPE_SPACING}, Progress=${progress}, Current=${spacing}`)
+    console.log(`🔍 PIPE SPACING DEBUG: Base=${this.BASE_PIPE_SPACING}, Min=${this.MIN_PIPE_SPACING}, Progress=${progress}, Current=${spacing}, Difficulty=${this.difficultyLevel}`)
     return spacing
   }
 
@@ -850,8 +850,8 @@ export class GameScene extends Phaser.Scene {
       const lastPipe = this.activePipes[this.activePipes.length - 1]
       const currentSpacing = this.getCurrentPipeSpacing()
       
-      // Use consistent spacing calculation
-      const distanceFromLastPipe = lastPipe.topPipe.x - this.PIPE_RESPAWN_X
+      // Use consistent spacing calculation - check distance from last pipe
+      const distanceFromLastPipe = this.PIPE_RESPAWN_X - lastPipe.topPipe.x
       
       console.log(`🔍 PIPE SPAWN DEBUG: Last pipe x=${lastPipe.topPipe.x}, Respawn x=${this.PIPE_RESPAWN_X}, Distance=${distanceFromLastPipe}, Required spacing=${currentSpacing}`)
       
@@ -1094,7 +1094,12 @@ export class GameScene extends Phaser.Scene {
       x = lastPipe.topPipe.x + currentSpacing
     }
 
-    console.log(`Spawning new pipe set at x: ${x}, height: ${pipeHeight}, gap: ${Math.round(gap)}, difficulty: ${this.difficultyLevel}, active pipes: ${this.activePipes.length}`)
+    console.log(`🚀 SPAWNING PIPE #${this.activePipes.length + 1}: x=${x}, height=${pipeHeight}, gap=${Math.round(gap)}, difficulty=${this.difficultyLevel}`)
+    if (this.activePipes.length > 0) {
+      const lastPipe = this.activePipes[this.activePipes.length - 1]
+      const actualSpacing = x - lastPipe.topPipe.x
+      console.log(`📏 SPACING CHECK: Last pipe x=${lastPipe.topPipe.x}, New pipe x=${x}, Actual spacing=${actualSpacing}, Required spacing=${this.getCurrentPipeSpacing()}`)
+    }
 
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
