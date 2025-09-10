@@ -1049,34 +1049,25 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe as simple green rectangle with black border (Flappy Bird original style)
+    // Create top pipe using Sprite-0003.png (proper pipe sprite)
     // Top pipe extends from top of screen to gap
     const topPipeHeight = pipeHeight
-    const topPipe = this.add.rectangle(x, topPipeHeight / 2, 52, topPipeHeight, 0x00ff00)
+    const topPipe = this.physics.add.staticImage(x, topPipeHeight / 2, 'pipe_sprite')
+    topPipe.setScale(1, -1)  // Flip vertically for top pipe
     topPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
-    topPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
-    this.physics.add.existing(topPipe, true)  // Make it static physics body
+    topPipe.displayHeight = topPipeHeight  // Set height to match gap
+    topPipe.displayWidth = 52  // Set width to match original
     
-    // Set collision size to match visual size
-    if (topPipe.body) {
-      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(52, topPipeHeight)
-    }
-    
-    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2}, size: 52x${topPipeHeight}`)
+    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight / 2} using Sprite-0003.png`)
 
-    // Create bottom pipe as simple green rectangle with black border (Flappy Bird original style)
+    // Create bottom pipe using Sprite-0003.png (proper pipe sprite)
     // Bottom pipe extends from gap to bottom of screen
     const bottomPipeY = pipeHeight + gap + (600 - (pipeHeight + gap)) / 2
     const bottomPipeHeight = 600 - (pipeHeight + gap)
-    const bottomPipe = this.add.rectangle(x, bottomPipeY, 52, bottomPipeHeight, 0x00ff00)
+    const bottomPipe = this.physics.add.staticImage(x, bottomPipeY, 'pipe_sprite')
     bottomPipe.setOrigin(0.5, 0.5)  // Center origin for proper positioning
-    bottomPipe.setStrokeStyle(2, 0x000000)  // Black border like Flappy Bird original
-    this.physics.add.existing(bottomPipe, true)  // Make it static physics body
-    
-    // Set collision size to match visual size
-    if (bottomPipe.body) {
-      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(52, bottomPipeHeight)
-    }
+    bottomPipe.displayHeight = bottomPipeHeight  // Set height to match remaining space
+    bottomPipe.displayWidth = 52  // Set width to match original
 
     // No need for invisible collision data - using visual pipe bounds directly
 
@@ -1084,10 +1075,18 @@ export class GameScene extends Phaser.Scene {
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
     
+    // Set collision size to match sprite dimensions
+    if (topPipe.body) {
+      (topPipe.body as Phaser.Physics.Arcade.Body).setSize(52, topPipeHeight)
+    }
+    if (bottomPipe.body) {
+      (bottomPipe.body as Phaser.Physics.Arcade.Body).setSize(52, bottomPipeHeight)
+    }
+    
     console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
     console.log(`Pipes group size: ${this.pipes.children.size}`)
     console.log(`Top pipe collision size: 52x${topPipeHeight}, Bottom pipe collision size: 52x${bottomPipeHeight}`)
-    console.log(`Bird collision size: 34x24 (Flappy Bird original)`)
+    console.log(`Using Sprite-0003.png for pipes with proper collision detection`)
 
     // Create pipe set object
     const pipeSet = {
