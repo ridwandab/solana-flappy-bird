@@ -485,8 +485,8 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background for game
     this.createScrollingBackground()
     
-    // Create pipes group for physics collision
-    this.pipes = this.physics.add.group()
+    // Create pipes group for physics collision (static group)
+    this.pipes = this.physics.add.staticGroup()
     
     // Convert existing bird from static sprite to physics sprite
     if (this.bird) {
@@ -893,6 +893,11 @@ export class GameScene extends Phaser.Scene {
         pipeSet.topPipe.x -= pipeSpeed
         pipeSet.bottomPipe.x -= pipeSpeed
         
+        // Debug log for first pipe
+        if (i === 0) {
+          console.log(`Moving pipes - Top: ${pipeSet.topPipe.x}, ${pipeSet.topPipe.y}, Bottom: ${pipeSet.bottomPipe.x}, ${pipeSet.bottomPipe.y}`)
+        }
+        
         // No need to update collision data - using visual pipe bounds directly
         
         // Debug: Log pipe positions for visual collision detection
@@ -1038,28 +1043,24 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe as physics sprite
-    const topPipe = this.physics.add.image(x, pipeHeight, pipeSpriteKey)
+    // Create top pipe as static physics sprite (no gravity, no movement)
+    const topPipe = this.physics.add.staticImage(x, pipeHeight, pipeSpriteKey)
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
-    topPipe.body!.setImmovable(true)  // Make it immovable for collision
-    topPipe.body!.setGravityY(0)  // No gravity for pipes
-    topPipe.body!.setVelocityX(0)  // No horizontal velocity
     
     console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
 
-    // Create bottom pipe as physics sprite
-    const bottomPipe = this.physics.add.image(x, pipeHeight + gap, pipeSpriteKey)
+    // Create bottom pipe as static physics sprite (no gravity, no movement)
+    const bottomPipe = this.physics.add.staticImage(x, pipeHeight + gap, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
-    bottomPipe.body!.setImmovable(true)  // Make it immovable for collision
-    bottomPipe.body!.setGravityY(0)  // No gravity for pipes
-    bottomPipe.body!.setVelocityX(0)  // No horizontal velocity
 
     // No need for invisible collision data - using visual pipe bounds directly
 
     // Add pipes to physics group
     this.pipes.add(topPipe)
     this.pipes.add(bottomPipe)
+    
+    console.log(`Pipes added to static group - Top: ${topPipe.x}, ${topPipe.y}, Bottom: ${bottomPipe.x}, ${bottomPipe.y}`)
 
     // Create pipe set object
     const pipeSet = {
