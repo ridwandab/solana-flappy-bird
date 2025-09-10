@@ -301,10 +301,7 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create ground
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
-    this.ground.setScrollFactor(0)
-    this.startScreenElements.push(this.ground)
+    // Ground removed - keeping only character and making whole screen clickable
 
     // Create bird for start screen (static, no physics)
     this.bird = this.add.sprite(400, 300, 'bird_default')
@@ -328,40 +325,21 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Title removed - keeping only character and start button
+    // Title and start button removed - making whole screen clickable
 
-    // Create start button
-    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
-    startButton.setScrollFactor(0)
-    startButton.setInteractive()
-    startButton.setStrokeStyle(4, 0x000000)
-    this.startScreenElements.push(startButton)
-
-    const startText = this.add.text(400, 350, 'START', {
-      fontSize: '32px',
-      color: '#000000',
-      fontFamily: 'Arial',
-      fontStyle: 'bold'
+    // Make entire screen clickable to start game
+    this.input.on('pointerdown', () => {
+      if (!this.isGameStarted) {
+        this.startGame()
+      }
     })
-    startText.setOrigin(0.5, 0.5)
-    startText.setScrollFactor(0)
-    this.startScreenElements.push(startText)
-
-    // Add hover effects
-    startButton.on('pointerover', () => {
-      startButton.setFillStyle(0x00cc00)
+    
+    // Also handle keyboard input for starting game
+    this.input.keyboard?.on('keydown-SPACE', () => {
+      if (!this.isGameStarted) {
+        this.startGame()
+      }
     })
-
-    startButton.on('pointerout', () => {
-      startButton.setFillStyle(0x00ff00)
-    })
-
-    // Start game when clicked
-    startButton.on('pointerdown', () => {
-      this.startGame()
-    })
-
-    // Instructions removed - keeping only character and start button
   }
 
   private startGame() {
@@ -570,7 +548,11 @@ export class GameScene extends Phaser.Scene {
       }
     }, undefined, this)
 
-    // Input - only for flapping during gameplay
+    // Input - only for flapping during gameplay (remove start screen handlers first)
+    this.input.removeAllListeners('pointerdown')
+    this.input.keyboard?.removeAllListeners('keydown-SPACE')
+    
+    // Add game input handlers
     this.input.keyboard?.on('keydown-SPACE', this.flap, this)
     this.input.keyboard?.on('keydown-UP', this.flap, this)
     this.input.on('pointerdown', this.flap, this)

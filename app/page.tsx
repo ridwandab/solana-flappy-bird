@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 const WalletProvider = dynamic(() => import('@/components/wallet/WalletProvider').then(mod => ({ default: mod.WalletProvider })), { ssr: false })
 const AudioInitializer = dynamic(() => import('@/components/AudioInitializer').then(mod => ({ default: mod.AudioInitializer })), { ssr: false })
 const MainMenu = dynamic(() => import('@/components/ui/MainMenu').then(mod => ({ default: mod.MainMenu })), { ssr: false })
-const Game = dynamic(() => import('@/components/game/Game').then(mod => ({ default: mod.Game })), { ssr: false })
+const Game = dynamic(() => import('@/components/game/Game'), { ssr: false })
 const Store = dynamic(() => import('@/components/store/Store').then(mod => ({ default: mod.Store })), { ssr: false })
 const Leaderboard = dynamic(() => import('@/components/leaderboard/Leaderboard').then(mod => ({ default: mod.Leaderboard })), { ssr: false })
 const QuestSystem = dynamic(() => import('@/components/quest/QuestSystem').then(mod => ({ default: mod.QuestSystem })), { ssr: false })
@@ -21,7 +21,7 @@ export default function HomePage() {
   const renderView = () => {
     switch (currentView) {
       case 'game':
-        return <Game onBackToMenu={() => setCurrentView('menu')} />
+        return <Game />
       case 'store':
         return <Store onBackToMenu={() => setCurrentView('menu')} />
       case 'leaderboard':
@@ -61,14 +61,7 @@ export default function HomePage() {
                     Solana Flappy Bird
                   </h1>
                 </div>
-                {currentView !== 'menu' && (
-                  <button
-                    onClick={() => setCurrentView('menu')}
-                    className="text-white/80 hover:text-white transition-colors"
-                  >
-                    ← Back to Menu
-                  </button>
-                )}
+                {/* Back to Menu button removed */}
               </div>
               {/* WalletMultiButton is now part of WalletProvider */}
             </div>
