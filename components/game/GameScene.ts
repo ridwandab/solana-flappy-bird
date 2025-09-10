@@ -1075,7 +1075,9 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return
 
     const gap = this.getCurrentPipeGap()
-    const pipeHeight = Phaser.Math.Between(200, 300)
+    // Calculate pipe height to ensure pipes touch top and bottom of game area
+    const gameHeight = 780 // Game height
+    const pipeHeight = Phaser.Math.Between(150, 250) // Random gap position
     
     // Calculate consistent spawn position
     let x: number
@@ -1099,34 +1101,47 @@ export class GameScene extends Phaser.Scene {
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
     
-    // Create top pipe using the selected sprite
-    // Position it so the bottom of the flipped pipe is at pipeHeight
-    const topPipe = this.add.image(x, pipeHeight, pipeSpriteKey)
+    // Create top pipe - extend from top of game to gap
+    const topPipeHeight = pipeHeight // Height from top to gap
+    const topPipe = this.add.image(x, topPipeHeight, pipeSpriteKey)
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
     
-    console.log(`Top pipe created at x: ${x}, y: ${pipeHeight} using sprite: ${pipeSpriteKey}`)
+    // Scale top pipe to fill from top (0) to gap position
+    const topPipeScaleY = topPipeHeight / topPipe.height
+    topPipe.setScale(1, -topPipeScaleY) // Negative scale for flip + height adjustment
+    
+    console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight}, scaleY: ${-topPipeScaleY} using sprite: ${pipeSpriteKey}`)
 
-    // Create bottom pipe using the selected sprite
-    const bottomPipe = this.add.image(x, pipeHeight + gap, pipeSpriteKey)
+    // Create bottom pipe - extend from gap to bottom of game
+    const bottomPipeY = pipeHeight + gap // Start position (gap bottom)
+    const bottomPipeHeight = gameHeight - bottomPipeY // Height from gap to bottom
+    const bottomPipe = this.add.image(x, bottomPipeY, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
+    
+    // Scale bottom pipe to fill from gap to bottom
+    const bottomPipeScaleY = bottomPipeHeight / bottomPipe.height
+    bottomPipe.setScale(1, bottomPipeScaleY)
+    
+    console.log(`Bottom pipe created at x: ${x}, y: ${bottomPipeY}, scaleY: ${bottomPipeScaleY}`)
 
     // Calculate collision bounds for invisible collision detection
     const pipeWidth = topPipe.width
-    const pipeHeightValue = topPipe.height
+    const scaledTopPipeHeight = topPipeHeight // Actual height of scaled top pipe
+    const scaledBottomPipeHeight = bottomPipeHeight // Actual height of scaled bottom pipe
     
     // Get the actual bounds that Phaser will use for collision detection
-    // Top pipe bounds (flipped pipe - extends upward from y position)
+    // Top pipe bounds (flipped pipe - extends from top (0) to gap)
     const topPipeLeft = x
     const topPipeRight = x + pipeWidth
-    const topPipeTop = pipeHeight - pipeHeightValue // Top pipe extends upward
-    const topPipeBottom = pipeHeight
+    const topPipeTop = 0 // Top pipe starts at top of game
+    const topPipeBottom = topPipeHeight // Top pipe ends at gap
     
-    // Bottom pipe bounds
+    // Bottom pipe bounds (extends from gap to bottom of game)
     const bottomPipeLeft = x
     const bottomPipeRight = x + pipeWidth
-    const bottomPipeTop = pipeHeight + gap
-    const bottomPipeBottom = pipeHeight + gap + pipeHeightValue
+    const bottomPipeTop = bottomPipeY // Bottom pipe starts at gap
+    const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size
     // Reduce collision area to match visual pipe more accurately
@@ -1135,14 +1150,14 @@ export class GameScene extends Phaser.Scene {
       x: topPipeLeft + collisionMargin, 
       y: topPipeTop + collisionMargin, 
       width: pipeWidth - (collisionMargin * 2), 
-      height: pipeHeightValue - (collisionMargin * 2)
+      height: scaledTopPipeHeight - (collisionMargin * 2)
     }
     
     const bottomPipeCollisionRect = { 
       x: bottomPipeLeft + collisionMargin, 
       y: bottomPipeTop + collisionMargin, 
       width: pipeWidth - (collisionMargin * 2), 
-      height: pipeHeightValue - (collisionMargin * 2)
+      height: scaledBottomPipeHeight - (collisionMargin * 2)
     }
 
     // Create pipe set object
