@@ -705,22 +705,60 @@ export class GameScene extends Phaser.Scene {
         // Check for right side collision - bird hitting the right side of the pipe
         let hitRightSide = false
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
+          const pipeLeft = pipeSet.topPipeCollision.x
           const pipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
-          // Check if bird is at the right edge of the pipe
-          if (this.bird.x >= pipeRight - 5 && this.bird.x <= pipeRight + 5) {
+          // Check if bird is inside the pipe horizontally (between left and right edges)
+          if (this.bird.x >= pipeLeft && this.bird.x <= pipeRight) {
             // Check if bird is NOT in the safe gap (should hit the pipe)
             if (this.bird.y < gapTop || this.bird.y > gapBottom) {
               hitRightSide = true
-              console.log('🚨 RIGHT SIDE COLLISION DETECTED! Bird hitting right side of pipe!', {
+              console.log('🚨 PIPE PENETRATION DETECTED! Bird inside pipe but not in safe gap!', {
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeLeft,
+                pipeRight,
+                gapTop,
+                gapBottom,
+                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
+                birdInPipeArea: this.bird.x >= pipeLeft && this.bird.x <= pipeRight
+              })
+            }
+          }
+          
+          // Additional check: prevent bird from going through the entire pipe structure
+          // If bird is at the right edge and moving right, check if it would hit the pipe
+          if (this.bird.x >= pipeRight - 10 && this.bird.x <= pipeRight + 10) {
+            // Check if bird is at a height where it would hit the pipe (not in the gap)
+            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+              hitRightSide = true
+              console.log('🚨 RIGHT EDGE COLLISION DETECTED! Bird hitting right edge of pipe!', {
                 birdX: this.bird.x,
                 birdY: this.bird.y,
                 pipeRight,
                 gapTop,
                 gapBottom,
-                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom
+                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
+                distanceFromRight: this.bird.x - pipeRight
+              })
+            }
+          }
+          
+          // Check for left side collision - prevent bird from going through pipe from left side
+          if (this.bird.x >= pipeLeft - 10 && this.bird.x <= pipeLeft + 10) {
+            // Check if bird is at a height where it would hit the pipe (not in the gap)
+            if (this.bird.y < gapTop || this.bird.y > gapBottom) {
+              hitRightSide = true
+              console.log('🚨 LEFT EDGE COLLISION DETECTED! Bird hitting left edge of pipe!', {
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeLeft,
+                gapTop,
+                gapBottom,
+                inGap: this.bird.y >= gapTop && this.bird.y <= gapBottom,
+                distanceFromLeft: this.bird.x - pipeLeft
               })
             }
           }
