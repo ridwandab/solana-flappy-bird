@@ -862,9 +862,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getCurrentPipeGap(): number {
-    // Calculate current pipe gap based on difficulty level
+    // Calculate current pipe gap based on difficulty level with random variation
     const progress = Math.min(this.difficultyLevel / 15, 1) // Max difficulty at level 15
-    return this.BASE_PIPE_GAP - (this.BASE_PIPE_GAP - this.MIN_PIPE_GAP) * progress
+    const baseGap = this.BASE_PIPE_GAP - (this.BASE_PIPE_GAP - this.MIN_PIPE_GAP) * progress
+    
+    // Add random variation to gap size for more challenge (±20px)
+    const randomVariation = Phaser.Math.Between(-20, 20)
+    const finalGap = Math.max(baseGap + randomVariation, this.MIN_PIPE_GAP)
+    
+    console.log(`Gap calculation: base=${baseGap}, random=${randomVariation}, final=${finalGap}`)
+    return finalGap
   }
 
   private updateDifficulty() {
@@ -1077,7 +1084,33 @@ export class GameScene extends Phaser.Scene {
     const gap = this.getCurrentPipeGap()
     // Calculate pipe height to ensure pipes touch top and bottom of game area
     const gameHeight = 780 // Game height
-    const pipeHeight = Phaser.Math.Between(150, 250) // Random gap position
+    
+    // Create more challenging gap positions - random between top, middle, and bottom
+    const gapPositions = [
+      { min: 80, max: 180, name: 'top' },       // Gap near top (very challenging)
+      { min: 200, max: 280, name: 'upper-middle' }, // Gap upper-middle (challenging)
+      { min: 300, max: 380, name: 'lower-middle' }, // Gap lower-middle (challenging)
+      { min: 420, max: 520, name: 'bottom' }    // Gap near bottom (very challenging)
+    ]
+    
+    // Select gap position based on difficulty - higher difficulty = more extreme positions
+    let selectedGapType
+    if (this.difficultyLevel < 3) {
+      // Easy: mostly middle positions
+      const easyPositions = gapPositions.filter(pos => pos.name.includes('middle'))
+      selectedGapType = Phaser.Math.RND.pick(easyPositions)
+    } else if (this.difficultyLevel < 6) {
+      // Medium: mix of all positions
+      selectedGapType = Phaser.Math.RND.pick(gapPositions)
+    } else {
+      // Hard: mostly extreme positions (top and bottom)
+      const hardPositions = gapPositions.filter(pos => pos.name === 'top' || pos.name === 'bottom')
+      selectedGapType = Phaser.Math.RND.pick(hardPositions)
+    }
+    
+    const pipeHeight = Phaser.Math.Between(selectedGapType.min, selectedGapType.max)
+    
+    console.log(`🎯 Gap position: ${selectedGapType.name} (${pipeHeight}px from top) - Difficulty: ${this.difficultyLevel}`)
     
     // Calculate consistent spawn position
     let x: number
