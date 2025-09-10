@@ -601,7 +601,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', this.handleRestart, this)
 
     // Start spawning first pipe after a delay
-    this.time.delayedCall(1000, () => {
+    this.time.delayedCall(2000, () => {
       this.spawnPipe()
     })
 
@@ -841,15 +841,19 @@ export class GameScene extends Phaser.Scene {
       return
     }
     
-    // Spawn new pipes based on distance from the last pipe
+    // Spawn new pipes based on consistent spacing
     if (this.activePipes.length === 0) {
       // No pipes active, spawn immediately
       this.spawnPipe()
     } else {
       // Check if the last pipe has moved far enough to spawn a new one
       const lastPipe = this.activePipes[this.activePipes.length - 1]
-      const distanceFromLastPipe = this.PIPE_RESPAWN_X - lastPipe.topPipe.x
       const currentSpacing = this.getCurrentPipeSpacing()
+      
+      // Use consistent spacing calculation
+      const distanceFromLastPipe = lastPipe.topPipe.x - this.PIPE_RESPAWN_X
+      
+      console.log(`🔍 PIPE SPAWN DEBUG: Last pipe x=${lastPipe.topPipe.x}, Respawn x=${this.PIPE_RESPAWN_X}, Distance=${distanceFromLastPipe}, Required spacing=${currentSpacing}`)
       
       if (distanceFromLastPipe >= currentSpacing) {
         this.spawnPipe()
@@ -1077,9 +1081,20 @@ export class GameScene extends Phaser.Scene {
 
     const gap = this.getCurrentPipeGap()
     const pipeHeight = Phaser.Math.Between(200, 300)
-    const x = this.PIPE_RESPAWN_X
+    
+    // Calculate consistent spawn position
+    let x: number
+    if (this.activePipes.length === 0) {
+      // First pipe spawns at respawn position
+      x = this.PIPE_RESPAWN_X
+    } else {
+      // Subsequent pipes spawn at consistent spacing from last pipe
+      const lastPipe = this.activePipes[this.activePipes.length - 1]
+      const currentSpacing = this.getCurrentPipeSpacing()
+      x = lastPipe.topPipe.x + currentSpacing
+    }
 
-    console.log(`Spawning new pipe set at x: ${x}, height: ${pipeHeight}, gap: ${Math.round(gap)}, difficulty: ${this.difficultyLevel}`)
+    console.log(`Spawning new pipe set at x: ${x}, height: ${pipeHeight}, gap: ${Math.round(gap)}, difficulty: ${this.difficultyLevel}, active pipes: ${this.activePipes.length}`)
 
     // Determine which pipe sprite to use
     const pipeSpriteKey = this.getPipeSpriteKey()
