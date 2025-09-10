@@ -44,17 +44,17 @@ export class GameScene extends Phaser.Scene {
   private hitSound!: Phaser.Sound.BaseSound
   private scoreSound!: Phaser.Sound.BaseSound
   
-  // Game physics constants
-  private readonly GRAVITY = 30  // Extremely low gravity for very easy control
-  private readonly FLAP_FORCE = -350  // Moderate flap force for smooth jumping
-  private readonly PIPE_SPEED = 3  // Slower speed for better visibility
-  private readonly PIPE_SPAWN_DELAY = 2000  // Shorter delay between pipes (2 seconds)
+  // Game physics constants (Flappy Bird original values)
+  private readonly GRAVITY = 600  // Original Flappy Bird gravity
+  private readonly FLAP_FORCE = -400  // Original Flappy Bird flap force
+  private readonly PIPE_SPEED = 2  // Original Flappy Bird pipe speed
+  private readonly PIPE_SPAWN_DELAY = 1500  // Original Flappy Bird pipe spawn delay
   private readonly PIPE_RESPAWN_X = 800
-  private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels)
-  private readonly MIN_PIPE_SPACING = 350   // Minimum distance (gets closer over time)
-  private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
-  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
+  private readonly BASE_PIPE_SPACING = 300  // Original Flappy Bird pipe spacing
+  private readonly MIN_PIPE_SPACING = 300   // Original Flappy Bird spacing (no change)
+  private readonly MAX_ACTIVE_PIPES = 2  // Original Flappy Bird max pipes
+  private readonly BASE_PIPE_GAP = 120  // Original Flappy Bird pipe gap
+  private readonly MIN_PIPE_GAP = 120    // Original Flappy Bird gap (no change)
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -505,29 +505,29 @@ export class GameScene extends Phaser.Scene {
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
       
-      // Apply physics properties
+      // Apply physics properties (Flappy Bird original)
       if (this.bird.body) {
-        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
-        // Set gravity to 0 initially - will be set when game actually starts
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
+        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(false)  // No world bounds collision
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0)  // No bounce
+        // Set gravity immediately (Flappy Bird style)
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
       }
       
       console.log('Bird converted from static to physics sprite')
     } else {
-      // Create new bird if none exists
-      this.bird = this.physics.add.sprite(200, 300, 'bird_default')
+      // Create new bird if none exists (Flappy Bird original position)
+      this.bird = this.physics.add.sprite(100, 250, 'bird_default')
       this.bird.setScale(0.2)
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
       
       if (this.bird.body) {
-        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true)
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0.2)
-        // Set gravity to 0 initially - will be set when game actually starts
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(0)
+        (this.bird.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(false)  // No world bounds collision
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setBounce(0)  // No bounce
+        // Set gravity immediately (Flappy Bird style)
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
         // Stop any existing velocity
         ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0)
       }
@@ -570,7 +570,7 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
-    // Physics - ground collision
+    // Physics - ground collision (Flappy Bird original)
     this.physics.add.collider(this.bird, this.ground, () => {
       console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit ground! Game Over!', { 
         birdY: this.bird.y, 
@@ -621,14 +621,14 @@ export class GameScene extends Phaser.Scene {
 
     if (this.isGameOver || !this.isGameStarted) return
 
-    // Apply bird gravity and rotation
+    // Apply bird gravity and rotation (Flappy Bird original)
     if (this.bird.body) {
-      // Apply gravity to bird
-      (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(600)  // Bird gravity for falling
+      // Apply gravity to bird (original Flappy Bird gravity)
+      (this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(this.GRAVITY)
       
-      // Rotate bird based on velocity
+      // Rotate bird based on velocity (original Flappy Bird rotation)
       const velocity = this.bird.body.velocity.y
-      this.bird.angle = Math.min(Math.max(velocity * 0.1, -90), 90)
+      this.bird.angle = Math.min(Math.max(velocity * 0.2, -30), 90)
     }
 
     // Update pipes movement and management
@@ -812,13 +812,7 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || !this.isGameStarted) return
 
     if (this.bird.body) {
-      // Set gravity on first flap to start the game properly
-      if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
-        const gravityValue: number = this.gameSettings?.gravity || this.GRAVITY
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
-        console.log('Gravity activated on first flap:', gravityValue)
-      }
-      
+      // Original Flappy Bird flap behavior
       (this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(this.FLAP_FORCE)
       
       // Play flap sound using audio manager
