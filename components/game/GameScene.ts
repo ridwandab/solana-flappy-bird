@@ -307,8 +307,8 @@ export class GameScene extends Phaser.Scene {
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
 
-    // Create bird for start screen (static, no physics)
-    this.bird = this.add.sprite(400, 300, 'bird_default')
+    // Create bird for start screen (static, no physics) - centered for 750px height
+    this.bird = this.add.sprite(400, 375, 'bird_default')
     this.bird.setScale(0.2)
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -332,13 +332,13 @@ export class GameScene extends Phaser.Scene {
     // Title removed - keeping only character and start button
 
     // Create start button
-    const startButton = this.add.rectangle(400, 350, 200, 60, 0x00ff00)
+    const startButton = this.add.rectangle(400, 425, 200, 60, 0x00ff00)
     startButton.setScrollFactor(0)
     startButton.setInteractive()
     startButton.setStrokeStyle(4, 0x000000)
     this.startScreenElements.push(startButton)
 
-    const startText = this.add.text(400, 350, 'START', {
+    const startText = this.add.text(400, 425, 'START', {
       fontSize: '32px',
       color: '#000000',
       fontFamily: 'Arial',
@@ -1314,18 +1314,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createGameOverPopup() {
-    // Create popup background (very transparent to show game background clearly)
-    const popupBg = this.add.rectangle(400, 300, 350, 280, 0x2C2C2C, 0.2)
+    // Create popup background (centered for 750px height)
+    const popupBg = this.add.rectangle(400, 375, 400, 320, 0x2C2C2C, 0.3)
     popupBg.setStrokeStyle(3, 0x444444)
     popupBg.setOrigin(0.5)
     
     // Add subtle shadow effect
-    const shadow = this.add.rectangle(403, 303, 350, 280, 0x000000, 0.05)
+    const shadow = this.add.rectangle(403, 378, 400, 320, 0x000000, 0.1)
     shadow.setOrigin(0.5)
     shadow.setDepth(-1)
     
     // Game Over title
-    const gameOverText = this.add.text(400, 220, 'GAME OVER', {
+    const gameOverText = this.add.text(400, 295, 'GAME OVER', {
       fontSize: '36px',
       color: '#ff4444',
       fontFamily: 'Arial',
@@ -1334,7 +1334,7 @@ export class GameScene extends Phaser.Scene {
     gameOverText.setOrigin(0.5)
     
     // Score display
-    const scoreText = this.add.text(400, 260, `Score: ${this.score}`, {
+    const scoreText = this.add.text(400, 335, `Score: ${this.score}`, {
       fontSize: '24px',
       color: '#ffff00',
       fontFamily: 'Arial',
@@ -1347,7 +1347,7 @@ export class GameScene extends Phaser.Scene {
     const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
     localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
     
-    const highScoreText = this.add.text(400, 290, `High Score: ${currentHighScore}`, {
+    const highScoreText = this.add.text(400, 365, `High Score: ${currentHighScore}`, {
       fontSize: '20px',
       color: '#00ff00',
       fontFamily: 'Arial',
@@ -1355,33 +1355,58 @@ export class GameScene extends Phaser.Scene {
     })
     highScoreText.setOrigin(0.5)
     
-    // Large START button (like in the original start screen)
-    const startBtn = this.add.rectangle(400, 330, 200, 60, 0x00ff00)
-    startBtn.setStrokeStyle(4, 0x000000)
-    startBtn.setInteractive()
+    // Main Menu button
+    const mainMenuBtn = this.add.rectangle(320, 420, 150, 50, 0x4a90e2)
+    mainMenuBtn.setStrokeStyle(3, 0x000000)
+    mainMenuBtn.setInteractive()
     
-    const startText = this.add.text(400, 330, 'START', {
-      fontSize: '32px',
+    const mainMenuText = this.add.text(320, 420, 'Main Menu', {
+      fontSize: '20px',
+      color: '#ffffff',
+      fontFamily: 'Arial',
+      fontStyle: 'bold'
+    })
+    mainMenuText.setOrigin(0.5)
+    
+    // Add hover effects for Main Menu button
+    mainMenuBtn.on('pointerover', () => {
+      mainMenuBtn.setFillStyle(0x357abd)
+    })
+    
+    mainMenuBtn.on('pointerout', () => {
+      mainMenuBtn.setFillStyle(0x4a90e2)
+    })
+    
+    mainMenuBtn.on('pointerdown', () => {
+      // Go back to main menu
+      this.game.events.emit('goToMainMenu')
+    })
+    
+    // Restart button
+    const restartBtn = this.add.rectangle(480, 420, 150, 50, 0x00ff00)
+    restartBtn.setStrokeStyle(3, 0x000000)
+    restartBtn.setInteractive()
+    
+    const restartText = this.add.text(480, 420, 'Restart', {
+      fontSize: '20px',
       color: '#000000',
       fontFamily: 'Arial',
       fontStyle: 'bold'
     })
-    startText.setOrigin(0.5)
+    restartText.setOrigin(0.5)
     
-    // Add hover effects for START button
-    startBtn.on('pointerover', () => {
-      startBtn.setFillStyle(0x00cc00)
+    // Add hover effects for Restart button
+    restartBtn.on('pointerover', () => {
+      restartBtn.setFillStyle(0x00cc00)
     })
     
-    startBtn.on('pointerout', () => {
-      startBtn.setFillStyle(0x00ff00)
+    restartBtn.on('pointerout', () => {
+      restartBtn.setFillStyle(0x00ff00)
     })
     
-    startBtn.on('pointerdown', () => {
+    restartBtn.on('pointerdown', () => {
       this.handleStart()
     })
-    
-    // Main Menu button removed - keeping only START button
   }
 
   private loadSounds() {
