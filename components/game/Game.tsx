@@ -15,7 +15,7 @@ export const Game: FC = () => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 800,
-      height: 700,
+      height: 750,
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -48,7 +48,7 @@ export const Game: FC = () => {
       <div 
         ref={gameRef} 
         className="shadow-2xl"
-        style={{ width: '800px', height: '700px' }}
+        style={{ width: '800px', height: '750px' }}
       />
     </div>
   )
