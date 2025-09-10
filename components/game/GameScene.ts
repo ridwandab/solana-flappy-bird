@@ -207,20 +207,20 @@ export class GameScene extends Phaser.Scene {
     // Check if background sprite is loaded, if not create fallback
     if (this.textures.exists('background_sprite')) {
       // Create two background tiles for seamless scrolling
-      this.background1 = this.add.tileSprite(400, 300, 800, 600, 'background_sprite')
-      this.background2 = this.add.tileSprite(1200, 300, 800, 600, 'background_sprite')
+      this.background1 = this.add.tileSprite(400, 350, 800, 700, 'background_sprite')
+      this.background2 = this.add.tileSprite(1200, 350, 800, 700, 'background_sprite')
       
       console.log('Scrolling background created with Background5.png')
     } else {
       // Create fallback background with night city theme colors
-      this.background1 = this.add.rectangle(400, 300, 800, 600, 0x1a1a2e)
-      this.background2 = this.add.rectangle(1200, 300, 800, 600, 0x1a1a2e)
+      this.background1 = this.add.rectangle(400, 350, 800, 700, 0x1a1a2e)
+      this.background2 = this.add.rectangle(1200, 350, 800, 700, 0x1a1a2e)
       
       // Add some stars for night effect
       for (let i = 0; i < 50; i++) {
         const star = this.add.circle(
           Phaser.Math.Between(0, 800), 
-          Phaser.Math.Between(0, 400), 
+          Phaser.Math.Between(0, 700), 
           1, 
           0xffffff, 
           0.8
@@ -252,8 +252,8 @@ export class GameScene extends Phaser.Scene {
         this.background2.destroy()
         
         // Create new backgrounds with actual sprite
-        this.background1 = this.add.tileSprite(400, 300, 800, 600, 'background_sprite') as any
-        this.background2 = this.add.tileSprite(1200, 300, 800, 600, 'background_sprite') as any
+        this.background1 = this.add.tileSprite(400, 350, 800, 700, 'background_sprite') as any
+        this.background2 = this.add.tileSprite(1200, 350, 800, 700, 'background_sprite') as any
         
         // Set scroll factors
         if (this.background1 && typeof (this.background1 as any).setScrollFactor === 'function') {
@@ -302,7 +302,7 @@ export class GameScene extends Phaser.Scene {
     this.createScrollingBackground()
 
     // Create invisible ground for collision detection only
-    this.ground = this.add.rectangle(400, 580, 800, 40, 0x8B4513)
+    this.ground = this.add.rectangle(400, 680, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
@@ -720,7 +720,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Additional collision check for bird falling below screen
-    if (this.bird.y > 600) {
+    if (this.bird.y > 700) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
       if (!this.isGameOver) {
         this.gameOver()
@@ -738,7 +738,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 580 // Ground top edge (ground is at y: 580, height: 40)
+      const groundTop = 680 // Ground top edge (ground is at y: 680, height: 40)
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
