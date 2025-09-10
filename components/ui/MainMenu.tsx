@@ -54,7 +54,7 @@ export const MainMenu: FC<MainMenuProps> = ({
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center space-x-4 mb-6">
-            <div className="text-6xl">🦅</div>
+            <div className="text-6xl">🐦</div>
             <div>
               <h1 className="text-5xl font-bold text-white mb-2">
                 Solana Flappy Bird

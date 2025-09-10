@@ -65,7 +65,7 @@ export const CosmeticItem: FC<CosmeticItemProps> = ({
           />
         ) : (
           <div className="text-4xl text-white/40">
-            {cosmetic.type === 'bird' ? '🦅' : cosmetic.type === 'background' ? '🌅' : cosmetic.type === 'pipe' ? '🚰' : '✨'}
+            {cosmetic.type === 'bird' ? '🐦' : cosmetic.type === 'background' ? '🌅' : cosmetic.type === 'pipe' ? '🚰' : '✨'}
           </div>
         )}
       </div>
