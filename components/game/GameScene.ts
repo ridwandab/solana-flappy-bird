@@ -799,6 +799,35 @@ export class GameScene extends Phaser.Scene {
               })
             }
           }
+          
+          // Additional aggressive check: if bird is close to pipe right edge, always collide
+          const distanceToPipeRight = Math.abs(birdLeft - pipeRight)
+          if (distanceToPipeRight < 30) {
+            // Check if bird is NOT in the safe gap
+            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 CLOSE TO PIPE RIGHT EDGE - FORCE COLLISION!', {
+                distanceToPipeRight,
+                birdLeft,
+                pipeRight,
+                birdInSafeGap
+              })
+            }
+          }
+          
+          // Ultra-aggressive check: if bird right edge is past pipe left edge, check collision
+          if (birdRight > pipeLeft) {
+            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 BIRD RIGHT EDGE PAST PIPE LEFT - FORCE COLLISION!', {
+                birdRight,
+                pipeLeft,
+                birdInSafeGap
+              })
+            }
+          }
         }
 
         if (hitTopPipe || hitBottomPipe || hitRightSide) {
