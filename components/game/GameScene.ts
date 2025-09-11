@@ -795,30 +795,23 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // ENABLED COLLISION WITH RIGHT SHIFT
-          // PIPE-ONLY COLLISION: Only collide if bird is touching actual pipe walls
+          // GAP-SAFE COLLISION: Only collide if bird is touching pipe walls, not in gap
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is touching top pipe (above gap) - bird bottom must be below gap top
-            const birdTouchingTopPipe = birdBottom > gapTop
-            // Check if bird is touching bottom pipe (below gap) - bird top must be above gap bottom
-            const birdTouchingBottomPipe = birdTop < gapBottom
+            // Check if bird is in the safe gap (between top and bottom pipes)
+            const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
             
             // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
             console.log('🔍 BIRD IN PIPE AREA - CHECKING COLLISION:', {
-              birdTouchingTopPipe,
-              birdTouchingBottomPipe,
               birdInSafeGap,
               birdLeft, birdRight, pipeLeft, pipeRight,
               gapTop, gapBottom, birdTop, birdBottom,
-              willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
+              willCollide: !birdInSafeGap
             })
             
-            // Only collide if bird is actually touching pipe walls (not in the safe gap)
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+            // Only collide if bird is NOT in the safe gap
+            if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 PIPE-ONLY COLLISION - BIRD TOUCHING PIPE WALL!', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
+              console.log('🚨 GAP-SAFE COLLISION - BIRD NOT IN SAFE GAP!', {
                 birdInSafeGap,
                 birdLeft, birdRight, pipeLeft, pipeRight,
                 gapTop, gapBottom, birdTop, birdBottom
