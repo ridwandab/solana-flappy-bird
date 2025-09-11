@@ -785,52 +785,23 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // FOCUS ON RIGHT SIDE PENETRATION: Only collide if bird is touching pipe sides, not gap
-          // Check if bird is touching top or bottom pipe (not in safe gap)
-          const birdTouchingTopPipe = birdBottom > gapTop
-          const birdTouchingBottomPipe = birdTop < gapBottom
-          
+          // SIMPLIFIED COLLISION: Only collide if bird is NOT in safe gap
           // ALWAYS LOG OVERLAP CHECK
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-            console.log('🔍 RIGHT SIDE COLLISION CHECK:', {
-              birdTouchingTopPipe,
-              birdTouchingBottomPipe,
+            console.log('🔍 SIMPLIFIED COLLISION CHECK:', {
               birdInSafeGap,
               birdLeft, birdRight, pipeLeft, pipeRight,
               gapTop, gapBottom, birdTop, birdBottom
             })
           }
           
-          // COLLISION LOGIC: If bird is horizontally overlapping with pipe AND touching pipe (not in gap)
+          // COLLISION LOGIC: If bird is horizontally overlapping with pipe AND NOT in safe gap
           if (birdRight > pipeLeft && birdLeft < pipeRight) {
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+            if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 RIGHT SIDE COLLISION - BIRD TOUCHING PIPE!', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
+              console.log('🚨 SIMPLIFIED COLLISION - BIRD NOT IN SAFE GAP!', {
                 birdInSafeGap,
                 birdLeft, birdRight, pipeLeft, pipeRight
-              })
-            }
-          }
-          
-          // ULTRA AGGRESSIVE: Force collision if bird is past pipe right edge
-          if (birdRight > pipeRight) {
-            hitRightSide = true
-            console.log('🚨 ULTRA AGGRESSIVE - BIRD PAST PIPE RIGHT EDGE!', {
-              birdRight, pipeRight, birdInSafeGap
-            })
-          }
-          
-          // EXTRA AGGRESSIVE: Force collision if bird is very close to pipe right edge
-          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
-          if (distanceToPipeRight < 20) {
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
-              hitRightSide = true
-              console.log('🚨 EXTRA AGGRESSIVE - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
-                distanceToPipeRight,
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe
               })
             }
           }
