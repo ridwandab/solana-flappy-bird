@@ -1235,20 +1235,24 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Reduce collision area to match visual pipe more accurately
-    const collisionMargin = 10 // Reduce collision area by 10 pixels on each side
+    // Widen collision area to the right for better collision detection
+    const collisionMarginLeft = 10 // Reduce collision area by 10 pixels on left side
+    const collisionMarginRight = 5 // Reduce collision area by 5 pixels on right side (wider to right)
+    const collisionMarginTop = 10 // Reduce collision area by 10 pixels on top
+    const collisionMarginBottom = 10 // Reduce collision area by 10 pixels on bottom
+    
     const topPipeCollisionRect = { 
-      x: topPipeLeft + collisionMargin, 
-      y: topPipeTop + collisionMargin, 
-      width: pipeWidth - (collisionMargin * 2), 
-      height: scaledTopPipeHeight - (collisionMargin * 2)
+      x: topPipeLeft + collisionMarginLeft, 
+      y: topPipeTop + collisionMarginTop, 
+      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      height: scaledTopPipeHeight - collisionMarginTop - collisionMarginBottom
     }
     
     const bottomPipeCollisionRect = { 
-      x: bottomPipeLeft + collisionMargin, 
-      y: bottomPipeTop + collisionMargin, 
-      width: pipeWidth - (collisionMargin * 2), 
-      height: scaledBottomPipeHeight - (collisionMargin * 2)
+      x: bottomPipeLeft + collisionMarginLeft, 
+      y: bottomPipeTop + collisionMarginTop, 
+      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      height: scaledBottomPipeHeight - collisionMarginTop - collisionMarginBottom
     }
 
     // Create pipe set object
