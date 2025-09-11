@@ -85,8 +85,9 @@ export class GameScene extends Phaser.Scene {
   private audioManager: AudioManager | null = null
 
   // Pipe spawn countdown
-  private pipeSpawnCountdown: number = 120 // 2 minutes in seconds
+  private pipeSpawnCountdown: number = 2 // 2 seconds
   private countdownTimer!: Phaser.Time.TimerEvent
+  private isCountdownFinished: boolean = false
 
   constructor() {
     super({ key: 'GameScene' })
@@ -391,7 +392,8 @@ export class GameScene extends Phaser.Scene {
 
   private startPipeSpawnCountdown() {
     // Reset countdown
-    this.pipeSpawnCountdown = 120 // 2 minutes in seconds
+    this.pipeSpawnCountdown = 2 // 2 seconds
+    this.isCountdownFinished = false
     
     // Update countdown text
     this.updateCountdownText()
@@ -412,6 +414,7 @@ export class GameScene extends Phaser.Scene {
     if (this.pipeSpawnCountdown <= 0) {
       // Countdown finished, start spawning pipes
       this.countdownTimer.destroy()
+      this.isCountdownFinished = true
       this.countdownText.setText('Pipes are coming!')
       
       // Start spawning first pipe
@@ -425,10 +428,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateCountdownText() {
-    const minutes = Math.floor(this.pipeSpawnCountdown / 60)
-    const seconds = this.pipeSpawnCountdown % 60
-    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`
-    this.countdownText.setText(`Pipes start in: ${timeString}`)
+    this.countdownText.setText(`Pipes start in: ${this.pipeSpawnCountdown}`)
   }
 
   private resetGameState() {
@@ -437,6 +437,7 @@ export class GameScene extends Phaser.Scene {
     // Reset game flags
     this.isGameOver = false
     this.isGameStarted = false
+    this.isCountdownFinished = false
     this.score = 0
     this.pipesPassed = 0
     this.difficultyLevel = 0
@@ -607,7 +608,7 @@ export class GameScene extends Phaser.Scene {
     this.difficultyText.setOrigin(0.5)
 
     // Countdown text for pipe spawning
-    this.countdownText = this.add.text(400, 150, 'Pipes start in: 2:00', {
+    this.countdownText = this.add.text(400, 150, 'Pipes start in: 2', {
       fontSize: '20px',
       color: '#ff6b6b',
       stroke: '#000000',
@@ -951,6 +952,11 @@ export class GameScene extends Phaser.Scene {
   private checkPipeSpawning() {
     if (this.isGameOver) return
     
+    // Don't spawn if countdown hasn't finished yet
+    if (!this.isCountdownFinished) {
+      return
+    }
+    
     // Don't spawn if we already have maximum pipes
     if (this.activePipes.length >= this.MAX_ACTIVE_PIPES) {
       return
@@ -958,7 +964,7 @@ export class GameScene extends Phaser.Scene {
     
     // Spawn new pipes based on consistent spacing
     if (this.activePipes.length === 0) {
-      // No pipes active, spawn immediately
+      // No pipes active, spawn immediately (only after countdown finished)
       this.spawnPipe()
     } else {
       // Check if the last pipe has moved far enough to spawn a new one
