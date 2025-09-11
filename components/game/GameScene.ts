@@ -795,31 +795,32 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // ULTRA SIMPLE COLLISION: Force collision if bird is anywhere near pipe
-          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+          // PRECISE COLLISION: Only collide if bird is actually overlapping with pipe
+          if (birdRight > pipeLeft && birdLeft < pipeRight) {
             // Check if bird is touching top or bottom pipe (not in safe gap)
             const birdTouchingTopPipe = birdBottom > gapTop
             const birdTouchingBottomPipe = birdTop < gapBottom
             
             if (birdTouchingTopPipe || birdTouchingBottomPipe) {
               hitRightSide = true
-              console.log('🚨 ULTRA SIMPLE COLLISION - BIRD TOUCHING PIPE!', {
+              console.log('🚨 PRECISE COLLISION - BIRD TOUCHING PIPE!', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdInSafeGap,
-                birdX: this.bird.x,
-                pipeX: pipeSet.topPipe.x
+                birdLeft, birdRight, pipeLeft, pipeRight
               })
             }
           }
           
-          // FORCE COLLISION: If bird is past pipe right edge, always collide
-          if (this.bird.x > pipeRight) {
-            hitRightSide = true
-            console.log('🚨 FORCE COLLISION - BIRD PAST PIPE RIGHT EDGE!', {
-              birdX: this.bird.x,
-              pipeRight
-            })
+          // EXTRA PRECISE: Only collide if bird is very close to pipe right edge
+          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
+          if (distanceToPipeRight < 5) { // Very close to pipe right edge
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 EXTRA PRECISE COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
+                distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
+              })
+            }
           }
         }
 
