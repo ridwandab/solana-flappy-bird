@@ -658,48 +658,12 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // SIMPLE AND ACCURATE COLLISION CHECK - Use Phaser's built-in collision with proper bounds
-    for (let i = 0; i < this.activePipes.length; i++) {
-      const pipeSet = this.activePipes[i]
-      
-      // Only check collision if pipe is close to bird (within 150 pixels for performance)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 150) {
-        // Use Phaser's built-in collision detection but with smaller bird bounds for fair gameplay
-        const birdBounds = this.bird.getBounds()
-        
-        // Make bird collision area smaller for more forgiving gameplay
-        const birdCollisionMargin = 15 // Reduce collision area by 15 pixels on all sides
-        const birdCollisionBounds = new Phaser.Geom.Rectangle(
-          birdBounds.x + birdCollisionMargin,
-          birdBounds.y + birdCollisionMargin,
-          birdBounds.width - (birdCollisionMargin * 2),
-          birdBounds.height - (birdCollisionMargin * 2)
-        )
-        
-        // Get pipe bounds
-        const topPipeBounds = pipeSet.topPipe.getBounds()
-        const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
-        
-        // Check collision using Phaser's bounds intersection with smaller bird bounds
-        const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
-        const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
-        
-        if (hitTopPipe || hitBottomPipe) {
-          console.log('🚨 COLLISION DETECTED!', {
-            hitTopPipe,
-            hitBottomPipe,
-            birdPos: { x: this.bird.x, y: this.bird.y },
-            pipePos: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y },
-            birdCollisionMargin: birdCollisionMargin
-          })
-          
-          if (!this.isGameOver) {
-            this.gameOver()
-          }
-          return
-        }
-      }
-    }
+    // TEMPORARILY DISABLE COLLISION DETECTION FOR TESTING
+    // TODO: Re-enable and fix collision detection properly
+    console.log('🔧 COLLISION DETECTION TEMPORARILY DISABLED FOR TESTING')
+    
+    // Only check for screen boundaries (ground and ceiling)
+    // Pipe collision detection is disabled for now
 
     // Additional collision check for bird falling below screen
     if (this.bird.y > 780) {
