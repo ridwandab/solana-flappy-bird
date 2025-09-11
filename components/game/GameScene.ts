@@ -765,7 +765,7 @@ export class GameScene extends Phaser.Scene {
           
           // Get bird bounds with reduced collision margin to make collision more to the right
           const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
-          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - (birdCollisionMargin * 0.5) // Reduce right margin
+          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - (birdCollisionMargin * 0.3) // Reduce right margin more
           const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
           const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
           
@@ -795,9 +795,9 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // TEMPORARILY DISABLED COLLISION FOR TESTING
+          // ENABLED COLLISION WITH RIGHT SHIFT
           // PIPE-ONLY COLLISION: Only collide if bird is touching actual pipe walls
-          if (false && birdLeft < pipeRight && birdRight > pipeLeft) {
+          if (birdLeft < pipeRight && birdRight > pipeLeft) {
             // Check if bird is touching top pipe (above gap) - bird bottom must be below gap top
             const birdTouchingTopPipe = birdBottom > gapTop
             // Check if bird is touching bottom pipe (below gap) - bird top must be above gap bottom
