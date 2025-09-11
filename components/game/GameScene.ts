@@ -658,12 +658,12 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // SAFE GAP COLLISION DETECTION - Ensure gap between pipes is safe for bird passage
+    // ACCURATE COLLISION DETECTION - Only detect collision when bird actually touches pipe
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 100 pixels for performance)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+      // Only check collision if pipe is close to bird (within 80 pixels for performance)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 80) {
         const birdBounds = this.bird.getBounds()
         
         // Get pipe positions and dimensions
@@ -690,18 +690,26 @@ export class GameScene extends Phaser.Scene {
           
           // Bird only dies if it's NOT in the safe gap area
           if (!birdInSafeGap) {
-            console.log('🚨 COLLISION DETECTED!', {
-              birdPos: { x: this.bird.x, y: this.bird.y },
-              pipePos: { x: pipeX, y: pipeSet.topPipe.y },
-              gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
-              birdInGap: birdInSafeGap,
-              birdBounds: { top: birdTop, bottom: birdBottom }
-            })
+            // Additional check: make sure bird is actually touching the pipe
+            const birdTouchingTopPipe = birdBottom > topPipeBottom && birdTop < topPipeBottom
+            const birdTouchingBottomPipe = birdTop < bottomPipeTop && birdBottom > bottomPipeTop
             
-            if (!this.isGameOver) {
-              this.gameOver()
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              console.log('🚨 COLLISION DETECTED!', {
+                birdPos: { x: this.bird.x, y: this.bird.y },
+                pipePos: { x: pipeX, y: pipeSet.topPipe.y },
+                gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
+                birdInGap: birdInSafeGap,
+                birdBounds: { top: birdTop, bottom: birdBottom },
+                touchingTop: birdTouchingTopPipe,
+                touchingBottom: birdTouchingBottomPipe
+              })
+              
+              if (!this.isGameOver) {
+                this.gameOver()
+              }
+              return
             }
-            return
           } else {
             // Bird is in safe gap area - no collision
             console.log('✅ BIRD IN SAFE GAP AREA', {
