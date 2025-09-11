@@ -343,17 +343,20 @@ export class GameScene extends Phaser.Scene {
     this.startScreenElements.push(tapToStartText)
 
     // Make the entire screen clickable to start the game
-    this.input.on('pointerdown', () => {
-      if (!this.isGameStarted) {
-        this.startGame()
-      }
-    })
+    // Add a small delay to prevent immediate triggering from previous events
+    this.time.delayedCall(100, () => {
+      this.input.on('pointerdown', () => {
+        if (!this.isGameStarted) {
+          this.startGame()
+        }
+      })
 
-    // Also listen for keyboard input to start
-    this.input.keyboard?.on('keydown', () => {
-      if (!this.isGameStarted) {
-        this.startGame()
-      }
+      // Also listen for keyboard input to start
+      this.input.keyboard?.on('keydown', () => {
+        if (!this.isGameStarted) {
+          this.startGame()
+        }
+      })
     })
   }
 
