@@ -384,6 +384,13 @@ export class GameScene extends Phaser.Scene {
     // Initialize game
     this.isGameStarted = true
     this.initializeGame()
+    
+    // Wait 2 seconds before spawning first pipe
+    this.time.delayedCall(2000, () => {
+      if (!this.isGameOver) {
+        this.spawnPipe()
+      }
+    })
   }
 
   private resetGameState() {
@@ -576,10 +583,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-R', this.handleStart, this)
     this.input.keyboard?.on('keydown-ENTER', this.handleStart, this)
 
-    // Start spawning first pipe after a delay
-    this.time.delayedCall(500, () => {
-      this.spawnPipe()
-    })
+    // Pipe spawning is now handled in startGame() with 2-second delay
 
     // Load sounds
     this.loadSounds()
