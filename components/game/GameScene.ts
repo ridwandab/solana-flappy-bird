@@ -795,7 +795,7 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // GAP-SAFE COLLISION: Only collide if bird is touching pipe walls, not in gap
+          // AGGRESSIVE COLLISION: Force collision for all pipes including S pipe
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
             // Check if bird is in the safe gap (between top and bottom pipes)
             const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
@@ -808,13 +808,24 @@ export class GameScene extends Phaser.Scene {
               willCollide: !birdInSafeGap
             })
             
-            // Only collide if bird is NOT in the safe gap
+            // Force collision if bird is NOT in the safe gap
             if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 GAP-SAFE COLLISION - BIRD NOT IN SAFE GAP!', {
+              console.log('🚨 AGGRESSIVE COLLISION - BIRD NOT IN SAFE GAP!', {
                 birdInSafeGap,
                 birdLeft, birdRight, pipeLeft, pipeRight,
                 gapTop, gapBottom, birdTop, birdBottom
+              })
+            }
+          }
+          
+          // EXTRA COLLISION: Force collision if bird is very close to pipe right edge
+          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
+          if (distanceToPipeRight < 20) {
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 EXTRA COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
+                distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
               })
             }
           }
