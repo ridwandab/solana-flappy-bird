@@ -770,7 +770,9 @@ export class GameScene extends Phaser.Scene {
           const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
           
           // Check if bird is in the safe gap (between top and bottom pipes)
-          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+          // Make it more strict - bird must be COMPLETELY within the gap
+          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom && 
+                               birdLeft > pipeLeft && birdRight < pipeRight
           
           // AGGRESSIVE DEBUG LOGGING - Always log when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -804,6 +806,14 @@ export class GameScene extends Phaser.Scene {
               birdOverlapsPipeHorizontally,
               birdInSafeGap,
               birdLeft, birdRight, pipeLeft, pipeRight
+            })
+          }
+          
+          // EXTRA STRICT: If bird right edge is past pipe right edge, always collide
+          if (birdRight > pipeRight) {
+            hitRightSide = true
+            console.log('🚨 EXTRA STRICT - BIRD RIGHT EDGE PAST PIPE RIGHT EDGE!', {
+              birdRight, pipeRight, birdInSafeGap
             })
           }
         }
