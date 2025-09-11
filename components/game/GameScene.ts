@@ -758,6 +758,12 @@ export class GameScene extends Phaser.Scene {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
+          // Get bird bounds with collision margin
+          const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
+          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
+          const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
+          const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
+          
           // Debug: Log collision bounds to see if right margin is applied
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
             console.log('🔍 COLLISION BOUNDS DEBUG:', {
@@ -773,12 +779,6 @@ export class GameScene extends Phaser.Scene {
               birdInSafeGap: birdTop >= gapTop && birdBottom <= gapBottom
             })
           }
-          
-          // Get bird bounds with collision margin
-          const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
-          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
-          const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
-          const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
           
           // Check if bird is overlapping with pipe area horizontally
           const birdOverlapsPipeHorizontally = birdRight > pipeLeft && birdLeft < pipeRight
