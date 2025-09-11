@@ -1235,9 +1235,9 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Widen collision area to the right for better collision detection
+    // Widen collision area to the right to prevent character from passing through
     const collisionMarginLeft = 10 // Reduce collision area by 10 pixels on left side
-    const collisionMarginRight = 5 // Reduce collision area by 5 pixels on right side (wider to right)
+    const collisionMarginRight = 0 // No margin on right side - full collision area
     const collisionMarginTop = 10 // Reduce collision area by 10 pixels on top
     const collisionMarginBottom = 10 // Reduce collision area by 10 pixels on bottom
     
