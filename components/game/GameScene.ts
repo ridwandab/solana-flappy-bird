@@ -757,9 +757,9 @@ export class GameScene extends Phaser.Scene {
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 COLLISION CHECK STARTED for pipe at x:', pipeSet.topPipe.x)
           }
-          // Use visual pipe bounds directly
+          // Use visual pipe bounds directly and extend collision area to the right
           const pipeLeft = pipeSet.topPipe.x
-          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
+          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width + 50 // Extend 50px to the right
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
@@ -802,6 +802,17 @@ export class GameScene extends Phaser.Scene {
               console.log('🚨 SIMPLIFIED COLLISION - BIRD NOT IN SAFE GAP!', {
                 birdInSafeGap,
                 birdLeft, birdRight, pipeLeft, pipeRight
+              })
+            }
+          }
+          
+          // EXTRA COLLISION: Force collision if bird is past original pipe right edge
+          const originalPipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
+          if (birdRight > originalPipeRight) {
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 EXTRA COLLISION - BIRD PAST ORIGINAL PIPE RIGHT EDGE!', {
+                birdRight, originalPipeRight, birdInSafeGap
               })
             }
           }
