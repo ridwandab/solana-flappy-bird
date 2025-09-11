@@ -38,6 +38,7 @@ export class GameScene extends Phaser.Scene {
   private score: number = 0
   private isGameOver: boolean = false
   private isGameStarted: boolean = false
+  private isGameReady: boolean = false
   private startScreenElements: Phaser.GameObjects.GameObject[] = []
   private pipeTimer!: Phaser.Time.TimerEvent
   private flapSound!: Phaser.Sound.BaseSound
@@ -156,6 +157,7 @@ export class GameScene extends Phaser.Scene {
     this.score = 0
     this.isGameOver = false
     this.isGameStarted = false
+    this.isGameReady = false
     this.scoredPipes.clear()
     this.activePipes = []
     this.lastPipeSpawnTime = 0
@@ -381,13 +383,16 @@ export class GameScene extends Phaser.Scene {
 
     // Background music is handled globally, no need to start here
 
-    // Initialize game
+    // Initialize game but don't start gameplay yet
     this.isGameStarted = true
+    this.isGameReady = false
     this.initializeGame()
     
-    // Wait 2 seconds before spawning first pipe
+    // Wait 2 seconds before game is truly ready
     this.time.delayedCall(2000, () => {
       if (!this.isGameOver) {
+        this.isGameReady = true
+        console.log('🎮 Game is now ready - pipes can spawn and bird can move')
         this.spawnPipe()
       }
     })
@@ -399,6 +404,7 @@ export class GameScene extends Phaser.Scene {
     // Reset game flags
     this.isGameOver = false
     this.isGameStarted = false
+    this.isGameReady = false
     this.score = 0
     this.pipesPassed = 0
     this.difficultyLevel = 0
@@ -593,7 +599,7 @@ export class GameScene extends Phaser.Scene {
     // Update scrolling background (always running)
     this.updateScrollingBackground()
 
-    if (this.isGameOver || !this.isGameStarted) return
+    if (this.isGameOver || !this.isGameStarted || !this.isGameReady) return
 
     // Rotate bird based on velocity
     if (this.bird.body) {
@@ -828,7 +834,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private flap() {
-    if (this.isGameOver || !this.isGameStarted) return
+    if (this.isGameOver || !this.isGameStarted || !this.isGameReady) return
 
     if (this.bird.body) {
       // Set gravity on first flap to start the game properly
