@@ -836,6 +836,17 @@ export class GameScene extends Phaser.Scene {
               })
             }
           }
+          
+          // Check if bird is in the safe gap (between top and bottom pipes)
+          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+          
+          // Only apply right side collision if bird is NOT in safe gap
+          if (hitRightSide && birdInSafeGap) {
+            hitRightSide = false
+            console.log('✅ BIRD IN SAFE GAP - NO RIGHT SIDE COLLISION', {
+              birdTop, birdBottom, gapTop, gapBottom, birdInSafeGap
+            })
+          }
         }
 
         if (hitTopPipe || hitBottomPipe || hitRightSide) {
