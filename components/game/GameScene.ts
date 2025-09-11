@@ -658,12 +658,12 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // ACCURATE COLLISION DETECTION - Only detect collision when bird actually touches pipe
+    // COMPLETE PIPE COLLISION DETECTION - All pipes have collision detection
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 80 pixels for performance)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 80) {
+      // Only check collision if pipe is close to bird (within 100 pixels for performance)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
         const birdBounds = this.bird.getBounds()
         
         // Get pipe positions and dimensions
@@ -690,19 +690,23 @@ export class GameScene extends Phaser.Scene {
           
           // Bird only dies if it's NOT in the safe gap area
           if (!birdInSafeGap) {
-            // Additional check: make sure bird is actually touching the pipe
-            const birdTouchingTopPipe = birdBottom > topPipeBottom && birdTop < topPipeBottom
-            const birdTouchingBottomPipe = birdTop < bottomPipeTop && birdBottom > bottomPipeTop
+            // Check collision with TOP PIPE (bird hits bottom of top pipe)
+            const hitTopPipe = birdBottom > topPipeBottom && birdTop < topPipeBottom
             
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+            // Check collision with BOTTOM PIPE (bird hits top of bottom pipe)
+            const hitBottomPipe = birdTop < bottomPipeTop && birdBottom > bottomPipeTop
+            
+            if (hitTopPipe || hitBottomPipe) {
               console.log('🚨 COLLISION DETECTED!', {
                 birdPos: { x: this.bird.x, y: this.bird.y },
                 pipePos: { x: pipeX, y: pipeSet.topPipe.y },
                 gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
                 birdInGap: birdInSafeGap,
                 birdBounds: { top: birdTop, bottom: birdBottom },
-                touchingTop: birdTouchingTopPipe,
-                touchingBottom: birdTouchingBottomPipe
+                hitTopPipe: hitTopPipe,
+                hitBottomPipe: hitBottomPipe,
+                topPipeBounds: { bottom: topPipeBottom },
+                bottomPipeBounds: { top: bottomPipeTop }
               })
               
               if (!this.isGameOver) {
