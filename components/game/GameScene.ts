@@ -780,10 +780,12 @@ export class GameScene extends Phaser.Scene {
           // Check if bird is overlapping with pipe area horizontally
           const birdOverlapsPipeHorizontally = birdRight > pipeLeft && birdLeft < pipeRight
           
+          // Check if bird is NOT in the safe gap vertically
+          const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+          
           if (birdOverlapsPipeHorizontally) {
-            // Check if bird is NOT in the safe gap vertically
-            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
             
+            // More aggressive collision detection - if bird overlaps horizontally and not in safe gap
             if (!birdInSafeGap) {
               hitRightSide = true
               console.log('🚨 COMPREHENSIVE PIPE COLLISION DETECTED!', {
@@ -800,6 +802,18 @@ export class GameScene extends Phaser.Scene {
                 }
               })
             }
+          }
+          
+          // Additional check: if bird is very close to pipe right edge, always collide
+          const distanceToPipeRight = Math.abs(birdLeft - pipeRight)
+          if (distanceToPipeRight < 20 && !birdInSafeGap) {
+            hitRightSide = true
+            console.log('🚨 CLOSE TO PIPE RIGHT EDGE COLLISION!', {
+              distanceToPipeRight,
+              birdLeft,
+              pipeRight,
+              birdInSafeGap
+            })
           }
           
           // Additional strict check: if bird is very close to pipe edges
@@ -832,6 +846,39 @@ export class GameScene extends Phaser.Scene {
                   fromTop: birdTop < gapTop,
                   fromBottom: birdBottom > gapBottom
                 }
+              })
+            }
+          }
+          
+          // Simple and direct collision check: if bird is inside pipe area, collide
+          if (birdLeft >= pipeLeft && birdLeft <= pipeRight) {
+            // Bird left edge is inside pipe horizontally
+            if (birdTop < gapTop || birdBottom > gapBottom) {
+              hitRightSide = true
+              console.log('🚨 SIMPLE COLLISION: Bird left edge inside pipe!', {
+                birdLeft,
+                pipeLeft,
+                pipeRight,
+                birdTop,
+                birdBottom,
+                gapTop,
+                gapBottom
+              })
+            }
+          }
+          
+          if (birdRight >= pipeLeft && birdRight <= pipeRight) {
+            // Bird right edge is inside pipe horizontally
+            if (birdTop < gapTop || birdBottom > gapBottom) {
+              hitRightSide = true
+              console.log('🚨 SIMPLE COLLISION: Bird right edge inside pipe!', {
+                birdRight,
+                pipeLeft,
+                pipeRight,
+                birdTop,
+                birdBottom,
+                gapTop,
+                gapBottom
               })
             }
           }
