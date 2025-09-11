@@ -757,15 +757,15 @@ export class GameScene extends Phaser.Scene {
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 COLLISION CHECK STARTED for pipe at x:', pipeSet.topPipe.x)
           }
-          // Use visual pipe bounds directly and extend collision area to the right
+          // Use visual pipe bounds directly
           const pipeLeft = pipeSet.topPipe.x
-          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width + 50 // Extend 50px to the right
+          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
-          // Get bird bounds with collision margin
+          // Get bird bounds with reduced collision margin to make collision more to the right
           const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
-          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
+          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - (birdCollisionMargin * 0.5) // Reduce right margin
           const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
           const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
           
@@ -806,13 +806,13 @@ export class GameScene extends Phaser.Scene {
             }
           }
           
-          // EXTRA COLLISION: Force collision if bird is past original pipe right edge
-          const originalPipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
-          if (birdRight > originalPipeRight) {
+          // EXTRA COLLISION: Force collision if bird is very close to pipe right edge
+          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
+          if (distanceToPipeRight < 10) { // Very close to pipe right edge
             if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 EXTRA COLLISION - BIRD PAST ORIGINAL PIPE RIGHT EDGE!', {
-                birdRight, originalPipeRight, birdInSafeGap
+              console.log('🚨 EXTRA COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
+                distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
               })
             }
           }
