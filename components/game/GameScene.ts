@@ -30,6 +30,7 @@ export class GameScene extends Phaser.Scene {
   private ground!: Phaser.GameObjects.Rectangle
   private scoreText!: Phaser.GameObjects.Text
   private difficultyText!: Phaser.GameObjects.Text
+  private countdownText!: Phaser.GameObjects.Text
   
   // Scrolling background
   private background1!: Phaser.GameObjects.GameObject
@@ -82,6 +83,10 @@ export class GameScene extends Phaser.Scene {
 
   // Audio system
   private audioManager: AudioManager | null = null
+
+  // Pipe spawn countdown
+  private pipeSpawnCountdown: number = 120 // 2 minutes in seconds
+  private countdownTimer!: Phaser.Time.TimerEvent
 
   constructor() {
     super({ key: 'GameScene' })
@@ -384,6 +389,48 @@ export class GameScene extends Phaser.Scene {
     this.initializeGame()
   }
 
+  private startPipeSpawnCountdown() {
+    // Reset countdown
+    this.pipeSpawnCountdown = 120 // 2 minutes in seconds
+    
+    // Update countdown text
+    this.updateCountdownText()
+    
+    // Create countdown timer that fires every second
+    this.countdownTimer = this.time.addEvent({
+      delay: 1000, // 1 second
+      callback: this.updateCountdown,
+      callbackScope: this,
+      loop: true
+    })
+  }
+
+  private updateCountdown() {
+    this.pipeSpawnCountdown--
+    this.updateCountdownText()
+    
+    if (this.pipeSpawnCountdown <= 0) {
+      // Countdown finished, start spawning pipes
+      this.countdownTimer.destroy()
+      this.countdownText.setText('Pipes are coming!')
+      
+      // Start spawning first pipe
+      this.spawnPipe()
+      
+      // Hide countdown text after 3 seconds
+      this.time.delayedCall(3000, () => {
+        this.countdownText.setVisible(false)
+      })
+    }
+  }
+
+  private updateCountdownText() {
+    const minutes = Math.floor(this.pipeSpawnCountdown / 60)
+    const seconds = this.pipeSpawnCountdown % 60
+    const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`
+    this.countdownText.setText(`Pipes start in: ${timeString}`)
+  }
+
   private resetGameState() {
     console.log('Resetting game state...')
     
@@ -453,6 +500,11 @@ export class GameScene extends Phaser.Scene {
     // Stop any active timers
     if (this.pipeTimer) {
       this.pipeTimer.destroy()
+    }
+    
+    // Stop countdown timer
+    if (this.countdownTimer) {
+      this.countdownTimer.destroy()
     }
     
     // Clear any active pipes
@@ -554,6 +606,15 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
+    // Countdown text for pipe spawning
+    this.countdownText = this.add.text(400, 150, 'Pipes start in: 2:00', {
+      fontSize: '20px',
+      color: '#ff6b6b',
+      stroke: '#000000',
+      strokeThickness: 3,
+    })
+    this.countdownText.setOrigin(0.5)
+
     // Physics
     this.physics.add.collider(this.bird, this.ground, () => {
       console.log('🚨 PHASER PHYSICS COLLIDER: Bird hit ground! Game Over!', { 
@@ -574,10 +635,8 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-R', this.handleStart, this)
     this.input.keyboard?.on('keydown-ENTER', this.handleStart, this)
 
-    // Start spawning first pipe after a delay
-    this.time.delayedCall(500, () => {
-      this.spawnPipe()
-    })
+    // Start countdown timer for pipe spawning
+    this.startPipeSpawnCountdown()
 
     // Load sounds
     this.loadSounds()
