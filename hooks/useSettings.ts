@@ -48,7 +48,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   // Game Physics Settings
   gravity: 800,  // Increased gravity for faster falling (was 600)
   flapForce: -500,  // Increased flap force for better jumping (was -400)
-  pipeSpeed: 4,  // Increased pipe speed for more challenging gameplay (was 3)
+  pipeSpeed: 3.5,  // Balanced pipe speed for optimal gameplay (was 4)
   pipeSpawnDelay: 3000,  // Reduced spawn delay for faster gameplay (was 3500)
   
   // Privacy Settings

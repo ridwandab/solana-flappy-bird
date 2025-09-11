@@ -48,7 +48,7 @@ export class GameScene extends Phaser.Scene {
   // Game physics constants - will be overridden by settings
   private readonly DEFAULT_GRAVITY = 800  // Increased gravity for faster falling (was 600)
   private readonly DEFAULT_FLAP_FORCE = -500  // Increased flap force for better jumping (was -400)
-  private readonly PIPE_SPEED = 4  // Increased pipe speed for more challenging gameplay (was 3)
+  private readonly PIPE_SPEED = 3.5  // Balanced pipe speed for optimal gameplay (was 4)
   private readonly PIPE_SPAWN_DELAY = 3000  // Balanced delay between pipes (3 seconds) for optimal gameplay
   private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
