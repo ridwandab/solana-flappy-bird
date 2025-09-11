@@ -753,6 +753,10 @@ export class GameScene extends Phaser.Scene {
         // SIMPLIFIED pipe collision detection - focus on right side penetration
         let hitRightSide = false
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
+          // DEBUG: Log that we're checking collision
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+            console.log('🔍 COLLISION CHECK STARTED for pipe at x:', pipeSet.topPipe.x)
+          }
           // Use visual pipe bounds directly
           const pipeLeft = pipeSet.topPipe.x
           const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
@@ -768,18 +772,31 @@ export class GameScene extends Phaser.Scene {
           // Check if bird is in the safe gap (between top and bottom pipes)
           const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
           
-          // Debug logging
-          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
-            console.log('🔍 SIMPLIFIED COLLISION DEBUG:', {
+          // AGGRESSIVE DEBUG LOGGING - Always log when bird is near pipe
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+            console.log('🔍 AGGRESSIVE COLLISION DEBUG:', {
               pipeBounds: { left: pipeLeft, right: pipeRight },
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapBounds: { top: gapTop, bottom: gapBottom },
-              birdInSafeGap
+              birdInSafeGap,
+              birdX: this.bird.x,
+              pipeX: pipeSet.topPipe.x
             })
           }
           
           // SIMPLE LOGIC: If bird is horizontally overlapping with pipe AND not in safe gap, collide
           const birdOverlapsPipeHorizontally = birdRight > pipeLeft && birdLeft < pipeRight
+          
+          // ALWAYS LOG OVERLAP CHECK
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+            console.log('🔍 OVERLAP CHECK:', {
+              birdOverlapsPipeHorizontally,
+              birdInSafeGap,
+              birdLeft, birdRight, pipeLeft, pipeRight,
+              condition1: birdRight > pipeLeft,
+              condition2: birdLeft < pipeRight
+            })
+          }
           
           if (birdOverlapsPipeHorizontally && !birdInSafeGap) {
             hitRightSide = true
