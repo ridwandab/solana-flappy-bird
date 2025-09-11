@@ -813,6 +813,27 @@ export class GameScene extends Phaser.Scene {
               })
             }
           }
+          
+          // ULTRA AGGRESSIVE: Force collision if bird is past pipe right edge
+          if (birdRight > pipeRight) {
+            hitRightSide = true
+            console.log('🚨 ULTRA AGGRESSIVE - BIRD PAST PIPE RIGHT EDGE!', {
+              birdRight, pipeRight, birdInSafeGap
+            })
+          }
+          
+          // EXTRA AGGRESSIVE: Force collision if bird is very close to pipe right edge
+          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
+          if (distanceToPipeRight < 20) {
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitRightSide = true
+              console.log('🚨 EXTRA AGGRESSIVE - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
+                distanceToPipeRight,
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe
+              })
+            }
+          }
         }
 
         if (hitTopPipe || hitBottomPipe || hitRightSide) {
