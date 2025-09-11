@@ -758,6 +758,19 @@ export class GameScene extends Phaser.Scene {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
+          // Debug: Log collision bounds to see if right margin is applied
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+            console.log('🔍 COLLISION BOUNDS DEBUG:', {
+              pipeVisual: { x: pipeSet.topPipe.x, width: pipeSet.topPipe.width },
+              pipeCollision: { 
+                x: pipeSet.topPipeCollision.x, 
+                width: pipeSet.topPipeCollision.width,
+                right: pipeRight
+              },
+              bird: { x: this.bird.x, width: this.bird.width * this.bird.scaleX }
+            })
+          }
+          
           // Get bird bounds with collision margin
           const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
           const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
