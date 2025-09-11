@@ -393,6 +393,14 @@ export class GameScene extends Phaser.Scene {
       if (!this.isGameOver) {
         this.isGameReady = true
         console.log('🎮 Game is now ready - pipes can spawn and bird can move')
+        
+        // Activate world gravity when game is ready
+        if (this.physics && this.physics.world) {
+          const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
+          this.physics.world.gravity.y = gravityValue
+          console.log('World gravity activated:', gravityValue)
+        }
+        
         this.spawnPipe()
       }
     })
@@ -473,17 +481,22 @@ export class GameScene extends Phaser.Scene {
     // Clear any active pipes
     this.activePipes = []
     
-    // Reset world gravity to settings value
+    // Reset world gravity to 0 for stable bird
     if (this.physics && this.physics.world) {
-      const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
-      this.physics.world.gravity.y = gravityValue
-      console.log('World gravity reset to:', gravityValue)
+      this.physics.world.gravity.y = 0
+      console.log('World gravity reset to 0 for stable bird')
     }
     
     console.log('Game state reset complete')
   }
 
   private initializeGame() {
+    // Set world gravity to 0 initially - will be set when game is ready
+    if (this.physics && this.physics.world) {
+      this.physics.world.gravity.y = 0
+      console.log('World gravity set to 0 for stable bird')
+    }
+    
     // Create scrolling background for game
     this.createScrollingBackground()
     
@@ -837,13 +850,7 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || !this.isGameStarted || !this.isGameReady) return
 
     if (this.bird.body) {
-      // Set gravity on first flap to start the game properly
-      if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
-        const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
-        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
-        console.log('Gravity activated on first flap:', gravityValue)
-      }
-      
+      // Apply flap force to bird
       const flapForceValue: number = this.gameSettings?.flapForce || this.DEFAULT_FLAP_FORCE
       ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(flapForceValue)
       
