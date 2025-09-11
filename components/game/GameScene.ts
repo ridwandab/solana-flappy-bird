@@ -795,7 +795,7 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // AGGRESSIVE COLLISION: Force collision for all pipes including S pipe
+          // ULTRA AGGRESSIVE COLLISION: Prevent all pipe penetration
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
             // Check if bird is in the safe gap (between top and bottom pipes)
             const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
@@ -808,10 +808,10 @@ export class GameScene extends Phaser.Scene {
               willCollide: !birdInSafeGap
             })
             
-            // Force collision if bird is NOT in the safe gap
+            // ULTRA AGGRESSIVE: Force collision if bird is NOT in the safe gap
             if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 AGGRESSIVE COLLISION - BIRD NOT IN SAFE GAP!', {
+              console.log('🚨 ULTRA AGGRESSIVE COLLISION - BIRD NOT IN SAFE GAP!', {
                 birdInSafeGap,
                 birdLeft, birdRight, pipeLeft, pipeRight,
                 gapTop, gapBottom, birdTop, birdBottom
@@ -819,13 +819,29 @@ export class GameScene extends Phaser.Scene {
             }
           }
           
-          // EXTRA COLLISION: Force collision if bird is very close to pipe right edge
+          // EXTRA AGGRESSIVE COLLISION: Force collision if bird is very close to pipe right edge
           const distanceToPipeRight = Math.abs(birdRight - pipeRight)
-          if (distanceToPipeRight < 20) {
+          if (distanceToPipeRight < 50) { // Increased from 20 to 50
             if (!birdInSafeGap) {
               hitRightSide = true
-              console.log('🚨 EXTRA COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
+              console.log('🚨 EXTRA AGGRESSIVE COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
                 distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
+              })
+            }
+          }
+          
+          // ULTRA STRICT COLLISION: Force collision if bird is anywhere near pipe horizontally
+          if (birdRight > pipeLeft && birdLeft < pipeRight) {
+            // Check if bird is touching top pipe
+            const birdTouchingTopPipe = birdTop <= gapTop
+            // Check if bird is touching bottom pipe  
+            const birdTouchingBottomPipe = birdBottom >= gapBottom
+            
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitRightSide = true
+              console.log('🚨 ULTRA STRICT COLLISION - BIRD TOUCHING PIPE!', {
+                birdTouchingTopPipe, birdTouchingBottomPipe,
+                birdTop, birdBottom, gapTop, gapBottom
               })
             }
           }
@@ -1252,10 +1268,10 @@ export class GameScene extends Phaser.Scene {
     
     // Create invisible collision rectangles that match the visual pipe size
     // Make collision area much wider to the right to prevent character from passing through
-    const collisionMarginLeft = 10 // Reduce collision area by 10 pixels on left side
-    const collisionMarginRight = -100 // Extend collision area by 100 pixels to the right
-    const collisionMarginTop = 10 // Reduce collision area by 10 pixels on top
-    const collisionMarginBottom = 10 // Reduce collision area by 10 pixels on bottom
+    const collisionMarginLeft = 5 // Reduce collision area by 5 pixels on left side
+    const collisionMarginRight = -150 // Extend collision area by 150 pixels to the right (increased from 100)
+    const collisionMarginTop = 5 // Reduce collision area by 5 pixels on top
+    const collisionMarginBottom = 5 // Reduce collision area by 5 pixels on bottom
     
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMarginLeft, 
