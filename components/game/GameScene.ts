@@ -658,70 +658,184 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // COMPLETE PIPE COLLISION DETECTION - All pipes have collision detection
+    // COLLISION CHECK - Check all pipes every frame with Phaser collision
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 100 pixels for performance)
+      // Only check collision if pipe is close to bird (within 100 pixels)
       if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+        // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Get pipe positions and dimensions
-        const pipeX = pipeSet.topPipe.x
-        const pipeWidth = pipeSet.topPipe.width * pipeSet.topPipe.scaleX
+        // Make bird collision area smaller to match visual sprite better
+        const birdCollisionMargin = 8 // Increased margin for more accurate collision detection
+        const birdCollisionBounds = new Phaser.Geom.Rectangle(
+          birdBounds.x + birdCollisionMargin,
+          birdBounds.y + birdCollisionMargin,
+          birdBounds.width - (birdCollisionMargin * 2),
+          birdBounds.height - (birdCollisionMargin * 2)
+        )
         
-        // Calculate the safe gap area between pipes (where bird should NOT collide)
-        const topPipeBottom = pipeSet.topPipe.y + (pipeSet.topPipe.height * pipeSet.topPipe.scaleY)
-        const bottomPipeTop = pipeSet.bottomPipe.y
+        // Create collision rectangles based on pipe collision data
+        let hitTopPipe = false
+        let hitBottomPipe = false
         
-        // Check if bird is horizontally aligned with the pipe
-        const birdLeft = birdBounds.x
-        const birdRight = birdBounds.x + birdBounds.width
-        const pipeLeft = pipeX
-        const pipeRight = pipeX + pipeWidth
-        
-        // Only check collision if bird is horizontally overlapping with pipe
-        if (birdRight > pipeLeft && birdLeft < pipeRight) {
-          const birdTop = birdBounds.y
-          const birdBottom = birdBounds.y + birdBounds.height
+        if (pipeSet.topPipeCollision) {
+          // Use the stored collision rectangle for top pipe
+          const topPipeCollisionRect = new Phaser.Geom.Rectangle(
+            pipeSet.topPipeCollision.x,
+            pipeSet.topPipeCollision.y,
+            pipeSet.topPipeCollision.width,
+            pipeSet.topPipeCollision.height
+          )
           
-          // Check if bird is in the safe gap area
-          const birdInSafeGap = birdTop >= topPipeBottom && birdBottom <= bottomPipeTop
+          hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeCollisionRect)
+        }
+        
+        if (pipeSet.bottomPipeCollision) {
+          // Use the stored collision rectangle for bottom pipe
+          const bottomPipeCollisionRect = new Phaser.Geom.Rectangle(
+            pipeSet.bottomPipeCollision.x,
+            pipeSet.bottomPipeCollision.y,
+            pipeSet.bottomPipeCollision.width,
+            pipeSet.bottomPipeCollision.height
+          )
           
-          // Bird only dies if it's NOT in the safe gap area
-          if (!birdInSafeGap) {
-            // Check collision with TOP PIPE (bird hits bottom of top pipe)
-            const hitTopPipe = birdBottom > topPipeBottom && birdTop < topPipeBottom
-            
-            // Check collision with BOTTOM PIPE (bird hits top of bottom pipe)
-            const hitBottomPipe = birdTop < bottomPipeTop && birdBottom > bottomPipeTop
-            
-            if (hitTopPipe || hitBottomPipe) {
-              console.log('🚨 COLLISION DETECTED!', {
-                birdPos: { x: this.bird.x, y: this.bird.y },
-                pipePos: { x: pipeX, y: pipeSet.topPipe.y },
-                gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
-                birdInGap: birdInSafeGap,
-                birdBounds: { top: birdTop, bottom: birdBottom },
-                hitTopPipe: hitTopPipe,
-                hitBottomPipe: hitBottomPipe,
-                topPipeBounds: { bottom: topPipeBottom },
-                bottomPipeBounds: { top: bottomPipeTop }
-              })
-              
-              if (!this.isGameOver) {
-                this.gameOver()
-              }
-              return
-            }
-          } else {
-            // Bird is in safe gap area - no collision
-            console.log('✅ BIRD IN SAFE GAP AREA', {
-              birdPos: { x: this.bird.x, y: this.bird.y },
-              gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
-              birdBounds: { top: birdTop, bottom: birdBottom }
+          hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeCollisionRect)
+        }
+        
+        // Visual debugging removed - collision detection works invisibly
+        
+        // Debug logging when pipe is very close
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
+          console.log('🔍 COLLISION DEBUG:', {
+            bird: {
+              x: this.bird.x,
+              y: this.bird.y,
+              width: this.bird.width,
+              height: this.bird.height,
+              originalBounds: {
+                x: birdBounds.x,
+                y: birdBounds.y,
+                width: birdBounds.width,
+                height: birdBounds.height
+              },
+              collisionBounds: {
+                x: birdCollisionBounds.x,
+                y: birdCollisionBounds.y,
+                width: birdCollisionBounds.width,
+                height: birdCollisionBounds.height
+              },
+              margin: birdCollisionMargin
+            },
+            collision: {
+              hitTopPipe,
+              hitBottomPipe,
+              distanceToTopPipe: Math.abs(pipeSet.topPipe.x - this.bird.x)
+            },
+             collisionData: {
+               topPipe: pipeSet.topPipeCollision ? {
+                 x: pipeSet.topPipeCollision.x, 
+                 y: pipeSet.topPipeCollision.y, 
+                 width: pipeSet.topPipeCollision.width, 
+                 height: pipeSet.topPipeCollision.height 
+               } : 'none',
+               bottomPipe: pipeSet.bottomPipeCollision ? {
+                 x: pipeSet.bottomPipeCollision.x, 
+                 y: pipeSet.bottomPipeCollision.y, 
+                 width: pipeSet.bottomPipeCollision.width, 
+                 height: pipeSet.bottomPipeCollision.height 
+               } : 'none'
+             }
+          })
+        }
+        
+        // Comprehensive pipe collision detection - prevent any penetration
+        let hitRightSide = false
+        if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
+          const pipeLeft = pipeSet.topPipeCollision.x
+          const pipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
+          const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
+          const gapBottom = pipeSet.bottomPipeCollision.y
+          
+          // Get bird bounds with collision margin
+          const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
+          const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdCollisionMargin
+          const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
+          const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
+          
+          // Debug: Log collision bounds to see if right margin is applied
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+            console.log('🔍 COLLISION BOUNDS DEBUG:', {
+              pipeVisual: { x: pipeSet.topPipe.x, width: pipeSet.topPipe.width },
+              pipeCollision: { 
+                x: pipeSet.topPipeCollision.x, 
+                width: pipeSet.topPipeCollision.width,
+                right: pipeRight
+              },
+              bird: { x: this.bird.x, width: this.bird.width * this.bird.scaleX },
+              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+              gapBounds: { top: gapTop, bottom: gapBottom },
+              birdInSafeGap: birdTop >= gapTop && birdBottom <= gapBottom
             })
           }
+          
+          // AGGRESSIVE COLLISION DETECTION: Always collide if bird touches pipe area (except safe gap)
+          if (birdLeft >= pipeLeft && birdLeft <= pipeRight) {
+            // Bird left edge is inside pipe area - check if in safe gap
+            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 BIRD LEFT EDGE INSIDE PIPE - COLLISION!', {
+                birdLeft, pipeLeft, pipeRight, birdInSafeGap
+              })
+            }
+          }
+          
+          if (birdRight >= pipeLeft && birdRight <= pipeRight) {
+            // Bird right edge is inside pipe area - check if in safe gap
+            const birdInSafeGap = birdTop >= gapTop && birdBottom <= gapBottom
+            if (!birdInSafeGap) {
+              hitRightSide = true
+              console.log('🚨 BIRD RIGHT EDGE INSIDE PIPE - COLLISION!', {
+                birdRight, pipeLeft, pipeRight, birdInSafeGap
+              })
+            }
+          }
+          
+          // ULTRA AGGRESSIVE: If bird is anywhere near pipe right edge, always collide (no safe gap check)
+          const distanceToPipeRight = Math.abs(birdLeft - pipeRight)
+          if (distanceToPipeRight < 50) {
+            // Check if bird is touching top or bottom pipe (not in safe gap)
+            const birdTouchingTopPipe = birdBottom > gapTop
+            const birdTouchingBottomPipe = birdTop < gapBottom
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitRightSide = true
+              console.log('🚨 ULTRA AGGRESSIVE - CLOSE TO PIPE RIGHT EDGE!', {
+                distanceToPipeRight,
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
+                birdLeft,
+                pipeRight
+              })
+            }
+          }
+        }
+
+        if (hitTopPipe || hitBottomPipe || hitRightSide) {
+          console.log('🚨🚨🚨 COLLISION DETECTED! 🚨🚨🚨')
+          console.log('Hit top pipe:', hitTopPipe)
+          console.log('Hit bottom pipe:', hitBottomPipe)
+          console.log('Hit right side:', hitRightSide)
+          console.log('Bird position:', { x: this.bird.x, y: this.bird.y })
+          console.log('Bird original bounds:', birdBounds)
+          console.log('Bird collision bounds (with margin):', birdCollisionBounds)
+          console.log('Collision margin:', birdCollisionMargin)
+          console.log('Invisible collision detection used!')
+          if (!this.isGameOver) {
+            this.gameOver()
+          }
+          return
         }
       }
     }
@@ -871,6 +985,40 @@ export class GameScene extends Phaser.Scene {
         const pipeSpeed = this.gameSettings?.pipeSpeed || this.PIPE_SPEED
         pipeSet.topPipe.x -= pipeSpeed
         pipeSet.bottomPipe.x -= pipeSpeed
+        
+        // Update invisible collision data positions with pipes
+        if (pipeSet.topPipeCollision) {
+          pipeSet.topPipeCollision.x -= pipeSpeed
+        }
+        if (pipeSet.bottomPipeCollision) {
+          pipeSet.bottomPipeCollision.x -= pipeSpeed
+        }
+        
+        // Debug: Log collision data positions for collision detection
+        if (Math.abs(pipeSet.topPipe.x - 200) < 50) { // When pipe is near bird
+          console.log('🔍 COLLISION DATA POSITIONS:', {
+            topPipe: {
+              x: pipeSet.topPipe.x,
+              y: pipeSet.topPipe.y,
+              collisionData: pipeSet.topPipeCollision ? {
+                x: pipeSet.topPipeCollision.x, 
+                y: pipeSet.topPipeCollision.y,
+                width: pipeSet.topPipeCollision.width,
+                height: pipeSet.topPipeCollision.height
+              } : 'none'
+            },
+            bottomPipe: {
+              x: pipeSet.bottomPipe.x,
+              y: pipeSet.bottomPipe.y,
+              collisionData: pipeSet.bottomPipeCollision ? {
+                x: pipeSet.bottomPipeCollision.x, 
+                y: pipeSet.bottomPipeCollision.y,
+                width: pipeSet.bottomPipeCollision.width,
+                height: pipeSet.bottomPipeCollision.height
+              } : 'none'
+            }
+          })
+        }
       }
       
       // Check for scoring when pipes pass the bird (only once per pipe set)
@@ -895,7 +1043,65 @@ export class GameScene extends Phaser.Scene {
 
   // Obstacle system removed for simpler gameplay
 
+  private checkPipeCollision(pipeSet: any): boolean {
+    if (!this.bird || this.isGameOver) return false
+    
+    // Use Phaser's built-in collision detection for accuracy
+    const birdBounds = this.bird.getBounds()
+    const topPipeBounds = pipeSet.topPipe.getBounds()
+    const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
+    
+    // Check collision using Phaser's bounds intersection
+    const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds)
+    const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
+    
+    // Debug logging
+    if (Math.abs(this.bird.x - pipeSet.topPipe.x) < 100 || Math.abs(this.bird.x - pipeSet.bottomPipe.x) < 100) {
+      console.log('🔍 PHASER COLLISION DEBUG:', {
+        bird: { x: this.bird.x, y: this.bird.y },
+        birdBounds: {
+          x: birdBounds.x,
+          y: birdBounds.y,
+          width: birdBounds.width,
+          height: birdBounds.height
+        },
+        topPipeBounds: {
+          x: topPipeBounds.x,
+          y: topPipeBounds.y,
+          width: topPipeBounds.width,
+          height: topPipeBounds.height
+        },
+        bottomPipeBounds: {
+          x: bottomPipeBounds.x,
+          y: bottomPipeBounds.y,
+          width: bottomPipeBounds.width,
+          height: bottomPipeBounds.height
+        },
+        hitTopPipe,
+        hitBottomPipe,
+        phaserOverlap: {
+          top: Phaser.Geom.Rectangle.Overlaps(birdBounds, topPipeBounds),
+          bottom: Phaser.Geom.Rectangle.Overlaps(birdBounds, bottomPipeBounds)
+        }
+      })
+    }
+    
+    if (hitTopPipe || hitBottomPipe) {
+      console.log('💥💥💥 PHASER COLLISION DETECTED! 💥💥💥')
+      console.log('Hit top pipe:', hitTopPipe)
+      console.log('Hit bottom pipe:', hitBottomPipe)
+      return true
+    }
+    
+    return false
+  }
 
+  private checkBoundsOverlap(bounds1: any, bounds2: any): boolean {
+    return bounds1.left < bounds2.right && 
+           bounds1.right > bounds2.left && 
+           bounds1.top < bounds2.bottom && 
+           bounds1.bottom > bounds2.top
+  }
 
   private destroyPipeSet(pipeSet: any) {
     pipeSet.topPipe.destroy()
@@ -1008,17 +1214,59 @@ export class GameScene extends Phaser.Scene {
     
     console.log(`Bottom pipe created at x: ${x}, y: ${bottomPipeY}, scaleY: ${bottomPipeScaleY}`)
 
+    // Calculate collision bounds for invisible collision detection
+    const pipeWidth = topPipe.width
+    const scaledTopPipeHeight = topPipeHeight // Actual height of scaled top pipe
+    const scaledBottomPipeHeight = bottomPipeHeight // Actual height of scaled bottom pipe
+    
+    // Get the actual bounds that Phaser will use for collision detection
+    // Top pipe bounds (flipped pipe - extends from top (0) to gap)
+    const topPipeLeft = x
+    const topPipeRight = x + pipeWidth
+    const topPipeTop = 0 // Top pipe starts at top of game
+    const topPipeBottom = topPipeHeight // Top pipe ends at gap
+    
+    // Bottom pipe bounds (extends from gap to bottom of game)
+    const bottomPipeLeft = x
+    const bottomPipeRight = x + pipeWidth
+    const bottomPipeTop = bottomPipeY // Bottom pipe starts at gap
+    const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
+    
+    // Create invisible collision rectangles that match the visual pipe size
+    // Make collision area much wider to the right to prevent character from passing through
+    const collisionMarginLeft = 10 // Reduce collision area by 10 pixels on left side
+    const collisionMarginRight = -100 // Extend collision area by 100 pixels to the right
+    const collisionMarginTop = 10 // Reduce collision area by 10 pixels on top
+    const collisionMarginBottom = 10 // Reduce collision area by 10 pixels on bottom
+    
+    const topPipeCollisionRect = { 
+      x: topPipeLeft + collisionMarginLeft, 
+      y: topPipeTop + collisionMarginTop, 
+      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      height: scaledTopPipeHeight - collisionMarginTop - collisionMarginBottom
+    }
+    
+    const bottomPipeCollisionRect = { 
+      x: bottomPipeLeft + collisionMarginLeft, 
+      y: bottomPipeTop + collisionMarginTop, 
+      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      height: scaledBottomPipeHeight - collisionMarginTop - collisionMarginBottom
+    }
+
     // Create pipe set object
     const pipeSet = {
       topPipe: topPipe,
       bottomPipe: bottomPipe,
+      // Store invisible collision data for collision detection
+      topPipeCollision: topPipeCollisionRect,
+      bottomPipeCollision: bottomPipeCollisionRect,
       scored: false
     }
 
     // Add to active pipes
     this.activePipes.push(pipeSet)
     
-    console.log(`New pipe set created. Total active pipes: ${this.activePipes.length}`)
+    console.log(`New pipe set created with invisible collision detection. Total active pipes: ${this.activePipes.length}`)
     
     // Obstacle system removed for simpler gameplay
   }
