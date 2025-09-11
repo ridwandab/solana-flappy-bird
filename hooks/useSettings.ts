@@ -46,10 +46,10 @@ const DEFAULT_SETTINGS: GameSettings = {
   language: 'en',
   
   // Game Physics Settings
-  gravity: 600,  // Higher gravity for quick falling like original Flappy Bird
-  flapForce: -400,  // Strong flap force for quick jumping
-  pipeSpeed: 3,
-  pipeSpawnDelay: 3500,
+  gravity: 800,  // Increased gravity for faster falling (was 600)
+  flapForce: -500,  // Increased flap force for better jumping (was -400)
+  pipeSpeed: 4,  // Increased pipe speed for more challenging gameplay (was 3)
+  pipeSpawnDelay: 3000,  // Reduced spawn delay for faster gameplay (was 3500)
   
   // Privacy Settings
   showOnLeaderboard: true,
