@@ -795,23 +795,13 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // CORRECT COLLISION: Check if bird is touching pipe walls
+          // ULTRA SIMPLE COLLISION: If bird is horizontally overlapping with pipe, always collide
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is touching top pipe (above gap)
-            const birdTouchingTopPipe = birdBottom > gapTop
-            // Check if bird is touching bottom pipe (below gap)
-            const birdTouchingBottomPipe = birdTop < gapBottom
-            
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
-              hitRightSide = true
-              console.log('🚨 CORRECT COLLISION - BIRD TOUCHING PIPE WALL!', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
-                birdInSafeGap,
-                birdLeft, birdRight, pipeLeft, pipeRight,
-                gapTop, gapBottom, birdTop, birdBottom
-              })
-            }
+            hitRightSide = true
+            console.log('🚨 ULTRA SIMPLE COLLISION - BIRD OVERLAPPING WITH PIPE!', {
+              birdLeft, birdRight, pipeLeft, pipeRight,
+              birdInSafeGap
+            })
           }
         }
 
