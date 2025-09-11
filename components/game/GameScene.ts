@@ -757,9 +757,9 @@ export class GameScene extends Phaser.Scene {
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 COLLISION CHECK STARTED for pipe at x:', pipeSet.topPipe.x)
           }
-          // Use visual pipe bounds directly
-          const pipeLeft = pipeSet.topPipe.x
-          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
+          // Use extended collision bounds that match the collision rectangles created in spawnPipe
+          const pipeLeft = pipeSet.topPipeCollision.x
+          const pipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
