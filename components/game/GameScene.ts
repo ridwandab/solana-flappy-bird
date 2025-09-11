@@ -802,6 +802,16 @@ export class GameScene extends Phaser.Scene {
             // Check if bird is touching bottom pipe (below gap) - bird top must be above gap bottom
             const birdTouchingBottomPipe = birdTop < gapBottom
             
+            // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
+            console.log('🔍 BIRD IN PIPE AREA - CHECKING COLLISION:', {
+              birdTouchingTopPipe,
+              birdTouchingBottomPipe,
+              birdInSafeGap,
+              birdLeft, birdRight, pipeLeft, pipeRight,
+              gapTop, gapBottom, birdTop, birdBottom,
+              willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
+            })
+            
             // Only collide if bird is actually touching pipe walls (not in the safe gap)
             if (birdTouchingTopPipe || birdTouchingBottomPipe) {
               hitRightSide = true
