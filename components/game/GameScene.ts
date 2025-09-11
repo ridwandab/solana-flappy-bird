@@ -415,15 +415,9 @@ export class GameScene extends Phaser.Scene {
       // Countdown finished, start spawning pipes
       this.countdownTimer.destroy()
       this.isCountdownFinished = true
-      this.countdownText.setText('Pipes are coming!')
       
-      // Start spawning first pipe
+      // Start spawning first pipe (no text shown)
       this.spawnPipe()
-      
-      // Hide countdown text after 3 seconds
-      this.time.delayedCall(3000, () => {
-        this.countdownText.setVisible(false)
-      })
     }
   }
 
@@ -607,7 +601,7 @@ export class GameScene extends Phaser.Scene {
     })
     this.difficultyText.setOrigin(0.5)
 
-    // Countdown text for pipe spawning
+    // Countdown text for pipe spawning (hidden but functionality remains)
     this.countdownText = this.add.text(400, 150, 'Pipes start in: 2', {
       fontSize: '20px',
       color: '#ff6b6b',
@@ -615,6 +609,7 @@ export class GameScene extends Phaser.Scene {
       strokeThickness: 3,
     })
     this.countdownText.setOrigin(0.5)
+    this.countdownText.setVisible(false) // Hide the text
 
     // Physics
     this.physics.add.collider(this.bird, this.ground, () => {
