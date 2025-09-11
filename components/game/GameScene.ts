@@ -795,8 +795,9 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
+          // TEMPORARILY DISABLED COLLISION FOR TESTING
           // PIPE-ONLY COLLISION: Only collide if bird is touching actual pipe walls
-          if (birdLeft < pipeRight && birdRight > pipeLeft) {
+          if (false && birdLeft < pipeRight && birdRight > pipeLeft) {
             // Check if bird is touching top pipe (above gap) - bird bottom must be below gap top
             const birdTouchingTopPipe = birdBottom > gapTop
             // Check if bird is touching bottom pipe (below gap) - bird top must be above gap bottom
@@ -823,6 +824,15 @@ export class GameScene extends Phaser.Scene {
                 gapTop, gapBottom, birdTop, birdBottom
               })
             }
+          }
+          
+          // DEBUG: Log when bird is in pipe area but collision is disabled
+          if (birdLeft < pipeRight && birdRight > pipeLeft) {
+            console.log('🔍 BIRD IN PIPE AREA - COLLISION DISABLED FOR TESTING:', {
+              birdInSafeGap,
+              birdLeft, birdRight, pipeLeft, pipeRight,
+              gapTop, gapBottom, birdTop, birdBottom
+            })
           }
         }
 
