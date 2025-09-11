@@ -658,53 +658,45 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // ACCURATE COLLISION CHECK - Only detect collision with solid pipe parts, not gaps
+    // SIMPLE AND ACCURATE COLLISION CHECK - Use Phaser's built-in collision with proper bounds
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
       // Only check collision if pipe is close to bird (within 150 pixels for performance)
       if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 150) {
+        // Use Phaser's built-in collision detection but with smaller bird bounds for fair gameplay
         const birdBounds = this.bird.getBounds()
         
-        // Get pipe dimensions and positions
-        const pipeX = pipeSet.topPipe.x
-        const pipeWidth = pipeSet.topPipe.width * pipeSet.topPipe.scaleX
+        // Make bird collision area smaller for more forgiving gameplay
+        const birdCollisionMargin = 15 // Reduce collision area by 15 pixels on all sides
+        const birdCollisionBounds = new Phaser.Geom.Rectangle(
+          birdBounds.x + birdCollisionMargin,
+          birdBounds.y + birdCollisionMargin,
+          birdBounds.width - (birdCollisionMargin * 2),
+          birdBounds.height - (birdCollisionMargin * 2)
+        )
         
-        // Calculate the safe gap area (where bird should NOT collide)
-        const topPipeBottom = pipeSet.topPipe.y + (pipeSet.topPipe.height * pipeSet.topPipe.scaleY)
-        const bottomPipeTop = pipeSet.bottomPipe.y
+        // Get pipe bounds
+        const topPipeBounds = pipeSet.topPipe.getBounds()
+        const bottomPipeBounds = pipeSet.bottomPipe.getBounds()
         
-        // Only check collision if bird is horizontally aligned with the pipe
-        const birdLeft = birdBounds.x
-        const birdRight = birdBounds.x + birdBounds.width
-        const pipeLeft = pipeX
-        const pipeRight = pipeX + pipeWidth
+        // Check collision using Phaser's bounds intersection with smaller bird bounds
+        const hitTopPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, topPipeBounds)
+        const hitBottomPipe = Phaser.Geom.Rectangle.Overlaps(birdCollisionBounds, bottomPipeBounds)
         
-        // Check if bird is horizontally overlapping with pipe
-        if (birdRight > pipeLeft && birdLeft < pipeRight) {
-          // Bird is horizontally aligned with pipe, now check vertical collision
-          const birdTop = birdBounds.y
-          const birdBottom = birdBounds.y + birdBounds.height
+        if (hitTopPipe || hitBottomPipe) {
+          console.log('🚨 COLLISION DETECTED!', {
+            hitTopPipe,
+            hitBottomPipe,
+            birdPos: { x: this.bird.x, y: this.bird.y },
+            pipePos: { x: pipeSet.topPipe.x, y: pipeSet.topPipe.y },
+            birdCollisionMargin: birdCollisionMargin
+          })
           
-          // Check if bird hits the solid parts of the pipes (not the gap)
-          const hitTopPipe = birdBottom > topPipeBottom // Bird below top pipe
-          const hitBottomPipe = birdTop < bottomPipeTop // Bird above bottom pipe
-          
-          if (hitTopPipe || hitBottomPipe) {
-            console.log('🚨 COLLISION DETECTED!', {
-              hitTopPipe,
-              hitBottomPipe,
-              birdPos: { x: this.bird.x, y: this.bird.y },
-              pipePos: { x: pipeX, y: pipeSet.topPipe.y },
-              gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
-              birdInGap: birdTop >= topPipeBottom && birdBottom <= bottomPipeTop
-            })
-            
-            if (!this.isGameOver) {
-              this.gameOver()
-            }
-            return
+          if (!this.isGameOver) {
+            this.gameOver()
           }
+          return
         }
       }
     }
