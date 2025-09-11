@@ -658,12 +658,55 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // TEMPORARILY DISABLE COLLISION DETECTION FOR TESTING
-    // TODO: Re-enable and fix collision detection properly
-    console.log('🔧 COLLISION DETECTION TEMPORARILY DISABLED FOR TESTING')
-    
-    // Only check for screen boundaries (ground and ceiling)
-    // Pipe collision detection is disabled for now
+    // PROPER COLLISION DETECTION - Only detect collision with solid pipe parts
+    for (let i = 0; i < this.activePipes.length; i++) {
+      const pipeSet = this.activePipes[i]
+      
+      // Only check collision if pipe is close to bird (within 100 pixels for performance)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+        const birdBounds = this.bird.getBounds()
+        
+        // Get pipe positions and dimensions
+        const pipeX = pipeSet.topPipe.x
+        const pipeWidth = pipeSet.topPipe.width * pipeSet.topPipe.scaleX
+        
+        // Calculate the safe gap area between pipes
+        const topPipeBottom = pipeSet.topPipe.y + (pipeSet.topPipe.height * pipeSet.topPipe.scaleY)
+        const bottomPipeTop = pipeSet.bottomPipe.y
+        
+        // Check if bird is horizontally aligned with the pipe
+        const birdLeft = birdBounds.x
+        const birdRight = birdBounds.x + birdBounds.width
+        const pipeLeft = pipeX
+        const pipeRight = pipeX + pipeWidth
+        
+        // Only check collision if bird is horizontally overlapping with pipe
+        if (birdRight > pipeLeft && birdLeft < pipeRight) {
+          const birdTop = birdBounds.y
+          const birdBottom = birdBounds.y + birdBounds.height
+          
+          // Check if bird hits the solid parts of the pipes (not the gap)
+          const hitTopPipe = birdBottom > topPipeBottom // Bird below top pipe
+          const hitBottomPipe = birdTop < bottomPipeTop // Bird above bottom pipe
+          
+          if (hitTopPipe || hitBottomPipe) {
+            console.log('🚨 COLLISION DETECTED!', {
+              hitTopPipe,
+              hitBottomPipe,
+              birdPos: { x: this.bird.x, y: this.bird.y },
+              pipePos: { x: pipeX, y: pipeSet.topPipe.y },
+              gapArea: { top: topPipeBottom, bottom: bottomPipeTop },
+              birdInGap: birdTop >= topPipeBottom && birdBottom <= bottomPipeTop
+            })
+            
+            if (!this.isGameOver) {
+              this.gameOver()
+            }
+            return
+          }
+        }
+      }
+    }
 
     // Additional collision check for bird falling below screen
     if (this.bird.y > 780) {
