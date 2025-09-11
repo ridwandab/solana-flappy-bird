@@ -753,8 +753,9 @@ export class GameScene extends Phaser.Scene {
         // Comprehensive pipe collision detection - prevent any penetration
         let hitRightSide = false
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
-          const pipeLeft = pipeSet.topPipeCollision.x
-          const pipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
+          // Use visual pipe bounds directly instead of extended collision area
+          const pipeLeft = pipeSet.topPipe.x
+          const pipeRight = pipeSet.topPipe.x + pipeSet.topPipe.width
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
           
@@ -817,6 +818,21 @@ export class GameScene extends Phaser.Scene {
                 birdTouchingBottomPipe,
                 birdLeft,
                 pipeRight
+              })
+            }
+          }
+          
+          // EXTRA AGGRESSIVE: If bird right edge is past pipe left edge, always collide
+          if (birdRight > pipeLeft) {
+            const birdTouchingTopPipe = birdBottom > gapTop
+            const birdTouchingBottomPipe = birdTop < gapBottom
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitRightSide = true
+              console.log('🚨 EXTRA AGGRESSIVE - BIRD RIGHT EDGE PAST PIPE LEFT!', {
+                birdRight,
+                pipeLeft,
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe
               })
             }
           }
