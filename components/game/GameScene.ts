@@ -38,7 +38,6 @@ export class GameScene extends Phaser.Scene {
   private score: number = 0
   private isGameOver: boolean = false
   private isGameStarted: boolean = false
-  private isGameReady: boolean = false
   private startScreenElements: Phaser.GameObjects.GameObject[] = []
   private pipeTimer!: Phaser.Time.TimerEvent
   private flapSound!: Phaser.Sound.BaseSound
@@ -157,7 +156,6 @@ export class GameScene extends Phaser.Scene {
     this.score = 0
     this.isGameOver = false
     this.isGameStarted = false
-    this.isGameReady = false
     this.scoredPipes.clear()
     this.activePipes = []
     this.lastPipeSpawnTime = 0
@@ -331,40 +329,32 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Title removed - keeping only character and start button
-
-    // Create start button
-    const startButton = this.add.rectangle(400, 440, 200, 60, 0x00ff00)
-    startButton.setScrollFactor(0)
-    startButton.setInteractive()
-    startButton.setStrokeStyle(4, 0x000000)
-    this.startScreenElements.push(startButton)
-
-    const startText = this.add.text(400, 440, 'START', {
-      fontSize: '32px',
-      color: '#000000',
+    // Add tap to start instruction text
+    const tapToStartText = this.add.text(400, 500, 'Tap anywhere to start', {
+      fontSize: '24px',
+      color: '#ffffff',
       fontFamily: 'Arial',
-      fontStyle: 'bold'
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3
     })
-    startText.setOrigin(0.5, 0.5)
-    startText.setScrollFactor(0)
-    this.startScreenElements.push(startText)
+    tapToStartText.setOrigin(0.5, 0.5)
+    tapToStartText.setScrollFactor(0)
+    this.startScreenElements.push(tapToStartText)
 
-    // Add hover effects
-    startButton.on('pointerover', () => {
-      startButton.setFillStyle(0x00cc00)
-    })
-
-    startButton.on('pointerout', () => {
-      startButton.setFillStyle(0x00ff00)
-    })
-
-    // Start game when clicked
-    startButton.on('pointerdown', () => {
-      this.startGame()
+    // Make the entire screen clickable to start the game
+    this.input.on('pointerdown', () => {
+      if (!this.isGameStarted) {
+        this.startGame()
+      }
     })
 
-    // Instructions removed - keeping only character and start button
+    // Also listen for keyboard input to start
+    this.input.keyboard?.on('keydown', () => {
+      if (!this.isGameStarted) {
+        this.startGame()
+      }
+    })
   }
 
   private startGame() {
@@ -376,6 +366,9 @@ export class GameScene extends Phaser.Scene {
     })
     this.startScreenElements = []
 
+    // Remove start screen input listeners
+    this.input.removeAllListeners()
+
     // Emit game start quest event
     console.log('🎮 Game started - emitting game_start quest event')
     this.emitQuestEvent('game_start', { timestamp: Date.now() })
@@ -383,27 +376,9 @@ export class GameScene extends Phaser.Scene {
 
     // Background music is handled globally, no need to start here
 
-    // Initialize game but don't start gameplay yet
+    // Initialize game
     this.isGameStarted = true
-    this.isGameReady = false
     this.initializeGame()
-    
-    // Wait 2 seconds before game is truly ready
-    this.time.delayedCall(2000, () => {
-      if (!this.isGameOver) {
-        this.isGameReady = true
-        console.log('🎮 Game is now ready - pipes can spawn and bird can move')
-        
-        // Activate world gravity when game is ready
-        if (this.physics && this.physics.world) {
-          const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
-          this.physics.world.gravity.y = gravityValue
-          console.log('World gravity activated:', gravityValue)
-        }
-        
-        this.spawnPipe()
-      }
-    })
   }
 
   private resetGameState() {
@@ -412,7 +387,6 @@ export class GameScene extends Phaser.Scene {
     // Reset game flags
     this.isGameOver = false
     this.isGameStarted = false
-    this.isGameReady = false
     this.score = 0
     this.pipesPassed = 0
     this.difficultyLevel = 0
@@ -481,22 +455,17 @@ export class GameScene extends Phaser.Scene {
     // Clear any active pipes
     this.activePipes = []
     
-    // Reset world gravity to 0 for stable bird
+    // Reset world gravity to settings value
     if (this.physics && this.physics.world) {
-      this.physics.world.gravity.y = 0
-      console.log('World gravity reset to 0 for stable bird')
+      const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
+      this.physics.world.gravity.y = gravityValue
+      console.log('World gravity reset to:', gravityValue)
     }
     
     console.log('Game state reset complete')
   }
 
   private initializeGame() {
-    // Set world gravity to 0 initially - will be set when game is ready
-    if (this.physics && this.physics.world) {
-      this.physics.world.gravity.y = 0
-      console.log('World gravity set to 0 for stable bird')
-    }
-    
     // Create scrolling background for game
     this.createScrollingBackground()
     
@@ -602,7 +571,10 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-R', this.handleStart, this)
     this.input.keyboard?.on('keydown-ENTER', this.handleStart, this)
 
-    // Pipe spawning is now handled in startGame() with 2-second delay
+    // Start spawning first pipe after a delay
+    this.time.delayedCall(500, () => {
+      this.spawnPipe()
+    })
 
     // Load sounds
     this.loadSounds()
@@ -612,7 +584,7 @@ export class GameScene extends Phaser.Scene {
     // Update scrolling background (always running)
     this.updateScrollingBackground()
 
-    if (this.isGameOver || !this.isGameStarted || !this.isGameReady) return
+    if (this.isGameOver || !this.isGameStarted) return
 
     // Rotate bird based on velocity
     if (this.bird.body) {
@@ -847,10 +819,16 @@ export class GameScene extends Phaser.Scene {
   }
 
   private flap() {
-    if (this.isGameOver || !this.isGameStarted || !this.isGameReady) return
+    if (this.isGameOver || !this.isGameStarted) return
 
     if (this.bird.body) {
-      // Apply flap force to bird
+      // Set gravity on first flap to start the game properly
+      if ((this.bird.body as Phaser.Physics.Arcade.Body).gravity.y === 0) {
+        const gravityValue: number = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
+        ;(this.bird.body as Phaser.Physics.Arcade.Body).setGravityY(gravityValue)
+        console.log('Gravity activated on first flap:', gravityValue)
+      }
+      
       const flapForceValue: number = this.gameSettings?.flapForce || this.DEFAULT_FLAP_FORCE
       ;(this.bird.body as Phaser.Physics.Arcade.Body).setVelocityY(flapForceValue)
       
@@ -863,7 +841,7 @@ export class GameScene extends Phaser.Scene {
 
   private handleStart() {
     if (this.isGameOver) {
-      console.log('Starting new game...')
+      console.log('Restarting game - going back to start screen...')
       // Reset game state and go back to start screen
       this.resetGameState()
       this.createStartScreen()
