@@ -795,26 +795,31 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // COLLISION LOGIC: If bird is horizontally overlapping with pipe AND NOT in safe gap
-          if (birdRight > pipeLeft && birdLeft < pipeRight) {
-            if (!birdInSafeGap) {
+          // ULTRA SIMPLE COLLISION: Force collision if bird is anywhere near pipe
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+            // Check if bird is touching top or bottom pipe (not in safe gap)
+            const birdTouchingTopPipe = birdBottom > gapTop
+            const birdTouchingBottomPipe = birdTop < gapBottom
+            
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
               hitRightSide = true
-              console.log('🚨 SIMPLIFIED COLLISION - BIRD NOT IN SAFE GAP!', {
+              console.log('🚨 ULTRA SIMPLE COLLISION - BIRD TOUCHING PIPE!', {
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
                 birdInSafeGap,
-                birdLeft, birdRight, pipeLeft, pipeRight
+                birdX: this.bird.x,
+                pipeX: pipeSet.topPipe.x
               })
             }
           }
           
-          // EXTRA COLLISION: Force collision if bird is very close to pipe right edge
-          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
-          if (distanceToPipeRight < 10) { // Very close to pipe right edge
-            if (!birdInSafeGap) {
-              hitRightSide = true
-              console.log('🚨 EXTRA COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
-                distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
-              })
-            }
+          // FORCE COLLISION: If bird is past pipe right edge, always collide
+          if (this.bird.x > pipeRight) {
+            hitRightSide = true
+            console.log('🚨 FORCE COLLISION - BIRD PAST PIPE RIGHT EDGE!', {
+              birdX: this.bird.x,
+              pipeRight
+            })
           }
         }
 
