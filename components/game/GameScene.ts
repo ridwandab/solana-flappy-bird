@@ -767,7 +767,10 @@ export class GameScene extends Phaser.Scene {
                 width: pipeSet.topPipeCollision.width,
                 right: pipeRight
               },
-              bird: { x: this.bird.x, width: this.bird.width * this.bird.scaleX }
+              bird: { x: this.bird.x, width: this.bird.width * this.bird.scaleX },
+              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+              gapBounds: { top: gapTop, bottom: gapBottom },
+              birdInSafeGap: birdTop >= gapTop && birdBottom <= gapBottom
             })
           }
           
