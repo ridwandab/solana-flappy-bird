@@ -814,40 +814,29 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // PRECISE COLLISION: Only collide when bird actually touches the pipe
-          if ((birdOverlapsTopPipe || birdOverlapsBottomPipe) && !birdInSafeGap) {
-            hitTopPipe = birdOverlapsTopPipe
-            hitBottomPipe = birdOverlapsBottomPipe
-            hitRightSide = true
-            console.log('🚨 PRECISE COLLISION DETECTED!', {
-              birdOverlapsTopPipe,
-              birdOverlapsBottomPipe,
-              birdInSafeGap,
-              birdX: this.bird.x,
-              birdY: this.bird.y,
-              pipeX: pipeSet.topPipe.x,
-              hitTopPipe,
-              hitBottomPipe,
-              hitRightSide
-            })
-          }
+          // VISUAL COLLISION: Only collide when bird visually touches the pipe
+          // Use very precise collision detection that matches visual appearance
+          const visualCollisionMargin = 1 // Only 1 pixel margin for visual accuracy
           
-          // SAFETY COLLISION: Small margin to ensure no gaps in collision detection
-          const safetyMargin = 2 // Very small margin for safety
-          const birdTouchingTopPipeWithMargin = (birdBottom + safetyMargin) > pipeSet.topPipeCollision.y && 
-                                               (birdTop - safetyMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-          const birdTouchingBottomPipeWithMargin = (birdTop - safetyMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                                                  (birdBottom + safetyMargin) > pipeSet.bottomPipeCollision.y
+          const birdVisuallyTouchingTopPipe = (birdRight - visualCollisionMargin) > topPipeLeft && 
+                                             (birdLeft + visualCollisionMargin) < topPipeRight && 
+                                             (birdBottom - visualCollisionMargin) > topPipeTop && 
+                                             (birdTop + visualCollisionMargin) < topPipeBottom
           
-          if ((birdTouchingTopPipeWithMargin || birdTouchingBottomPipeWithMargin) && !birdInSafeGap) {
-            hitTopPipe = birdTouchingTopPipeWithMargin
-            hitBottomPipe = birdTouchingBottomPipeWithMargin
+          const birdVisuallyTouchingBottomPipe = (birdRight - visualCollisionMargin) > bottomPipeLeft && 
+                                                (birdLeft + visualCollisionMargin) < bottomPipeRight && 
+                                                (birdBottom - visualCollisionMargin) > bottomPipeTop && 
+                                                (birdTop + visualCollisionMargin) < bottomPipeBottom
+          
+          if ((birdVisuallyTouchingTopPipe || birdVisuallyTouchingBottomPipe) && !birdInSafeGap) {
+            hitTopPipe = birdVisuallyTouchingTopPipe
+            hitBottomPipe = birdVisuallyTouchingBottomPipe
             hitRightSide = true
-            console.log('🚨 SAFETY COLLISION DETECTED!', {
-              birdTouchingTopPipeWithMargin,
-              birdTouchingBottomPipeWithMargin,
+            console.log('🚨 VISUAL COLLISION DETECTED!', {
+              birdVisuallyTouchingTopPipe,
+              birdVisuallyTouchingBottomPipe,
               birdInSafeGap,
-              safetyMargin,
+              visualCollisionMargin,
               birdX: this.bird.x,
               birdY: this.bird.y,
               pipeX: pipeSet.topPipe.x,
@@ -1248,9 +1237,9 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Make collision area precise to match actual pipe shape
+    // Make collision area very precise to match actual pipe shape
     const collisionMarginLeft = 0 // No margin on left side
-    const collisionMarginRight = -20 // Extend collision area by 20 pixels to the right (minimal extension)
+    const collisionMarginRight = 0 // No extension to the right - match visual exactly
     const collisionMarginTop = 0 // No margin on top
     const collisionMarginBottom = 0 // No margin on bottom
     
