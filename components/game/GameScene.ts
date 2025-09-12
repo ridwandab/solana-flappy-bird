@@ -802,13 +802,13 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
-          // Use precise gap detection to match visual gap exactly
-          const gapTolerance = 0 // No tolerance - match visual gap exactly
-          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+          // Use small tolerance for better gameplay
+          const gapTolerance = 2 // Small tolerance for better gameplay
+          const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // VISUAL COLLISION: Match collision exactly with visual pipe
-          // Use negative margin to make collision more precise and match visual pipe
-          const fineTuneMargin = -2 // Negative margin to make collision more precise
+          // Use small positive margin to prevent premature collision
+          const fineTuneMargin = 2 // Small positive margin to prevent premature collision
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
