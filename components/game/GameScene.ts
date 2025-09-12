@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 120  // Gap between pipes (adjusted for better gameplay balance)
-  private readonly MIN_PIPE_GAP = 120   // Consistent gap - no variation for fairness
+  private readonly BASE_PIPE_GAP = 160  // Gap between pipes (increased for easier gameplay)
+  private readonly MIN_PIPE_GAP = 160   // Consistent gap - no variation for fairness
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -1203,7 +1203,7 @@ export class GameScene extends Phaser.Scene {
   private spawnPipe() {
     if (this.isGameOver) return
 
-    const gap = this.BASE_PIPE_GAP // Use consistent gap size
+    const gap = this.getCurrentPipeGap() // Use dynamic gap size based on difficulty
     // Calculate pipe height to ensure pipes touch top and bottom of game area
     const gameHeight = 780 // Game height
     
