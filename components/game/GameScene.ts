@@ -781,23 +781,27 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // ULTRA SIMPLE COLLISION: Just check if bird is in pipe area horizontally
+          // BALANCED COLLISION: Check if bird is actually overlapping with pipe
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is touching the top pipe (above gap)
-            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
-                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
+            // Add small margin to make collision more forgiving
+            const collisionMargin = 5
             
-            // Check if bird is touching the bottom pipe (below gap)
-            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                                          birdBottom > pipeSet.bottomPipeCollision.y
+            // Check if bird is touching the top pipe (above gap) with margin
+            const birdTouchingTopPipe = (birdBottom - collisionMargin) > pipeSet.topPipeCollision.y && 
+                                       (birdTop + collisionMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
+            
+            // Check if bird is touching the bottom pipe (below gap) with margin
+            const birdTouchingBottomPipe = (birdTop + collisionMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                                          (birdBottom - collisionMargin) > pipeSet.bottomPipeCollision.y
             
             // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
             if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 ULTRA SIMPLE COLLISION CHECK:', {
+              console.log('🔍 BALANCED COLLISION CHECK:', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdLeft, birdRight, pipeLeft, pipeRight,
                 birdTop, birdBottom,
+                collisionMargin,
                 topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
                 bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
                 willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
@@ -809,7 +813,7 @@ export class GameScene extends Phaser.Scene {
               hitTopPipe = birdTouchingTopPipe
               hitBottomPipe = birdTouchingBottomPipe
               hitRightSide = true
-              console.log('🚨 ULTRA SIMPLE COLLISION DETECTED!', {
+              console.log('🚨 BALANCED COLLISION DETECTED!', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdX: this.bird.x,
@@ -822,29 +826,6 @@ export class GameScene extends Phaser.Scene {
             }
           }
           
-          // EMERGENCY COLLISION: Force collision if bird is anywhere near pipe
-          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-          if (distanceToPipe < 100) { // Within 100 pixels of pipe
-            // Check if bird is vertically overlapping with pipe area
-            const birdInPipeVerticalArea = (this.bird.y < pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) || 
-                                         (this.bird.y > pipeSet.bottomPipeCollision.y)
-            
-            if (birdInPipeVerticalArea) {
-              hitTopPipe = this.bird.y < pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
-              hitBottomPipe = this.bird.y > pipeSet.bottomPipeCollision.y
-              hitRightSide = true
-              console.log('🚨 EMERGENCY COLLISION FORCED!', {
-                distanceToPipe,
-                birdInPipeVerticalArea,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
-                hitTopPipe,
-                hitBottomPipe,
-                hitRightSide
-              })
-            }
-          }
           
         }
 
