@@ -781,45 +781,52 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // ACCURATE COLLISION: Check if bird is actually overlapping with pipe collision area
-          if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is overlapping with top pipe (above gap)
-            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
-                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-            
-            // Check if bird is overlapping with bottom pipe (below gap)
-            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                                          birdBottom > pipeSet.bottomPipeCollision.y
-            
-            // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
-            if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 ACCURATE COLLISION CHECK:', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
-                birdLeft, birdRight, pipeLeft, pipeRight,
-                birdTop, birdBottom,
-                topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
-                bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
-                willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
-              })
-            }
-            
-            // COLLISION: If bird is overlapping with either pipe, it's a collision
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
-              hitTopPipe = birdTouchingTopPipe
-              hitBottomPipe = birdTouchingBottomPipe
-              hitRightSide = true
-              console.log('🚨 ACCURATE COLLISION DETECTED!', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
-                hitTopPipe,
-                hitBottomPipe,
-                hitRightSide
-              })
-            }
+          // DIRECT COLLISION: Use collision bounds directly
+          const topPipeLeft = pipeSet.topPipeCollision.x
+          const topPipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
+          const topPipeTop = pipeSet.topPipeCollision.y
+          const topPipeBottom = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
+          
+          const bottomPipeLeft = pipeSet.bottomPipeCollision.x
+          const bottomPipeRight = pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width
+          const bottomPipeTop = pipeSet.bottomPipeCollision.y
+          const bottomPipeBottom = pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height
+          
+          // Check if bird overlaps with top pipe collision area
+          const birdOverlapsTopPipe = birdLeft < topPipeRight && birdRight > topPipeLeft && 
+                                     birdTop < topPipeBottom && birdBottom > topPipeTop
+          
+          // Check if bird overlaps with bottom pipe collision area
+          const birdOverlapsBottomPipe = birdLeft < bottomPipeRight && birdRight > bottomPipeLeft && 
+                                        birdTop < bottomPipeBottom && birdBottom > bottomPipeTop
+          
+          // ALWAYS LOG WHEN BIRD IS NEAR PIPE
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+            console.log('🔍 DIRECT COLLISION CHECK:', {
+              birdOverlapsTopPipe,
+              birdOverlapsBottomPipe,
+              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+              topPipeBounds: { left: topPipeLeft, right: topPipeRight, top: topPipeTop, bottom: topPipeBottom },
+              bottomPipeBounds: { left: bottomPipeLeft, right: bottomPipeRight, top: bottomPipeTop, bottom: bottomPipeBottom },
+              willCollide: birdOverlapsTopPipe || birdOverlapsBottomPipe
+            })
+          }
+          
+          // COLLISION: If bird overlaps with either pipe, it's a collision
+          if (birdOverlapsTopPipe || birdOverlapsBottomPipe) {
+            hitTopPipe = birdOverlapsTopPipe
+            hitBottomPipe = birdOverlapsBottomPipe
+            hitRightSide = true
+            console.log('🚨 DIRECT COLLISION DETECTED!', {
+              birdOverlapsTopPipe,
+              birdOverlapsBottomPipe,
+              birdX: this.bird.x,
+              birdY: this.bird.y,
+              pipeX: pipeSet.topPipe.x,
+              hitTopPipe,
+              hitBottomPipe,
+              hitRightSide
+            })
           }
           
         }
