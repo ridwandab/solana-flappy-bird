@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = -1000 // Negative margin for ultra-precise collision
+        const birdCollisionMargin = -5000 // Negative margin for ultra-precise collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -803,12 +803,12 @@ export class GameScene extends Phaser.Scene {
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
           // Use extremely large tolerance for better gameplay
-          const gapTolerance = 10000 // Extremely large tolerance for better gameplay
+          const gapTolerance = 50000 // Extremely large tolerance for better gameplay
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // ULTRA-PRECISE COLLISION: Match collision exactly with visual pipe
           // Use extremely large positive margin to prevent premature collision
-          const fineTuneMargin = 10000 // Extremely large positive margin to prevent premature collision
+          const fineTuneMargin = 50000 // Extremely large positive margin to prevent premature collision
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -863,30 +863,33 @@ export class GameScene extends Phaser.Scene {
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
             // Additional safety check: only collide if bird is extremely close to pipe
             const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-            if (distanceToPipe < 0.000001) { // Only collide if bird is within 0.000001px of pipe
+            if (distanceToPipe < 0.0000001) { // Only collide if bird is within 0.0000001px of pipe
               // Additional visual check: only collide if bird is actually touching pipe visually
               const birdTouchingPipe = (birdRight > topPipeLeft && birdLeft < topPipeRight) || 
                                      (birdRight > bottomPipeLeft && birdLeft < bottomPipeRight)
               // Additional check: bird must be very close to pipe horizontally
-              const birdCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.00001 || Math.abs(birdLeft - topPipeRight) < 0.00001
+              const birdCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.000001 || Math.abs(birdLeft - topPipeRight) < 0.000001
               // Additional check: bird must be very close to pipe vertically
-              const birdCloseToPipeVertically = Math.abs(birdTop - topPipeBottom) < 0.00001 || Math.abs(birdBottom - bottomPipeTop) < 0.00001
+              const birdCloseToPipeVertically = Math.abs(birdTop - topPipeBottom) < 0.000001 || Math.abs(birdBottom - bottomPipeTop) < 0.000001
               // Additional check: bird must be very close to pipe diagonally
-              const birdCloseToPipeDiagonally = Math.abs(birdRight - topPipeLeft) < 0.00001 || Math.abs(birdLeft - topPipeRight) < 0.00001 || 
-                                              Math.abs(birdTop - topPipeBottom) < 0.00001 || Math.abs(birdBottom - bottomPipeTop) < 0.00001
+              const birdCloseToPipeDiagonally = Math.abs(birdRight - topPipeLeft) < 0.000001 || Math.abs(birdLeft - topPipeRight) < 0.000001 || 
+                                              Math.abs(birdTop - topPipeBottom) < 0.000001 || Math.abs(birdBottom - bottomPipeTop) < 0.000001
               // Additional check: bird must be extremely close to pipe in all directions
-              const birdExtremelyCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.000001 || Math.abs(birdLeft - topPipeRight) < 0.000001 || 
-                                             Math.abs(birdTop - topPipeBottom) < 0.000001 || Math.abs(birdBottom - bottomPipeTop) < 0.000001
+              const birdExtremelyCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.0000001 || Math.abs(birdLeft - topPipeRight) < 0.0000001 || 
+                                             Math.abs(birdTop - topPipeBottom) < 0.0000001 || Math.abs(birdBottom - bottomPipeTop) < 0.0000001
               // Additional check: bird must be ultra close to pipe in all directions
-              const birdUltraCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.0000001 || Math.abs(birdLeft - topPipeRight) < 0.0000001 || 
-                                         Math.abs(birdTop - topPipeBottom) < 0.0000001 || Math.abs(birdBottom - bottomPipeTop) < 0.0000001
+              const birdUltraCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.00000001 || Math.abs(birdLeft - topPipeRight) < 0.00000001 || 
+                                         Math.abs(birdTop - topPipeBottom) < 0.00000001 || Math.abs(birdBottom - bottomPipeTop) < 0.00000001
               // Additional check: bird must be mega close to pipe in all directions
-              const birdMegaCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.00000001 || Math.abs(birdLeft - topPipeRight) < 0.00000001 || 
-                                        Math.abs(birdTop - topPipeBottom) < 0.00000001 || Math.abs(birdBottom - bottomPipeTop) < 0.00000001
-              // Additional check: bird must be giga close to pipe in all directions
-              const birdGigaCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.000000001 || Math.abs(birdLeft - topPipeRight) < 0.000000001 || 
+              const birdMegaCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.000000001 || Math.abs(birdLeft - topPipeRight) < 0.000000001 || 
                                         Math.abs(birdTop - topPipeBottom) < 0.000000001 || Math.abs(birdBottom - bottomPipeTop) < 0.000000001
-              if (birdTouchingPipe && birdCloseToPipe && birdCloseToPipeVertically && birdCloseToPipeDiagonally && birdExtremelyCloseToPipe && birdUltraCloseToPipe && birdMegaCloseToPipe && birdGigaCloseToPipe) {
+              // Additional check: bird must be giga close to pipe in all directions
+              const birdGigaCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.0000000001 || Math.abs(birdLeft - topPipeRight) < 0.0000000001 || 
+                                        Math.abs(birdTop - topPipeBottom) < 0.0000000001 || Math.abs(birdBottom - bottomPipeTop) < 0.0000000001
+              // Additional check: bird must be tera close to pipe in all directions
+              const birdTeraCloseToPipe = Math.abs(birdRight - topPipeLeft) < 0.00000000001 || Math.abs(birdLeft - topPipeRight) < 0.00000000001 || 
+                                        Math.abs(birdTop - topPipeBottom) < 0.00000000001 || Math.abs(birdBottom - bottomPipeTop) < 0.00000000001
+              if (birdTouchingPipe && birdCloseToPipe && birdCloseToPipeVertically && birdCloseToPipeDiagonally && birdExtremelyCloseToPipe && birdUltraCloseToPipe && birdMegaCloseToPipe && birdGigaCloseToPipe && birdTeraCloseToPipe) {
                 hitTopPipe = birdOverlapsTopPipeVisually
                 hitBottomPipe = birdOverlapsBottomPipeVisually
                 hitRightSide = true
@@ -905,6 +908,7 @@ export class GameScene extends Phaser.Scene {
                   birdUltraCloseToPipe,
                   birdMegaCloseToPipe,
                   birdGigaCloseToPipe,
+                  birdTeraCloseToPipe,
                   birdX: this.bird.x,
                   birdY: this.bird.y,
                   pipeX: pipeSet.topPipe.x,
@@ -932,6 +936,7 @@ export class GameScene extends Phaser.Scene {
                   birdUltraCloseToPipe,
                   birdMegaCloseToPipe,
                   birdGigaCloseToPipe,
+                  birdTeraCloseToPipe,
                   distanceToPipe,
                   birdRight,
                   birdLeft,
