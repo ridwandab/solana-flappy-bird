@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = -5 // Negative margin for ultra-precise collision
+        const birdCollisionMargin = -10 // Negative margin for ultra-precise collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -803,12 +803,12 @@ export class GameScene extends Phaser.Scene {
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
           // Use extremely large tolerance for better gameplay
-          const gapTolerance = 50 // Extremely large tolerance for better gameplay
+          const gapTolerance = 100 // Extremely large tolerance for better gameplay
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // ULTRA-PRECISE COLLISION: Match collision exactly with visual pipe
           // Use extremely large positive margin to prevent premature collision
-          const fineTuneMargin = 50 // Extremely large positive margin to prevent premature collision
+          const fineTuneMargin = 100 // Extremely large positive margin to prevent premature collision
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -863,11 +863,13 @@ export class GameScene extends Phaser.Scene {
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
             // Additional safety check: only collide if bird is extremely close to pipe
             const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-            if (distanceToPipe < 1) { // Only collide if bird is within 1px of pipe
+            if (distanceToPipe < 0.5) { // Only collide if bird is within 0.5px of pipe
               // Additional visual check: only collide if bird is actually touching pipe visually
               const birdTouchingPipe = (birdRight > topPipeLeft && birdLeft < topPipeRight) || 
                                      (birdRight > bottomPipeLeft && birdLeft < bottomPipeRight)
-              if (birdTouchingPipe) {
+              // Additional check: bird must be very close to pipe horizontally
+              const birdCloseToPipe = Math.abs(birdRight - topPipeLeft) < 5 || Math.abs(birdLeft - topPipeRight) < 5
+              if (birdTouchingPipe && birdCloseToPipe) {
                 hitTopPipe = birdOverlapsTopPipeVisually
                 hitBottomPipe = birdOverlapsBottomPipeVisually
                 hitRightSide = true
@@ -879,15 +881,28 @@ export class GameScene extends Phaser.Scene {
                   gapTolerance,
                   distanceToPipe,
                   birdTouchingPipe,
+                  birdCloseToPipe,
                   birdX: this.bird.x,
                   birdY: this.bird.y,
                   pipeX: pipeSet.topPipe.x,
+                  birdRight,
+                  birdLeft,
+                  topPipeLeft,
+                  topPipeRight,
                   hitTopPipe,
                   hitBottomPipe,
                   hitRightSide
                 })
               } else {
-                console.log('🚨 COLLISION CANCELLED - Bird not touching pipe visually:', { birdTouchingPipe, distanceToPipe })
+                console.log('🚨 COLLISION CANCELLED - Bird not touching pipe visually:', { 
+                  birdTouchingPipe, 
+                  birdCloseToPipe, 
+                  distanceToPipe,
+                  birdRight,
+                  birdLeft,
+                  topPipeLeft,
+                  topPipeRight
+                })
               }
             } else {
               console.log('🚨 COLLISION CANCELLED - Bird too far from pipe:', distanceToPipe)
