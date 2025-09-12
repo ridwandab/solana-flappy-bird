@@ -802,13 +802,17 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
-          // Add larger margin to gap for more forgiving gameplay
-          const gapTolerance = 3 // Larger tolerance for gap detection to prevent premature collision
-          const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
+          // Use precise gap detection to match visual gap exactly
+          const gapTolerance = 0 // No tolerance - match visual gap exactly
+          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+          
+          // VISUAL COLLISION: Match collision exactly with visual pipe
+          // Use negative margin to make collision more precise and match visual pipe
+          const fineTuneMargin = -2 // Negative margin to make collision more precise
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-            console.log('🔍 GAP DETECTION DEBUG:', {
+            console.log('🔍 VISUAL COLLISION DEBUG:', {
               gapTop,
               gapBottom,
               birdTop,
@@ -818,7 +822,16 @@ export class GameScene extends Phaser.Scene {
               birdHeight: birdBottom - birdTop,
               birdX: this.bird.x,
               birdY: this.bird.y,
-              pipeX: pipeSet.topPipe.x
+              pipeX: pipeSet.topPipe.x,
+              topPipeLeft,
+              topPipeRight,
+              topPipeTop,
+              topPipeBottom,
+              bottomPipeLeft,
+              bottomPipeRight,
+              bottomPipeTop,
+              bottomPipeBottom,
+              fineTuneMargin
             })
           }
           
@@ -834,10 +847,6 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // FORGIVING COLLISION: Use larger margin to prevent premature game over
-          // Add margin to make collision more forgiving and prevent premature game over
-          const fineTuneMargin = 5 // Larger margin to prevent premature collision
-          
           // Check if bird overlaps with top pipe (with tiny margin)
           const birdOverlapsTopPipeVisually = (birdRight - fineTuneMargin) > topPipeLeft && 
                                              (birdLeft + fineTuneMargin) < topPipeRight && 
@@ -852,29 +861,22 @@ export class GameScene extends Phaser.Scene {
           
           // Only collide if bird visually overlaps with pipe AND is not in safe gap
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
-            // Additional safety check: only collide if bird is very close to pipe
-            const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-            if (distanceToPipe < 30) { // Only collide if bird is within 30px of pipe
-              hitTopPipe = birdOverlapsTopPipeVisually
-              hitBottomPipe = birdOverlapsBottomPipeVisually
-              hitRightSide = true
-              console.log('🚨 FORGIVING COLLISION DETECTED!', {
-                birdOverlapsTopPipeVisually,
-                birdOverlapsBottomPipeVisually,
-                birdInSafeGap,
-                fineTuneMargin,
-                gapTolerance,
-                distanceToPipe,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
-                hitTopPipe,
-                hitBottomPipe,
-                hitRightSide
-              })
-            } else {
-              console.log('🚨 COLLISION CANCELLED - Bird too far from pipe:', distanceToPipe)
-            }
+            hitTopPipe = birdOverlapsTopPipeVisually
+            hitBottomPipe = birdOverlapsBottomPipeVisually
+            hitRightSide = true
+            console.log('🚨 VISUAL COLLISION DETECTED!', {
+              birdOverlapsTopPipeVisually,
+              birdOverlapsBottomPipeVisually,
+              birdInSafeGap,
+              fineTuneMargin,
+              gapTolerance,
+              birdX: this.bird.x,
+              birdY: this.bird.y,
+              pipeX: pipeSet.topPipe.x,
+              hitTopPipe,
+              hitBottomPipe,
+              hitRightSide
+            })
           }
           
         }
