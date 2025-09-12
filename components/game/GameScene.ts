@@ -814,12 +814,12 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // COLLISION: If bird overlaps with either pipe AND is NOT in safe gap, it's a collision
+          // PRECISE COLLISION: Only collide when bird actually touches the pipe
           if ((birdOverlapsTopPipe || birdOverlapsBottomPipe) && !birdInSafeGap) {
             hitTopPipe = birdOverlapsTopPipe
             hitBottomPipe = birdOverlapsBottomPipe
             hitRightSide = true
-            console.log('🚨 DIRECT COLLISION DETECTED!', {
+            console.log('🚨 PRECISE COLLISION DETECTED!', {
               birdOverlapsTopPipe,
               birdOverlapsBottomPipe,
               birdInSafeGap,
@@ -832,42 +832,25 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // FORCE COLLISION: If bird is anywhere near pipe horizontally, force collision
-          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-          if (distanceToPipe < 60) { // Within 60 pixels of pipe
-            // Force collision if bird is in pipe vertical area
-            const birdInTopPipeArea = this.bird.y < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-            const birdInBottomPipeArea = this.bird.y > pipeSet.bottomPipeCollision.y
-            
-            if (birdInTopPipeArea || birdInBottomPipeArea) {
-              hitTopPipe = birdInTopPipeArea
-              hitBottomPipe = birdInBottomPipeArea
-              hitRightSide = true
-              console.log('🚨 FORCE COLLISION TRIGGERED!', {
-                distanceToPipe,
-                birdInTopPipeArea,
-                birdInBottomPipeArea,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
-                hitTopPipe,
-                hitBottomPipe,
-                hitRightSide
-              })
-            }
-          }
+          // SAFETY COLLISION: Small margin to ensure no gaps in collision detection
+          const safetyMargin = 2 // Very small margin for safety
+          const birdTouchingTopPipeWithMargin = (birdBottom + safetyMargin) > pipeSet.topPipeCollision.y && 
+                                               (birdTop - safetyMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
+          const birdTouchingBottomPipeWithMargin = (birdTop - safetyMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                                                  (birdBottom + safetyMargin) > pipeSet.bottomPipeCollision.y
           
-          // EXTREME COLLISION: Force collision if bird is anywhere near pipe
-          if (Math.abs(this.bird.x - pipeSet.topPipe.x) < 80) { // Within 80 pixels of pipe
-            // Force collision regardless of vertical position
-            hitTopPipe = true
-            hitBottomPipe = true
+          if ((birdTouchingTopPipeWithMargin || birdTouchingBottomPipeWithMargin) && !birdInSafeGap) {
+            hitTopPipe = birdTouchingTopPipeWithMargin
+            hitBottomPipe = birdTouchingBottomPipeWithMargin
             hitRightSide = true
-            console.log('🚨 EXTREME COLLISION FORCED!', {
+            console.log('🚨 SAFETY COLLISION DETECTED!', {
+              birdTouchingTopPipeWithMargin,
+              birdTouchingBottomPipeWithMargin,
+              birdInSafeGap,
+              safetyMargin,
               birdX: this.bird.x,
               birdY: this.bird.y,
               pipeX: pipeSet.topPipe.x,
-              distance: Math.abs(this.bird.x - pipeSet.topPipe.x),
               hitTopPipe,
               hitBottomPipe,
               hitRightSide
@@ -1265,11 +1248,11 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size
-    // Make collision area much wider to the right to prevent character from passing through
-    const collisionMarginLeft = 5 // Reduce collision area by 5 pixels on left side
-    const collisionMarginRight = -100 // Extend collision area by 100 pixels to the right (increased for proper collision)
-    const collisionMarginTop = 5 // Reduce collision area by 5 pixels on top
-    const collisionMarginBottom = 5 // Reduce collision area by 5 pixels on bottom
+    // Make collision area precise to match actual pipe shape
+    const collisionMarginLeft = 0 // No margin on left side
+    const collisionMarginRight = -20 // Extend collision area by 20 pixels to the right (minimal extension)
+    const collisionMarginTop = 0 // No margin on top
+    const collisionMarginBottom = 0 // No margin on bottom
     
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMarginLeft, 
