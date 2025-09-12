@@ -781,39 +781,35 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // BALANCED COLLISION: Check if bird is actually overlapping with pipe
+          // SIMPLE COLLISION: Direct overlap check without margins
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Add small margin to make collision more forgiving
-            const collisionMargin = 5
+            // Check if bird is overlapping with top pipe (above gap)
+            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
+                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
             
-            // Check if bird is touching the top pipe (above gap) with margin
-            const birdTouchingTopPipe = (birdBottom - collisionMargin) > pipeSet.topPipeCollision.y && 
-                                       (birdTop + collisionMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-            
-            // Check if bird is touching the bottom pipe (below gap) with margin
-            const birdTouchingBottomPipe = (birdTop + collisionMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                                          (birdBottom - collisionMargin) > pipeSet.bottomPipeCollision.y
+            // Check if bird is overlapping with bottom pipe (below gap)
+            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                                          birdBottom > pipeSet.bottomPipeCollision.y
             
             // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
             if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 BALANCED COLLISION CHECK:', {
+              console.log('🔍 SIMPLE COLLISION CHECK:', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdLeft, birdRight, pipeLeft, pipeRight,
                 birdTop, birdBottom,
-                collisionMargin,
                 topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
                 bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
                 willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
               })
             }
             
-            // COLLISION: If bird is touching either pipe, it's a collision
+            // COLLISION: If bird is overlapping with either pipe, it's a collision
             if (birdTouchingTopPipe || birdTouchingBottomPipe) {
               hitTopPipe = birdTouchingTopPipe
               hitBottomPipe = birdTouchingBottomPipe
               hitRightSide = true
-              console.log('🚨 BALANCED COLLISION DETECTED!', {
+              console.log('🚨 SIMPLE COLLISION DETECTED!', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdX: this.bird.x,
@@ -826,6 +822,30 @@ export class GameScene extends Phaser.Scene {
             }
           }
           
+          // FORCE COLLISION: If bird is anywhere near pipe horizontally, check for collision
+          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
+          if (distanceToPipe < 50) { // Within 50 pixels of pipe
+            // Force collision if bird is in pipe vertical area
+            const birdInTopPipeArea = this.bird.y < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
+            const birdInBottomPipeArea = this.bird.y > pipeSet.bottomPipeCollision.y
+            
+            if (birdInTopPipeArea || birdInBottomPipeArea) {
+              hitTopPipe = birdInTopPipeArea
+              hitBottomPipe = birdInBottomPipeArea
+              hitRightSide = true
+              console.log('🚨 FORCE COLLISION TRIGGERED!', {
+                distanceToPipe,
+                birdInTopPipeArea,
+                birdInBottomPipeArea,
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeX: pipeSet.topPipe.x,
+                hitTopPipe,
+                hitBottomPipe,
+                hitRightSide
+              })
+            }
+          }
           
         }
 
