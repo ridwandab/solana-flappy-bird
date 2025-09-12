@@ -769,92 +769,54 @@ export class GameScene extends Phaser.Scene {
           const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
           const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdCollisionMargin
           
-          // Check if bird is in the safe gap (between top and bottom pipes)
-          // Gap is safe - bird can pass through vertically
-          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
-          
           // AGGRESSIVE DEBUG LOGGING - Always log when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 AGGRESSIVE COLLISION DEBUG:', {
               pipeBounds: { left: pipeLeft, right: pipeRight, width: pipeSet.topPipeCollision.width },
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapBounds: { top: gapTop, bottom: gapBottom },
-              birdInSafeGap,
               birdX: this.bird.x,
               pipeX: pipeSet.topPipe.x,
               collisionRect: pipeSet.topPipeCollision
             })
           }
           
-          // SIMPLIFIED COLLISION: Only collide if bird is NOT in safe gap
-          // ALWAYS LOG OVERLAP CHECK
-          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-            console.log('🔍 SIMPLIFIED COLLISION CHECK:', {
-              birdInSafeGap,
-              birdLeft, birdRight, pipeLeft, pipeRight,
-              gapTop, gapBottom, birdTop, birdBottom
-            })
-          }
-          
-          // ULTRA AGGRESSIVE COLLISION: Prevent all pipe penetration
+          // DIRECT COLLISION CHECK: Check if bird overlaps with pipe collision area
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is in the safe gap (between top and bottom pipes)
-            const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+            // Check if bird is touching the top pipe (above gap)
+            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
+                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
+            
+            // Check if bird is touching the bottom pipe (below gap)
+            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                                          birdBottom > pipeSet.bottomPipeCollision.y
             
             // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
-            console.log('🔍 BIRD IN PIPE AREA - CHECKING COLLISION:', {
-              birdInSafeGap,
-              birdLeft, birdRight, pipeLeft, pipeRight,
-              gapTop, gapBottom, birdTop, birdBottom,
-              willCollide: !birdInSafeGap
-            })
-            
-            // ULTRA AGGRESSIVE: Force collision if bird is NOT in the safe gap
-            if (!birdInSafeGap) {
-              hitRightSide = true
-              console.log('🚨 ULTRA AGGRESSIVE COLLISION - BIRD NOT IN SAFE GAP!', {
-                birdInSafeGap,
+            if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+              console.log('🔍 DIRECT COLLISION CHECK:', {
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
                 birdLeft, birdRight, pipeLeft, pipeRight,
-                gapTop, gapBottom, birdTop, birdBottom
+                birdTop, birdBottom,
+                topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
+                bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
+                willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
               })
             }
-          }
-          
-          // EXTRA AGGRESSIVE COLLISION: Force collision if bird is very close to pipe right edge
-          const distanceToPipeRight = Math.abs(birdRight - pipeRight)
-          if (distanceToPipeRight < 50) { // Increased from 20 to 50
-            if (!birdInSafeGap) {
-              hitRightSide = true
-              console.log('🚨 EXTRA AGGRESSIVE COLLISION - BIRD VERY CLOSE TO PIPE RIGHT EDGE!', {
-                distanceToPipeRight, birdRight, pipeRight, birdInSafeGap
-              })
-            }
-          }
-          
-          // ULTRA STRICT COLLISION: Force collision if bird is anywhere near pipe horizontally
-          if (birdRight > pipeLeft && birdLeft < pipeRight) {
-            // Check if bird is touching top pipe
-            const birdTouchingTopPipe = birdTop <= gapTop
-            // Check if bird is touching bottom pipe  
-            const birdTouchingBottomPipe = birdBottom >= gapBottom
             
+            // COLLISION: If bird is touching either pipe, it's a collision
             if (birdTouchingTopPipe || birdTouchingBottomPipe) {
               hitRightSide = true
-              console.log('🚨 ULTRA STRICT COLLISION - BIRD TOUCHING PIPE!', {
-                birdTouchingTopPipe, birdTouchingBottomPipe,
-                birdTop, birdBottom, gapTop, gapBottom
+              console.log('🚨 COLLISION DETECTED!', {
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeX: pipeSet.topPipe.x
               })
             }
           }
           
-          // DEBUG: Log when bird is in pipe area but collision is disabled
-          if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            console.log('🔍 BIRD IN PIPE AREA - COLLISION DISABLED FOR TESTING:', {
-              birdInSafeGap,
-              birdLeft, birdRight, pipeLeft, pipeRight,
-              gapTop, gapBottom, birdTop, birdBottom
-            })
-          }
         }
 
         if (hitTopPipe || hitBottomPipe || hitRightSide) {
