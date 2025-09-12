@@ -781,7 +781,7 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // DIRECT COLLISION CHECK: Check if bird overlaps with pipe collision area
+          // ULTRA SIMPLE COLLISION: Just check if bird is in pipe area horizontally
           if (birdLeft < pipeRight && birdRight > pipeLeft) {
             // Check if bird is touching the top pipe (above gap)
             const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
@@ -793,7 +793,7 @@ export class GameScene extends Phaser.Scene {
             
             // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
             if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 DIRECT COLLISION CHECK:', {
+              console.log('🔍 ULTRA SIMPLE COLLISION CHECK:', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdLeft, birdRight, pipeLeft, pipeRight,
@@ -806,13 +806,42 @@ export class GameScene extends Phaser.Scene {
             
             // COLLISION: If bird is touching either pipe, it's a collision
             if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitTopPipe = birdTouchingTopPipe
+              hitBottomPipe = birdTouchingBottomPipe
               hitRightSide = true
-              console.log('🚨 COLLISION DETECTED!', {
+              console.log('🚨 ULTRA SIMPLE COLLISION DETECTED!', {
                 birdTouchingTopPipe,
                 birdTouchingBottomPipe,
                 birdX: this.bird.x,
                 birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x
+                pipeX: pipeSet.topPipe.x,
+                hitTopPipe,
+                hitBottomPipe,
+                hitRightSide
+              })
+            }
+          }
+          
+          // EMERGENCY COLLISION: Force collision if bird is anywhere near pipe
+          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
+          if (distanceToPipe < 100) { // Within 100 pixels of pipe
+            // Check if bird is vertically overlapping with pipe area
+            const birdInPipeVerticalArea = (this.bird.y < pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) || 
+                                         (this.bird.y > pipeSet.bottomPipeCollision.y)
+            
+            if (birdInPipeVerticalArea) {
+              hitTopPipe = this.bird.y < pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
+              hitBottomPipe = this.bird.y > pipeSet.bottomPipeCollision.y
+              hitRightSide = true
+              console.log('🚨 EMERGENCY COLLISION FORCED!', {
+                distanceToPipe,
+                birdInPipeVerticalArea,
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeX: pipeSet.topPipe.x,
+                hitTopPipe,
+                hitBottomPipe,
+                hitRightSide
               })
             }
           }
