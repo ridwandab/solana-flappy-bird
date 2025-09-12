@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 3 // Reduced margin for more precise collision
+        const birdCollisionMargin = 1 // Very small margin for precise collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -802,13 +802,13 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
-          // Use larger tolerance for better gameplay
-          const gapTolerance = 5 // Larger tolerance for better gameplay
+          // Use very large tolerance for better gameplay
+          const gapTolerance = 10 // Very large tolerance for better gameplay
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
-          // VISUAL COLLISION: Match collision exactly with visual pipe
-          // Use larger positive margin to prevent premature collision from left side
-          const fineTuneMargin = 8 // Larger positive margin to prevent premature collision from left side
+          // PRECISE COLLISION: Match collision exactly with visual pipe
+          // Use very large positive margin to prevent premature collision
+          const fineTuneMargin = 15 // Very large positive margin to prevent premature collision
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -863,7 +863,7 @@ export class GameScene extends Phaser.Scene {
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
             // Additional safety check: only collide if bird is very close to pipe
             const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-            if (distanceToPipe < 20) { // Only collide if bird is within 20px of pipe
+            if (distanceToPipe < 10) { // Only collide if bird is within 10px of pipe
               hitTopPipe = birdOverlapsTopPipeVisually
               hitBottomPipe = birdOverlapsBottomPipeVisually
               hitRightSide = true
