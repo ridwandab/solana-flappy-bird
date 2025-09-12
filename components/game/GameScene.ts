@@ -802,6 +802,19 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
           
+          // DEBUG: Log gap information when bird is near pipe
+          if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+            console.log('🔍 GAP DETECTION DEBUG:', {
+              gapTop,
+              gapBottom,
+              birdTop,
+              birdBottom,
+              birdInSafeGap,
+              gapHeight: gapBottom - gapTop,
+              birdHeight: birdBottom - birdTop
+            })
+          }
+          
           // ALWAYS LOG WHEN BIRD IS NEAR PIPE
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 DIRECT COLLISION CHECK:', {
@@ -814,29 +827,38 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // VISUAL COLLISION: Only collide when bird visually touches the pipe
-          // Use very precise collision detection that matches visual appearance
-          const visualCollisionMargin = 1 // Only 1 pixel margin for visual accuracy
+          // IMPROVED COLLISION: Only collide when bird actually touches the pipe AND is not in safe gap
+          // Use precise collision detection with better gap handling
+          const collisionMargin = 2 // Small margin for visual accuracy
           
-          const birdVisuallyTouchingTopPipe = (birdRight - visualCollisionMargin) > topPipeLeft && 
-                                             (birdLeft + visualCollisionMargin) < topPipeRight && 
-                                             (birdBottom - visualCollisionMargin) > topPipeTop && 
-                                             (birdTop + visualCollisionMargin) < topPipeBottom
+          // Check if bird is touching top pipe (with margin)
+          const birdTouchingTopPipe = (birdRight - collisionMargin) > topPipeLeft && 
+                                     (birdLeft + collisionMargin) < topPipeRight && 
+                                     (birdBottom - collisionMargin) > topPipeTop && 
+                                     (birdTop + collisionMargin) < topPipeBottom
           
-          const birdVisuallyTouchingBottomPipe = (birdRight - visualCollisionMargin) > bottomPipeLeft && 
-                                                (birdLeft + visualCollisionMargin) < bottomPipeRight && 
-                                                (birdBottom - visualCollisionMargin) > bottomPipeTop && 
-                                                (birdTop + visualCollisionMargin) < bottomPipeBottom
+          // Check if bird is touching bottom pipe (with margin)
+          const birdTouchingBottomPipe = (birdRight - collisionMargin) > bottomPipeLeft && 
+                                        (birdLeft + collisionMargin) < bottomPipeRight && 
+                                        (birdBottom - collisionMargin) > bottomPipeTop && 
+                                        (birdTop + collisionMargin) < bottomPipeBottom
           
-          if ((birdVisuallyTouchingTopPipe || birdVisuallyTouchingBottomPipe) && !birdInSafeGap) {
-            hitTopPipe = birdVisuallyTouchingTopPipe
-            hitBottomPipe = birdVisuallyTouchingBottomPipe
+          // IMPROVED GAP DETECTION: Add margin to gap to make it more forgiving
+          const gapMargin = 5 // Add 5px margin to gap for better gameplay
+          const birdInSafeGapWithMargin = (birdTop + gapMargin) > gapTop && (birdBottom - gapMargin) < gapBottom
+          
+          // Only collide if bird is touching pipe AND not in safe gap (with margin)
+          if ((birdTouchingTopPipe || birdTouchingBottomPipe) && !birdInSafeGapWithMargin) {
+            hitTopPipe = birdTouchingTopPipe
+            hitBottomPipe = birdTouchingBottomPipe
             hitRightSide = true
-            console.log('🚨 VISUAL COLLISION DETECTED!', {
-              birdVisuallyTouchingTopPipe,
-              birdVisuallyTouchingBottomPipe,
+            console.log('🚨 IMPROVED COLLISION DETECTED!', {
+              birdTouchingTopPipe,
+              birdTouchingBottomPipe,
               birdInSafeGap,
-              visualCollisionMargin,
+              birdInSafeGapWithMargin,
+              collisionMargin,
+              gapMargin,
               birdX: this.bird.x,
               birdY: this.bird.y,
               pipeX: pipeSet.topPipe.x,
