@@ -1215,7 +1215,7 @@ export class GameScene extends Phaser.Scene {
     // Create invisible collision rectangles that match the visual pipe size
     // Make collision area much wider to the right to prevent character from passing through
     const collisionMarginLeft = 5 // Reduce collision area by 5 pixels on left side
-    const collisionMarginRight = -50 // Extend collision area by 50 pixels to the right (reduced for accuracy)
+    const collisionMarginRight = -100 // Extend collision area by 100 pixels to the right (increased for proper collision)
     const collisionMarginTop = 5 // Reduce collision area by 5 pixels on top
     const collisionMarginBottom = 5 // Reduce collision area by 5 pixels on bottom
     
@@ -1240,7 +1240,8 @@ export class GameScene extends Phaser.Scene {
       margins: { left: collisionMarginLeft, right: collisionMarginRight, top: collisionMarginTop, bottom: collisionMarginBottom },
       topPipeCollision: topPipeCollisionRect,
       bottomPipeCollision: bottomPipeCollisionRect,
-      totalWidth: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight)
+      totalWidth: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight),
+      rightExtension: Math.abs(collisionMarginRight)
     })
 
     // Create pipe set object
