@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 150  // Base gap between pipes
-  private readonly MIN_PIPE_GAP = 80    // Minimum gap (gets smaller over time)
+  private readonly BASE_PIPE_GAP = 120  // Consistent gap between pipes (reduced for better gameplay)
+  private readonly MIN_PIPE_GAP = 120   // Consistent gap - no variation for fairness
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -1144,36 +1144,14 @@ export class GameScene extends Phaser.Scene {
   private spawnPipe() {
     if (this.isGameOver) return
 
-    const gap = this.getCurrentPipeGap()
+    const gap = this.BASE_PIPE_GAP // Use consistent gap size
     // Calculate pipe height to ensure pipes touch top and bottom of game area
     const gameHeight = 780 // Game height
     
-    // Create more challenging gap positions - random between top, middle, and bottom
-    const gapPositions = [
-      { min: 80, max: 180, name: 'top' },       // Gap near top (very challenging)
-      { min: 200, max: 280, name: 'upper-middle' }, // Gap upper-middle (challenging)
-      { min: 300, max: 380, name: 'lower-middle' }, // Gap lower-middle (challenging)
-      { min: 420, max: 520, name: 'bottom' }    // Gap near bottom (very challenging)
-    ]
+    // Use consistent gap position for fairness - always middle
+    const pipeHeight = 300 // Fixed middle position for consistent gameplay
     
-    // Select gap position based on difficulty - higher difficulty = more extreme positions
-    let selectedGapType
-    if (this.difficultyLevel < 3) {
-      // Easy: mostly middle positions
-      const easyPositions = gapPositions.filter(pos => pos.name.includes('middle'))
-      selectedGapType = Phaser.Math.RND.pick(easyPositions)
-    } else if (this.difficultyLevel < 6) {
-      // Medium: mix of all positions
-      selectedGapType = Phaser.Math.RND.pick(gapPositions)
-    } else {
-      // Hard: mostly extreme positions (top and bottom)
-      const hardPositions = gapPositions.filter(pos => pos.name === 'top' || pos.name === 'bottom')
-      selectedGapType = Phaser.Math.RND.pick(hardPositions)
-    }
-    
-    const pipeHeight = Phaser.Math.Between(selectedGapType.min, selectedGapType.max)
-    
-    console.log(`🎯 Gap position: ${selectedGapType.name} (${pipeHeight}px from top) - Difficulty: ${this.difficultyLevel}`)
+    console.log(`🎯 Consistent gap position: middle (${pipeHeight}px from top) - Gap size: ${gap}px`)
     
     // Calculate consistent spawn position
     let x: number
@@ -1242,7 +1220,7 @@ export class GameScene extends Phaser.Scene {
     // Create invisible collision rectangles that match the visual pipe size
     // Make collision area much wider to the right to prevent character from passing through
     const collisionMarginLeft = 5 // Reduce collision area by 5 pixels on left side
-    const collisionMarginRight = -150 // Extend collision area by 150 pixels to the right (increased from 100)
+    const collisionMarginRight = -200 // Extend collision area by 200 pixels to the right (increased from 150)
     const collisionMarginTop = 5 // Reduce collision area by 5 pixels on top
     const collisionMarginBottom = 5 // Reduce collision area by 5 pixels on bottom
     
