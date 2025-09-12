@@ -802,7 +802,9 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
-          const birdInSafeGap = birdTop > gapTop && birdBottom < gapBottom
+          // Add tiny margin to gap for slightly more forgiving gameplay
+          const gapTolerance = 1 // Very small tolerance for gap detection
+          const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -832,30 +834,33 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // VISUAL COLLISION: Only collide when bird visually overlaps with pipe
-          // Use direct visual overlap detection without any margins
+          // FINE-TUNED COLLISION: Use very small margin for better gameplay
+          // Add tiny margin to make collision slightly more forgiving
+          const fineTuneMargin = 1 // Very small margin for fine-tuning
           
-          // Check if bird visually overlaps with top pipe
-          const birdOverlapsTopPipeVisually = birdRight > topPipeLeft && 
-                                             birdLeft < topPipeRight && 
-                                             birdBottom > topPipeTop && 
-                                             birdTop < topPipeBottom
+          // Check if bird overlaps with top pipe (with tiny margin)
+          const birdOverlapsTopPipeVisually = (birdRight - fineTuneMargin) > topPipeLeft && 
+                                             (birdLeft + fineTuneMargin) < topPipeRight && 
+                                             (birdBottom - fineTuneMargin) > topPipeTop && 
+                                             (birdTop + fineTuneMargin) < topPipeBottom
           
-          // Check if bird visually overlaps with bottom pipe
-          const birdOverlapsBottomPipeVisually = birdRight > bottomPipeLeft && 
-                                                birdLeft < bottomPipeRight && 
-                                                birdBottom > bottomPipeTop && 
-                                                birdTop < bottomPipeBottom
+          // Check if bird overlaps with bottom pipe (with tiny margin)
+          const birdOverlapsBottomPipeVisually = (birdRight - fineTuneMargin) > bottomPipeLeft && 
+                                                (birdLeft + fineTuneMargin) < bottomPipeRight && 
+                                                (birdBottom - fineTuneMargin) > bottomPipeTop && 
+                                                (birdTop + fineTuneMargin) < bottomPipeBottom
           
           // Only collide if bird visually overlaps with pipe AND is not in safe gap
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
             hitTopPipe = birdOverlapsTopPipeVisually
             hitBottomPipe = birdOverlapsBottomPipeVisually
             hitRightSide = true
-            console.log('🚨 VISUAL COLLISION DETECTED!', {
+            console.log('🚨 FINE-TUNED COLLISION DETECTED!', {
               birdOverlapsTopPipeVisually,
               birdOverlapsBottomPipeVisually,
               birdInSafeGap,
+              fineTuneMargin,
+              gapTolerance,
               birdX: this.bird.x,
               birdY: this.bird.y,
               pipeX: pipeSet.topPipe.x,
