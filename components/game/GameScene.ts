@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 160  // Gap between pipes (increased for easier gameplay)
-  private readonly MIN_PIPE_GAP = 160   // Consistent gap - no variation for fairness
+  private readonly BASE_PIPE_GAP = 140  // Gap between pipes (balanced for optimal gameplay)
+  private readonly MIN_PIPE_GAP = 140   // Consistent gap - no variation for fairness
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
