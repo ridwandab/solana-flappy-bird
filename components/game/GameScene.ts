@@ -781,36 +781,37 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // ULTRA AGGRESSIVE COLLISION: Force collision if bird is anywhere near pipe
-          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-          if (distanceToPipe < 100) { // Within 100 pixels of pipe
-            // Force collision if bird is in pipe vertical area
-            const birdInTopPipeArea = this.bird.y < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-            const birdInBottomPipeArea = this.bird.y > pipeSet.bottomPipeCollision.y
+          // ACCURATE COLLISION: Check if bird is actually overlapping with pipe collision area
+          if (birdLeft < pipeRight && birdRight > pipeLeft) {
+            // Check if bird is overlapping with top pipe (above gap)
+            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
+                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
             
-            // ALWAYS LOG WHEN BIRD IS NEAR PIPE
+            // Check if bird is overlapping with bottom pipe (below gap)
+            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                                          birdBottom > pipeSet.bottomPipeCollision.y
+            
+            // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
             if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 ULTRA AGGRESSIVE COLLISION CHECK:', {
-                distanceToPipe,
-                birdInTopPipeArea,
-                birdInBottomPipeArea,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
+              console.log('🔍 ACCURATE COLLISION CHECK:', {
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
+                birdLeft, birdRight, pipeLeft, pipeRight,
+                birdTop, birdBottom,
                 topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
                 bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
-                willCollide: birdInTopPipeArea || birdInBottomPipeArea
+                willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
               })
             }
             
-            if (birdInTopPipeArea || birdInBottomPipeArea) {
-              hitTopPipe = birdInTopPipeArea
-              hitBottomPipe = birdInBottomPipeArea
+            // COLLISION: If bird is overlapping with either pipe, it's a collision
+            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
+              hitTopPipe = birdTouchingTopPipe
+              hitBottomPipe = birdTouchingBottomPipe
               hitRightSide = true
-              console.log('🚨 ULTRA AGGRESSIVE COLLISION TRIGGERED!', {
-                distanceToPipe,
-                birdInTopPipeArea,
-                birdInBottomPipeArea,
+              console.log('🚨 ACCURATE COLLISION DETECTED!', {
+                birdTouchingTopPipe,
+                birdTouchingBottomPipe,
                 birdX: this.bird.x,
                 birdY: this.bird.y,
                 pipeX: pipeSet.topPipe.x,
@@ -819,23 +820,6 @@ export class GameScene extends Phaser.Scene {
                 hitRightSide
               })
             }
-          }
-          
-          // EXTREME COLLISION: Force collision if bird is anywhere near pipe horizontally
-          if (Math.abs(this.bird.x - pipeSet.topPipe.x) < 150) { // Within 150 pixels of pipe
-            // Force collision regardless of vertical position
-            hitTopPipe = true
-            hitBottomPipe = true
-            hitRightSide = true
-            console.log('🚨 EXTREME COLLISION FORCED!', {
-              birdX: this.bird.x,
-              birdY: this.bird.y,
-              pipeX: pipeSet.topPipe.x,
-              distance: Math.abs(this.bird.x - pipeSet.topPipe.x),
-              hitTopPipe,
-              hitBottomPipe,
-              hitRightSide
-            })
           }
           
         }
@@ -1231,7 +1215,7 @@ export class GameScene extends Phaser.Scene {
     // Create invisible collision rectangles that match the visual pipe size
     // Make collision area much wider to the right to prevent character from passing through
     const collisionMarginLeft = 5 // Reduce collision area by 5 pixels on left side
-    const collisionMarginRight = -200 // Extend collision area by 200 pixels to the right (increased from 150)
+    const collisionMarginRight = -50 // Extend collision area by 50 pixels to the right (reduced for accuracy)
     const collisionMarginTop = 5 // Reduce collision area by 5 pixels on top
     const collisionMarginBottom = 5 // Reduce collision area by 5 pixels on bottom
     
