@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 150  // Consistent gap between pipes (increased for easier gameplay)
-  private readonly MIN_PIPE_GAP = 150   // Consistent gap - no variation for fairness
+  private readonly BASE_PIPE_GAP = 120  // Gap between pipes (adjusted for better gameplay balance)
+  private readonly MIN_PIPE_GAP = 120   // Consistent gap - no variation for fairness
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -315,7 +315,7 @@ export class GameScene extends Phaser.Scene {
 
     // Create bird for start screen (static, no physics) - centered for 780px height
     this.bird = this.add.sprite(400, 390, 'bird_default')
-    this.bird.setScale(0.2)
+    this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
     this.startScreenElements.push(this.bird)
@@ -550,7 +550,7 @@ export class GameScene extends Phaser.Scene {
     } else {
       // Create new bird if none exists
       this.bird = this.physics.add.sprite(200, 300, 'bird_default')
-      this.bird.setScale(0.2)
+      this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
       
@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 8 // Increased margin for more accurate collision detection
+        const birdCollisionMargin = 6 // Adjusted margin for smaller bird size
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -761,7 +761,7 @@ export class GameScene extends Phaser.Scene {
           const pipeLeft = pipeSet.topPipeCollision.x
           const pipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
           
-          // Get bird bounds with reduced collision margin to make collision more to the right
+          // Get bird bounds with adjusted collision margin for smaller bird
           const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdCollisionMargin
           const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - (birdCollisionMargin * 0.3) // Reduce right margin more
           const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdCollisionMargin
