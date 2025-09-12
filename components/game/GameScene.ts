@@ -781,59 +781,33 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // SIMPLE COLLISION: Direct overlap check without margins
-          if (birdLeft < pipeRight && birdRight > pipeLeft) {
-            // Check if bird is overlapping with top pipe (above gap)
-            const birdTouchingTopPipe = birdBottom > pipeSet.topPipeCollision.y && 
-                                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
-            
-            // Check if bird is overlapping with bottom pipe (below gap)
-            const birdTouchingBottomPipe = birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                                          birdBottom > pipeSet.bottomPipeCollision.y
-            
-            // ALWAYS LOG WHEN BIRD IS IN PIPE AREA
-            if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
-              console.log('🔍 SIMPLE COLLISION CHECK:', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
-                birdLeft, birdRight, pipeLeft, pipeRight,
-                birdTop, birdBottom,
-                topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
-                bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
-                willCollide: birdTouchingTopPipe || birdTouchingBottomPipe
-              })
-            }
-            
-            // COLLISION: If bird is overlapping with either pipe, it's a collision
-            if (birdTouchingTopPipe || birdTouchingBottomPipe) {
-              hitTopPipe = birdTouchingTopPipe
-              hitBottomPipe = birdTouchingBottomPipe
-              hitRightSide = true
-              console.log('🚨 SIMPLE COLLISION DETECTED!', {
-                birdTouchingTopPipe,
-                birdTouchingBottomPipe,
-                birdX: this.bird.x,
-                birdY: this.bird.y,
-                pipeX: pipeSet.topPipe.x,
-                hitTopPipe,
-                hitBottomPipe,
-                hitRightSide
-              })
-            }
-          }
-          
-          // FORCE COLLISION: If bird is anywhere near pipe horizontally, check for collision
+          // ULTRA AGGRESSIVE COLLISION: Force collision if bird is anywhere near pipe
           const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-          if (distanceToPipe < 50) { // Within 50 pixels of pipe
+          if (distanceToPipe < 100) { // Within 100 pixels of pipe
             // Force collision if bird is in pipe vertical area
             const birdInTopPipeArea = this.bird.y < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height)
             const birdInBottomPipeArea = this.bird.y > pipeSet.bottomPipeCollision.y
+            
+            // ALWAYS LOG WHEN BIRD IS NEAR PIPE
+            if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
+              console.log('🔍 ULTRA AGGRESSIVE COLLISION CHECK:', {
+                distanceToPipe,
+                birdInTopPipeArea,
+                birdInBottomPipeArea,
+                birdX: this.bird.x,
+                birdY: this.bird.y,
+                pipeX: pipeSet.topPipe.x,
+                topPipeBounds: { y: pipeSet.topPipeCollision.y, height: pipeSet.topPipeCollision.height },
+                bottomPipeBounds: { y: pipeSet.bottomPipeCollision.y, height: pipeSet.bottomPipeCollision.height },
+                willCollide: birdInTopPipeArea || birdInBottomPipeArea
+              })
+            }
             
             if (birdInTopPipeArea || birdInBottomPipeArea) {
               hitTopPipe = birdInTopPipeArea
               hitBottomPipe = birdInBottomPipeArea
               hitRightSide = true
-              console.log('🚨 FORCE COLLISION TRIGGERED!', {
+              console.log('🚨 ULTRA AGGRESSIVE COLLISION TRIGGERED!', {
                 distanceToPipe,
                 birdInTopPipeArea,
                 birdInBottomPipeArea,
@@ -845,6 +819,23 @@ export class GameScene extends Phaser.Scene {
                 hitRightSide
               })
             }
+          }
+          
+          // EXTREME COLLISION: Force collision if bird is anywhere near pipe horizontally
+          if (Math.abs(this.bird.x - pipeSet.topPipe.x) < 150) { // Within 150 pixels of pipe
+            // Force collision regardless of vertical position
+            hitTopPipe = true
+            hitBottomPipe = true
+            hitRightSide = true
+            console.log('🚨 EXTREME COLLISION FORCED!', {
+              birdX: this.bird.x,
+              birdY: this.bird.y,
+              pipeX: pipeSet.topPipe.x,
+              distance: Math.abs(this.bird.x - pipeSet.topPipe.x),
+              hitTopPipe,
+              hitBottomPipe,
+              hitRightSide
+            })
           }
           
         }
