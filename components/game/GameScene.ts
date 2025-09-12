@@ -776,12 +776,13 @@ export class GameScene extends Phaser.Scene {
           // AGGRESSIVE DEBUG LOGGING - Always log when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
             console.log('🔍 AGGRESSIVE COLLISION DEBUG:', {
-              pipeBounds: { left: pipeLeft, right: pipeRight },
+              pipeBounds: { left: pipeLeft, right: pipeRight, width: pipeSet.topPipeCollision.width },
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapBounds: { top: gapTop, bottom: gapBottom },
               birdInSafeGap,
               birdX: this.bird.x,
-              pipeX: pipeSet.topPipe.x
+              pipeX: pipeSet.topPipe.x,
+              collisionRect: pipeSet.topPipeCollision
             })
           }
           
@@ -1276,16 +1277,26 @@ export class GameScene extends Phaser.Scene {
     const topPipeCollisionRect = { 
       x: topPipeLeft + collisionMarginLeft, 
       y: topPipeTop + collisionMarginTop, 
-      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      width: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight), // Fix: use absolute value for right margin
       height: scaledTopPipeHeight - collisionMarginTop - collisionMarginBottom
     }
     
     const bottomPipeCollisionRect = { 
       x: bottomPipeLeft + collisionMarginLeft, 
       y: bottomPipeTop + collisionMarginTop, 
-      width: pipeWidth - collisionMarginLeft - collisionMarginRight, 
+      width: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight), // Fix: use absolute value for right margin
       height: scaledBottomPipeHeight - collisionMarginTop - collisionMarginBottom
     }
+
+    // DEBUG: Log collision rectangle dimensions
+    console.log('🔧 COLLISION RECTANGLES CREATED:', {
+      pipeX: x,
+      pipeWidth: pipeWidth,
+      margins: { left: collisionMarginLeft, right: collisionMarginRight, top: collisionMarginTop, bottom: collisionMarginBottom },
+      topPipeCollision: topPipeCollisionRect,
+      bottomPipeCollision: bottomPipeCollisionRect,
+      totalWidth: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight)
+    })
 
     // Create pipe set object
     const pipeSet = {
