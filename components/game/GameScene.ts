@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 1 // Very small margin for precise collision
+        const birdCollisionMargin = 0 // No margin for ultra-precise collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -802,13 +802,13 @@ export class GameScene extends Phaser.Scene {
           const gapBottom = pipeSet.bottomPipeCollision.y
           
           // Check if bird is in the safe gap (between top and bottom pipes) - this should NOT collide
-          // Use very large tolerance for better gameplay
-          const gapTolerance = 10 // Very large tolerance for better gameplay
+          // Use extremely large tolerance for better gameplay
+          const gapTolerance = 20 // Extremely large tolerance for better gameplay
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
-          // PRECISE COLLISION: Match collision exactly with visual pipe
-          // Use very large positive margin to prevent premature collision
-          const fineTuneMargin = 15 // Very large positive margin to prevent premature collision
+          // ULTRA-PRECISE COLLISION: Match collision exactly with visual pipe
+          // Use extremely large positive margin to prevent premature collision
+          const fineTuneMargin = 25 // Extremely large positive margin to prevent premature collision
           
           // DEBUG: Log gap information when bird is near pipe
           if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 200) {
@@ -847,13 +847,13 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // Check if bird overlaps with top pipe (with tiny margin)
+          // Check if bird overlaps with top pipe (with extremely large margin)
           const birdOverlapsTopPipeVisually = (birdRight - fineTuneMargin) > topPipeLeft && 
                                              (birdLeft + fineTuneMargin) < topPipeRight && 
                                              (birdBottom - fineTuneMargin) > topPipeTop && 
                                              (birdTop + fineTuneMargin) < topPipeBottom
           
-          // Check if bird overlaps with bottom pipe (with tiny margin)
+          // Check if bird overlaps with bottom pipe (with extremely large margin)
           const birdOverlapsBottomPipeVisually = (birdRight - fineTuneMargin) > bottomPipeLeft && 
                                                 (birdLeft + fineTuneMargin) < bottomPipeRight && 
                                                 (birdBottom - fineTuneMargin) > bottomPipeTop && 
@@ -861,9 +861,9 @@ export class GameScene extends Phaser.Scene {
           
           // Only collide if bird visually overlaps with pipe AND is not in safe gap
           if ((birdOverlapsTopPipeVisually || birdOverlapsBottomPipeVisually) && !birdInSafeGap) {
-            // Additional safety check: only collide if bird is very close to pipe
+            // Additional safety check: only collide if bird is extremely close to pipe
             const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
-            if (distanceToPipe < 10) { // Only collide if bird is within 10px of pipe
+            if (distanceToPipe < 5) { // Only collide if bird is within 5px of pipe
               hitTopPipe = birdOverlapsTopPipeVisually
               hitBottomPipe = birdOverlapsBottomPipeVisually
               hitRightSide = true
