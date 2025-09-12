@@ -668,7 +668,7 @@ export class GameScene extends Phaser.Scene {
         const birdBounds = this.bird.getBounds()
         
         // Make bird collision area smaller to match visual sprite better
-        const birdCollisionMargin = 6 // Adjusted margin for smaller bird size
+        const birdCollisionMargin = 3 // Reduced margin for more precise collision
         const birdCollisionBounds = new Phaser.Geom.Rectangle(
           birdBounds.x + birdCollisionMargin,
           birdBounds.y + birdCollisionMargin,
@@ -827,9 +827,9 @@ export class GameScene extends Phaser.Scene {
             })
           }
           
-          // IMPROVED COLLISION: Only collide when bird actually touches the pipe AND is not in safe gap
-          // Use precise collision detection with better gap handling
-          const collisionMargin = 2 // Small margin for visual accuracy
+          // PRECISE COLLISION: Only collide when bird actually touches the pipe AND is not in safe gap
+          // Use very precise collision detection with minimal margin
+          const collisionMargin = 0 // No margin for maximum precision
           
           // Check if bird is touching top pipe (with margin)
           const birdTouchingTopPipe = (birdRight - collisionMargin) > topPipeLeft && 
@@ -843,8 +843,8 @@ export class GameScene extends Phaser.Scene {
                                         (birdBottom - collisionMargin) > bottomPipeTop && 
                                         (birdTop + collisionMargin) < bottomPipeBottom
           
-          // IMPROVED GAP DETECTION: Add margin to gap to make it more forgiving
-          const gapMargin = 5 // Add 5px margin to gap for better gameplay
+          // PRECISE GAP DETECTION: Minimal margin to gap for precise gameplay
+          const gapMargin = 2 // Minimal 2px margin to gap for precise gameplay
           const birdInSafeGapWithMargin = (birdTop + gapMargin) > gapTop && (birdBottom - gapMargin) < gapBottom
           
           // Only collide if bird is touching pipe AND not in safe gap (with margin)
@@ -852,7 +852,7 @@ export class GameScene extends Phaser.Scene {
             hitTopPipe = birdTouchingTopPipe
             hitBottomPipe = birdTouchingBottomPipe
             hitRightSide = true
-            console.log('🚨 IMPROVED COLLISION DETECTED!', {
+            console.log('🚨 PRECISE COLLISION DETECTED!', {
               birdTouchingTopPipe,
               birdTouchingBottomPipe,
               birdInSafeGap,
@@ -866,6 +866,15 @@ export class GameScene extends Phaser.Scene {
               hitBottomPipe,
               hitRightSide
             })
+          }
+          
+          // ADDITIONAL SAFETY: Only allow collision if bird is very close to pipe visually
+          const distanceToPipe = Math.abs(this.bird.x - pipeSet.topPipe.x)
+          if (distanceToPipe > 50) { // If bird is more than 50px away from pipe, don't collide
+            hitTopPipe = false
+            hitBottomPipe = false
+            hitRightSide = false
+            console.log('🚨 COLLISION CANCELLED - Bird too far from pipe:', distanceToPipe)
           }
           
         }
