@@ -747,16 +747,17 @@ export class GameScene extends Phaser.Scene {
         if (hitTopPipe || hitBottomPipe) {
           // Only allow if bird is in safe gap with minimal tolerance
           if (!birdInSafeGap) {
-          console.log('🚨 PRECISE COLLISION DETECTED!', {
-            hitTopPipe,
-            hitBottomPipe,
-            birdInSafeGap,
-            birdX: this.bird.x,
-            birdY: this.bird.y,
-            birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
-            gapTop,
-            gapBottom
-          })
+            console.log('🚨 PRECISE COLLISION DETECTED!', {
+              hitTopPipe,
+              hitBottomPipe,
+              birdInSafeGap,
+              birdX: this.bird.x,
+              birdY: this.bird.y,
+              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+              gapTop,
+              gapBottom
+            })
+          }
         }
 
         // Only trigger game over if bird actually collides with pipe (not in safe gap)
