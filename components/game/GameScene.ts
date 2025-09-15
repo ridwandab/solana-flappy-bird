@@ -1519,7 +1519,7 @@ export class GameScene extends Phaser.Scene {
         } else {
           console.log('Supabase not available, saving to localStorage only')
           // Fallback to localStorage - save to leaderboard format
-          this.saveToLocalStorageLeaderboard(playerData.walletAddress, this.score, playerData.playerName)
+          this.saveToLocalStorageLeaderboard(playerData.walletAddress, this.score, playerData.playerName || 'Anonymous')
         }
       } else {
         console.log('Player data not available, saving to localStorage only')
