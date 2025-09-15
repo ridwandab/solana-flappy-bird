@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 180  // Gap between pipes (larger for easier gameplay)
-  private readonly MIN_PIPE_GAP = 160   // Minimum gap - still larger than before for easier gameplay
+  private readonly BASE_PIPE_GAP = 140  // Gap between pipes (balanced for optimal gameplay)
+  private readonly MIN_PIPE_GAP = 140   // Consistent gap - no variation for fairness
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -822,12 +822,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getCurrentPipeGap(): number {
-    // Calculate current pipe gap based on difficulty level with minimal variation
-    const progress = Math.min(this.difficultyLevel / 20, 1) // Max difficulty at level 20 (slower progression)
+    // Calculate current pipe gap based on difficulty level with random variation
+    const progress = Math.min(this.difficultyLevel / 15, 1) // Max difficulty at level 15
     const baseGap = this.BASE_PIPE_GAP - (this.BASE_PIPE_GAP - this.MIN_PIPE_GAP) * progress
     
-    // Add minimal random variation to gap size for slight challenge (±10px)
-    const randomVariation = Phaser.Math.Between(-10, 10)
+    // Add random variation to gap size for more challenge (±20px)
+    const randomVariation = Phaser.Math.Between(-20, 20)
     const finalGap = Math.max(baseGap + randomVariation, this.MIN_PIPE_GAP)
     
     console.log(`Gap calculation: base=${baseGap}, random=${randomVariation}, final=${finalGap}`)
@@ -1050,10 +1050,19 @@ export class GameScene extends Phaser.Scene {
     // Calculate pipe height to ensure pipes touch top and bottom of game area
     const gameHeight = 780 // Game height
     
-    // Use consistent gap position for fairness - always middle
-    const pipeHeight = 300 // Fixed middle position for consistent gameplay
+    // Use random gap position for more challenging gameplay
+    const minGapPosition = 150 // Minimum gap position from top (more challenging)
+    const maxGapPosition = 500 // Maximum gap position from top (more challenging)
+    const pipeHeight = Phaser.Math.Between(minGapPosition, maxGapPosition) // Random gap position
     
-    console.log(`🎯 Consistent gap position: middle (${pipeHeight}px from top) - Gap size: ${gap}px`)
+    // Add difficulty-based gap position variation
+    const difficultyVariation = Math.min(this.difficultyLevel * 10, 100) // Increase variation with difficulty
+    const finalGapPosition = Phaser.Math.Between(
+      Math.max(minGapPosition - difficultyVariation, 100), // Can go higher up
+      Math.min(maxGapPosition + difficultyVariation, 600)  // Can go lower down
+    )
+    
+    console.log(`🎯 Random gap position: ${finalGapPosition}px from top - Gap size: ${gap}px - Difficulty: ${this.difficultyLevel}`)
     
     // Calculate consistent spawn position
     let x: number
@@ -1078,7 +1087,7 @@ export class GameScene extends Phaser.Scene {
     const pipeSpriteKey = this.getPipeSpriteKey()
     
     // Create top pipe - extend from top of game to gap
-    const topPipeHeight = pipeHeight // Height from top to gap
+    const topPipeHeight = finalGapPosition // Height from top to gap
     const topPipe = this.add.image(x, topPipeHeight, pipeSpriteKey)
     topPipe.setScale(1, -1)  // Flip vertically
     topPipe.setOrigin(0, 0)  // Set origin to top-left of the flipped pipe
@@ -1090,7 +1099,7 @@ export class GameScene extends Phaser.Scene {
     console.log(`Top pipe created at x: ${x}, y: ${topPipeHeight}, scaleY: ${-topPipeScaleY} using sprite: ${pipeSpriteKey}`)
 
     // Create bottom pipe - extend from gap to bottom of game
-    const bottomPipeY = pipeHeight + gap // Start position (gap bottom)
+    const bottomPipeY = finalGapPosition + gap // Start position (gap bottom)
     const bottomPipeHeight = gameHeight - bottomPipeY // Height from gap to bottom
     const bottomPipe = this.add.image(x, bottomPipeY, pipeSpriteKey)
     bottomPipe.setOrigin(0, 0)
@@ -1111,7 +1120,7 @@ export class GameScene extends Phaser.Scene {
     const topPipeLeft = x
     const topPipeRight = x + pipeWidth
     const topPipeTop = 0 // Top pipe starts at top of game
-    const topPipeBottom = topPipeHeight // Top pipe ends at gap
+    const topPipeBottom = finalGapPosition // Top pipe ends at gap
     
     // Bottom pipe bounds (extends from gap to bottom of game)
     const bottomPipeLeft = x
