@@ -24,11 +24,11 @@ NEXT_PUBLIC_GAME_TREASURY_ADDRESS=your_treasury_wallet_address
 NEXT_PUBLIC_GAME_MIN_SCORE_TO_SAVE=10
 ```
 
-## Supabase Database Schema (Optional)
+## Supabase Database Schema
 
-Untuk mengaktifkan leaderboard yang terintegrasi dengan database, Anda perlu membuat tabel `high_scores` di Supabase dengan struktur berikut:
+Untuk mengaktifkan leaderboard yang terintegrasi dengan database, Anda hanya perlu **satu tabel** `high_scores` yang menyimpan nama player dan high score sekaligus:
 
-### 1. Tabel `high_scores`
+### 1. Tabel `high_scores` (Satu-satunya Tabel yang Diperlukan)
 
 ```sql
 CREATE TABLE high_scores (
@@ -61,7 +61,36 @@ CREATE POLICY "Allow public insert" ON high_scores
   FOR INSERT WITH CHECK (true);
 ```
 
-### 3. Environment Variables
+### 2. Struktur Data yang Tersimpan
+
+Tabel `high_scores` menyimpan semua data yang diperlukan:
+
+```json
+{
+  "id": "uuid",
+  "player_address": "wallet_address",
+  "player_name": "Nama Player",
+  "score": 100,
+  "timestamp": "2025-09-15T06:24:20.433+00:00",
+  "created_at": "2025-09-15T06:24:17.796411+00:00"
+}
+```
+
+**Kolom yang tersimpan:**
+- `player_name`: Nama player yang dimasukkan di main menu
+- `player_address`: Alamat wallet Solana (jika terhubung)
+- `score`: High score yang dicapai
+- `timestamp`: Waktu game over
+- `created_at`: Waktu data dibuat di database
+
+### 3. Tabel yang Tidak Diperlukan
+
+**Tabel `player_names` tidak diperlukan** karena:
+- Nama player sudah tersimpan di kolom `player_name` di tabel `high_scores`
+- Semua data sudah terintegrasi dalam satu tabel
+- Menghindari duplikasi data dan kompleksitas yang tidak perlu
+
+### 4. Environment Variables
 
 Pastikan file `.env.local` memiliki konfigurasi Supabase:
 
