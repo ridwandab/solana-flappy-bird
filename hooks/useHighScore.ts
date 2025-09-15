@@ -60,7 +60,7 @@ export const useHighScore = () => {
     }
   }
 
-  const saveHighScore = async (playerAddress: string, score: number) => {
+  const saveHighScore = async (playerAddress: string, playerName: string, score: number) => {
     try {
       // Get current high score first
       const currentHighScore = await getHighScore(playerAddress)
@@ -77,6 +77,7 @@ export const useHighScore = () => {
             .insert([
               {
                 player_address: playerAddress,
+                player_name: playerName,
                 score: score,
                 timestamp: new Date().toISOString(),
               }
@@ -96,9 +97,9 @@ export const useHighScore = () => {
           setHighScore(score)
         }
         
-        console.log(`New high score ${score} saved for ${playerAddress}! (Previous: ${currentHighScore})`)
+        console.log(`New high score ${score} saved for ${playerName} (${playerAddress})! (Previous: ${currentHighScore})`)
       } else {
-        console.log(`Score ${score} not saved as high score for ${playerAddress} (Current high: ${currentHighScore})`)
+        console.log(`Score ${score} not saved as high score for ${playerName} (${playerAddress}) (Current high: ${currentHighScore})`)
       }
 
       // Always save to leaderboard (for tracking all scores)
@@ -106,13 +107,14 @@ export const useHighScore = () => {
       const leaderboardEntry = {
         id: leaderboardKey,
         player_address: playerAddress,
+        player_name: playerName,
         score,
         timestamp: new Date().toISOString(),
         created_at: new Date().toISOString(),
       }
       localStorage.setItem(leaderboardKey, JSON.stringify(leaderboardEntry))
       
-      console.log(`Score ${score} added to leaderboard for ${playerAddress}`)
+      console.log(`Score ${score} added to leaderboard for ${playerName} (${playerAddress})`)
     } catch (error) {
       console.error('Failed to save high score:', error)
     }

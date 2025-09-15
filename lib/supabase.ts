@@ -26,6 +26,7 @@ export interface Database {
         Row: {
           id: string
           player_address: string
+          player_name: string
           score: number
           timestamp: string
           created_at: string
@@ -33,6 +34,7 @@ export interface Database {
         Insert: {
           id?: string
           player_address: string
+          player_name: string
           score: number
           timestamp?: string
           created_at?: string
@@ -40,9 +42,33 @@ export interface Database {
         Update: {
           id?: string
           player_address?: string
+          player_name?: string
           score?: number
           timestamp?: string
           created_at?: string
+        }
+      }
+      player_names: {
+        Row: {
+          id: string
+          player_address: string
+          player_name: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          player_address: string
+          player_name: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          player_address?: string
+          player_name?: string
+          created_at?: string
+          updated_at?: string
         }
       }
       user_cosmetics: {
@@ -105,7 +131,7 @@ export interface Database {
 }
 
 // Helper functions for database operations
-export const saveHighScore = async (playerAddress: string, score: number) => {
+export const saveHighScore = async (playerAddress: string, playerName: string, score: number) => {
   if (!isSupabaseAvailable()) {
     console.warn('Supabase not configured, skipping database save')
     return null
@@ -116,6 +142,7 @@ export const saveHighScore = async (playerAddress: string, score: number) => {
     .insert([
       {
         player_address: playerAddress,
+        player_name: playerName,
         score: score,
         timestamp: new Date().toISOString(),
       }
@@ -124,6 +151,47 @@ export const saveHighScore = async (playerAddress: string, score: number) => {
 
   if (error) throw error
   return data
+}
+
+export const savePlayerName = async (playerAddress: string, playerName: string) => {
+  if (!isSupabaseAvailable()) {
+    console.warn('Supabase not configured, skipping player name save')
+    return null
+  }
+
+  const { data, error } = await supabase!
+    .from('player_names')
+    .upsert([
+      {
+        player_address: playerAddress,
+        player_name: playerName,
+        updated_at: new Date().toISOString(),
+      }
+    ])
+    .select()
+
+  if (error) throw error
+  return data
+}
+
+export const getPlayerName = async (playerAddress: string): Promise<string | null> => {
+  if (!isSupabaseAvailable()) {
+    console.warn('Supabase not configured, returning null')
+    return null
+  }
+
+  const { data, error } = await supabase!
+    .from('player_names')
+    .select('player_name')
+    .eq('player_address', playerAddress)
+    .single()
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+    console.error('Error getting player name:', error)
+    return null
+  }
+
+  return data?.player_name || null
 }
 
 export const getHighScores = async (limit: number = 100) => {

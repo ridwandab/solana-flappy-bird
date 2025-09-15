@@ -6,9 +6,11 @@ import { useSettings } from '@/hooks/useSettings'
 
 interface GameProps {
   onBackToMenu?: () => void
+  onGameOver?: (score: number) => void
+  onGameRestart?: () => void
 }
 
-export const Game: FC<GameProps> = ({ onBackToMenu }) => {
+export const Game: FC<GameProps> = ({ onBackToMenu, onGameOver, onGameRestart }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
@@ -38,12 +40,26 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     phaserGameRef.current = new Phaser.Game(config)
 
-    // Add event listener for goToMainMenu
+    // Add event listeners
     if (phaserGameRef.current) {
       phaserGameRef.current.events.on('goToMainMenu', () => {
         console.log('Main Menu button clicked - going back to menu')
         if (onBackToMenu) {
           onBackToMenu()
+        }
+      })
+
+      phaserGameRef.current.events.on('gameOver', (score: number) => {
+        console.log('Game over event received with score:', score)
+        if (onGameOver) {
+          onGameOver(score)
+        }
+      })
+
+      phaserGameRef.current.events.on('gameRestart', () => {
+        console.log('Game restart event received')
+        if (onGameRestart) {
+          onGameRestart()
         }
       })
     }
