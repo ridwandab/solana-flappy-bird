@@ -667,36 +667,39 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Use precise bird bounds without margin to prevent penetration
-        const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2
-        const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2
-        const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2
-        const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2
+        // Use ultra-strict bird bounds with negative margin to prevent any penetration
+        const birdMargin = 2 // Negative margin to make collision detection more strict
+        const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdMargin
+        const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdMargin
+        const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdMargin
+        const birdBottom = this.bird.y + (this.bird.height * this.bird.scaleY) / 2 - birdMargin
         
         // Create collision rectangles based on pipe collision data
         let hitTopPipe = false
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Use the stored collision rectangle for top pipe
-          const topPipeLeft = pipeSet.topPipeCollision.x
-          const topPipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
-          const topPipeTop = pipeSet.topPipeCollision.y
-          const topPipeBottom = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
+          // Use the stored collision rectangle for top pipe with extended bounds
+          const pipeMargin = 3 // Extend pipe collision area to prevent penetration
+          const topPipeLeft = pipeSet.topPipeCollision.x - pipeMargin
+          const topPipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width + pipeMargin
+          const topPipeTop = pipeSet.topPipeCollision.y - pipeMargin
+          const topPipeBottom = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height + pipeMargin
           
-          // Check collision with precise bounds
+          // Check collision with extended bounds
           hitTopPipe = birdLeft < topPipeRight && birdRight > topPipeLeft && 
                       birdTop < topPipeBottom && birdBottom > topPipeTop
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Use the stored collision rectangle for bottom pipe
-          const bottomPipeLeft = pipeSet.bottomPipeCollision.x
-          const bottomPipeRight = pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width
-          const bottomPipeTop = pipeSet.bottomPipeCollision.y
-          const bottomPipeBottom = pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height
+          // Use the stored collision rectangle for bottom pipe with extended bounds
+          const pipeMargin = 3 // Extend pipe collision area to prevent penetration
+          const bottomPipeLeft = pipeSet.bottomPipeCollision.x - pipeMargin
+          const bottomPipeRight = pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width + pipeMargin
+          const bottomPipeTop = pipeSet.bottomPipeCollision.y - pipeMargin
+          const bottomPipeBottom = pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height + pipeMargin
           
-          // Check collision with precise bounds
+          // Check collision with extended bounds
           hitBottomPipe = birdLeft < bottomPipeRight && birdRight > bottomPipeLeft && 
                          birdTop < bottomPipeBottom && birdBottom > bottomPipeTop
         }
@@ -737,11 +740,13 @@ export class GameScene extends Phaser.Scene {
         // Check if bird is in the safe gap (between top and bottom pipes)
         const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
         const gapBottom = pipeSet.bottomPipeCollision.y
-        const gapTolerance = 3 // Minimal gap tolerance to prevent penetration
+        const gapTolerance = 1 // Ultra-minimal gap tolerance to prevent any penetration
         const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
         
-        // Only collide if bird overlaps with pipe AND is not in safe gap
-        if ((hitTopPipe || hitBottomPipe) && !birdInSafeGap) {
+        // ULTRA-STRICT collision: bird must not overlap with any pipe at all
+        if (hitTopPipe || hitBottomPipe) {
+          // Only allow if bird is in safe gap with minimal tolerance
+          if (!birdInSafeGap) {
           console.log('🚨 PRECISE COLLISION DETECTED!', {
             hitTopPipe,
             hitBottomPipe,
