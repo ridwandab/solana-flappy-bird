@@ -1506,6 +1506,8 @@ export class GameScene extends Phaser.Scene {
       // Get player data from game events
       const playerData = await this.getPlayerData()
       
+      console.log('Received player data:', playerData)
+      
       if (playerData && playerData.walletAddress) {
         console.log('Saving high score to database:', {
           walletAddress: playerData.walletAddress,

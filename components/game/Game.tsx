@@ -54,6 +54,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       // Add event listener for getPlayerData
       phaserGameRef.current.events.on('getPlayerData', (callback: (data: any) => void) => {
         console.log('getPlayerData event received')
+        console.log('Wallet connected:', connected)
+        console.log('Public key:', publicKey?.toString())
+        console.log('Display name:', getDisplayName())
+        
         if (connected && publicKey) {
           const playerData = {
             walletAddress: publicKey.toString(),
