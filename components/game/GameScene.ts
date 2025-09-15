@@ -1516,8 +1516,18 @@ export class GameScene extends Phaser.Scene {
         })
         
         if (isSupabaseAvailable()) {
-          await saveHighScore(playerData.walletAddress, this.score, playerData.playerName)
-          console.log('High score saved to Supabase successfully')
+          // Try to get player name from localStorage if not provided
+          let finalPlayerName = playerData.playerName
+          if (!finalPlayerName || finalPlayerName === 'Anonymous') {
+            const savedName = localStorage.getItem('flappyBirdPlayerName')
+            if (savedName) {
+              finalPlayerName = savedName
+              console.log('🔍 Using saved player name for Supabase:', finalPlayerName)
+            }
+          }
+          
+          await saveHighScore(playerData.walletAddress, this.score, finalPlayerName)
+          console.log('High score saved to Supabase successfully with name:', finalPlayerName)
         } else {
           console.log('Supabase not available, saving to localStorage only')
           // Fallback to localStorage - save to leaderboard format
@@ -1539,12 +1549,23 @@ export class GameScene extends Phaser.Scene {
     try {
       // Try to get player name from localStorage if not provided
       let finalPlayerName = playerName
+      console.log('🔍 Player name debugging:', {
+        originalPlayerName: playerName,
+        walletAddress: walletAddress,
+        score: score
+      })
+      
       if (!finalPlayerName || finalPlayerName === 'Anonymous') {
         const savedName = localStorage.getItem('flappyBirdPlayerName')
+        console.log('🔍 Checking localStorage for player name:', savedName)
         if (savedName) {
           finalPlayerName = savedName
-          console.log('Using saved player name from localStorage:', finalPlayerName)
+          console.log('✅ Using saved player name from localStorage:', finalPlayerName)
+        } else {
+          console.log('❌ No player name found in localStorage')
         }
+      } else {
+        console.log('✅ Using provided player name:', finalPlayerName)
       }
       
       // Create leaderboard entry
