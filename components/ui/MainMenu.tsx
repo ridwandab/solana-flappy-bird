@@ -61,17 +61,27 @@ export const MainMenu: FC<MainMenuProps> = ({
 
   const handleStartGame = () => {
     if (publicKey && !hasPlayerName) {
+      // Show player name modal if no name is set
       setShowPlayerNameModal(true)
-    } else {
+    } else if (publicKey && hasPlayerName) {
+      // Player has a name, start game directly
+      console.log(`🎮 Starting game for player: ${playerName}`)
       onStartGame()
+    } else {
+      // No wallet connected, show wallet connection prompt
+      console.log('⚠️ Please connect wallet first')
     }
   }
 
   const handlePlayerNameSave = async (name: string) => {
     const success = await savePlayerName(name)
     if (success) {
+      console.log(`✅ Player name saved: ${name}`)
       setShowPlayerNameModal(false)
-      onStartGame() // Start game after saving name
+      // Start game after saving name
+      onStartGame()
+    } else {
+      console.error('❌ Failed to save player name')
     }
   }
 
@@ -96,8 +106,17 @@ export const MainMenu: FC<MainMenuProps> = ({
             </p>
           </div>
           
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center space-y-4">
             <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
+            
+            {/* Player Name Display */}
+            {publicKey && hasPlayerName && (
+              <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
+                <p className="text-white/80 text-sm">
+                  Playing as: <span className="font-semibold text-white">{playerName}</span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

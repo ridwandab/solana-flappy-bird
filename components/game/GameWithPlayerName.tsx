@@ -1,9 +1,8 @@
 'use client'
 
-import { FC, useState, useEffect } from 'react'
+import { FC, useState } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Game } from './Game'
-import { PlayerNameModal } from '../ui/PlayerNameModal'
 import { usePlayerName } from '@/hooks/usePlayerName'
 import { useHighScore } from '@/hooks/useHighScore'
 import { useLeaderboard } from '@/hooks/useLeaderboard'
@@ -14,31 +13,12 @@ interface GameWithPlayerNameProps {
 
 export const GameWithPlayerName: FC<GameWithPlayerNameProps> = ({ onBackToMenu }) => {
   const { publicKey } = useWallet()
-  const { playerName, hasPlayerName, savePlayerName } = usePlayerName()
+  const { playerName } = usePlayerName()
   const { saveHighScore } = useHighScore()
   const { addScore } = useLeaderboard()
   
-  const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
   const [gameScore, setGameScore] = useState(0)
   const [isGameOver, setIsGameOver] = useState(false)
-
-  useEffect(() => {
-    if (publicKey && !hasPlayerName) {
-      // Show player name modal if wallet is connected but no name is set
-      setShowPlayerNameModal(true)
-    }
-  }, [publicKey, hasPlayerName])
-
-  const handlePlayerNameSave = async (name: string) => {
-    const success = await savePlayerName(name)
-    if (success) {
-      setShowPlayerNameModal(false)
-    }
-  }
-
-  const handlePlayerNameClose = () => {
-    setShowPlayerNameModal(false)
-  }
 
   const handleGameOver = async (score: number) => {
     if (!publicKey) return
@@ -70,19 +50,10 @@ export const GameWithPlayerName: FC<GameWithPlayerNameProps> = ({ onBackToMenu }
   }
 
   return (
-    <>
-      <Game 
-        onBackToMenu={onBackToMenu}
-        onGameOver={handleGameOver}
-        onGameRestart={handleGameRestart}
-      />
-      
-      <PlayerNameModal
-        isOpen={showPlayerNameModal}
-        playerAddress={publicKey?.toString() || ''}
-        onClose={handlePlayerNameClose}
-        onSave={handlePlayerNameSave}
-      />
-    </>
+    <Game 
+      onBackToMenu={onBackToMenu}
+      onGameOver={handleGameOver}
+      onGameRestart={handleGameRestart}
+    />
   )
 }
