@@ -95,8 +95,25 @@ export const SupabaseDebug: React.FC = () => {
           <h4 className="text-white font-semibold mb-2">Environment Info:</h4>
           <div className="text-white/80 text-sm space-y-1">
             <p>URL: {process.env.NEXT_PUBLIC_SUPABASE_URL || 'Not set'}</p>
-            <p>Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Not set'}</p>
+            <p>Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 
+              (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes('your_supabase_anon_key') ? 
+                '❌ Placeholder (not configured)' : 
+                '✅ Set correctly') : 
+              '❌ Not set'}</p>
             <p>Wallet: {publicKey ? 'Connected' : 'Not connected'}</p>
+            <p>Key Length: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length || 0} characters</p>
+          </div>
+        </div>
+
+        <div className="bg-gray-800 rounded-lg p-3">
+          <h4 className="text-white font-semibold mb-2">Setup Instructions:</h4>
+          <div className="text-white/80 text-sm space-y-2">
+            <p>1. Go to: <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Supabase Dashboard</a></p>
+            <p>2. Select project: <code className="bg-gray-700 px-1 rounded">solana-flappy-bird</code></p>
+            <p>3. Go to: Settings → API</p>
+            <p>4. Copy "anon public" key</p>
+            <p>5. Update <code className="bg-gray-700 px-1 rounded">.env.local</code> file</p>
+            <p>6. Restart development server</p>
           </div>
         </div>
       </div>

@@ -17,6 +17,7 @@ import { useGlobalAudio } from '@/hooks/useGlobalAudio'
 import { PlayerNameModal } from './PlayerNameModal'
 import { usePlayerName } from '@/hooks/usePlayerName'
 import { SupabaseDebug } from '../debug/SupabaseDebug'
+import { isSupabaseAvailable } from '@/lib/supabase'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -130,6 +131,29 @@ export const MainMenu: FC<MainMenuProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Supabase Status */}
+            <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <p className="text-white/80 text-sm">
+                  Database: {isSupabaseAvailable() ? (
+                    <span className="text-green-400 font-semibold">✅ Connected</span>
+                  ) : (
+                    <span className="text-red-400 font-semibold">❌ Not Connected</span>
+                  )}
+                </p>
+                {!isSupabaseAvailable() && (
+                  <a 
+                    href="https://supabase.com/dashboard" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-xs underline"
+                  >
+                    Setup
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
