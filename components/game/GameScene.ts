@@ -1537,12 +1537,22 @@ export class GameScene extends Phaser.Scene {
 
   private saveToLocalStorageLeaderboard(walletAddress: string, score: number, playerName: string) {
     try {
+      // Try to get player name from localStorage if not provided
+      let finalPlayerName = playerName
+      if (!finalPlayerName || finalPlayerName === 'Anonymous') {
+        const savedName = localStorage.getItem('flappyBirdPlayerName')
+        if (savedName) {
+          finalPlayerName = savedName
+          console.log('Using saved player name from localStorage:', finalPlayerName)
+        }
+      }
+      
       // Create leaderboard entry
       const leaderboardKey = `leaderboard_${walletAddress}_${Date.now()}`
       const leaderboardEntry = {
         id: leaderboardKey,
         player_address: walletAddress,
-        player_name: playerName,
+        player_name: finalPlayerName,
         score: score,
         timestamp: new Date().toISOString(),
         created_at: new Date().toISOString(),
