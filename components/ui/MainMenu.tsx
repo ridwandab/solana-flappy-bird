@@ -10,10 +10,13 @@ import {
   BarChart3, 
   Settings,
   Gift,
-  Star
+  Star,
+  User
 } from 'lucide-react'
 import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
+import { PlayerNameModal } from './PlayerNameModal'
+import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -32,7 +35,9 @@ export const MainMenu: FC<MainMenuProps> = ({
 }) => {
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
+  const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
+  const { playerName, savePlayerName, getDisplayName } = usePlayerName()
 
   // Initialize audio context for sound effects
   useEffect(() => {
@@ -47,6 +52,22 @@ export const MainMenu: FC<MainMenuProps> = ({
 
     initializeAudio()
   }, [resumeAudioContext])
+
+  // Handle start game with player name
+  const handleStartGame = () => {
+    if (!playerName) {
+      setShowPlayerNameModal(true)
+    } else {
+      onStartGame()
+    }
+  }
+
+  // Handle player name confirmation
+  const handlePlayerNameConfirm = (name: string) => {
+    if (savePlayerName(name)) {
+      onStartGame()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
@@ -65,8 +86,24 @@ export const MainMenu: FC<MainMenuProps> = ({
             </p>
           </div>
           
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
+            
+            {/* Player Name Display */}
+            {playerName && (
+              <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                <User className="w-4 h-4 text-white/80" />
+                <span className="text-white/80 text-sm">
+                  Playing as: <span className="font-semibold text-white">{getDisplayName()}</span>
+                </span>
+                <button
+                  onClick={() => setShowPlayerNameModal(true)}
+                  className="text-white/60 hover:text-white text-xs underline"
+                >
+                  Change
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -74,13 +111,15 @@ export const MainMenu: FC<MainMenuProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Play Game */}
           <button
-            onClick={onStartGame}
+            onClick={handleStartGame}
             className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           >
             <div className="text-center">
               <Play className="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform" />
               <h2 className="text-2xl font-bold mb-2">Play Game</h2>
-              <p className="text-green-100">Start your adventure and earn SOL!</p>
+              <p className="text-green-100">
+                {playerName ? `Start your adventure, ${getDisplayName()}!` : 'Enter your name to start!'}
+              </p>
             </div>
           </button>
 
@@ -183,6 +222,14 @@ export const MainMenu: FC<MainMenuProps> = ({
 
       {/* Quest Progress Tracker */}
       <QuestProgressTracker />
+
+      {/* Player Name Modal */}
+      <PlayerNameModal
+        isOpen={showPlayerNameModal}
+        onClose={() => setShowPlayerNameModal(false)}
+        onConfirm={handlePlayerNameConfirm}
+        defaultName={playerName}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { FC, useEffect, useRef } from 'react'
 import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface GameProps {
   onBackToMenu?: () => void
@@ -14,6 +15,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
   const { publicKey, connected } = useWallet()
+  const { getDisplayName } = usePlayerName()
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -55,7 +57,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
         if (connected && publicKey) {
           const playerData = {
             walletAddress: publicKey.toString(),
-            playerName: 'Player' // You can customize this or get from user input
+            playerName: getDisplayName()
           }
           console.log('Sending player data:', playerData)
           callback(playerData)
