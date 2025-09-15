@@ -10,13 +10,10 @@ import {
   BarChart3, 
   Settings,
   Gift,
-  Star,
-  User
+  Star
 } from 'lucide-react'
 import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
-import { usePlayerName } from '@/hooks/usePlayerName'
-import { PlayerNameModal } from './PlayerNameModal'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -35,9 +32,7 @@ export const MainMenu: FC<MainMenuProps> = ({
 }) => {
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
-  const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
-  const { playerName, savePlayerName, hasPlayerName } = usePlayerName()
 
   // Initialize audio context for sound effects
   useEffect(() => {
@@ -70,36 +65,8 @@ export const MainMenu: FC<MainMenuProps> = ({
             </p>
           </div>
           
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex justify-center">
             <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
-            
-            {publicKey && (
-              <div className="flex items-center gap-3 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
-                {hasPlayerName ? (
-                  <>
-                    <User className="w-4 h-4 text-white" />
-                    <span className="text-white font-medium">{playerName}</span>
-                    <button
-                      onClick={() => setShowPlayerNameModal(true)}
-                      className="text-white/60 hover:text-white transition-colors text-sm"
-                    >
-                      Edit
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <User className="w-4 h-4 text-white/60" />
-                    <span className="text-white/60 text-sm">No player name set</span>
-                    <button
-                      onClick={() => setShowPlayerNameModal(true)}
-                      className="text-white hover:text-white/80 transition-colors text-sm font-medium"
-                    >
-                      Set Name
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
@@ -176,22 +143,6 @@ export const MainMenu: FC<MainMenuProps> = ({
               <p className="text-indigo-100">Check your progress</p>
             </div>
           </button>
-
-          {/* Player Name Settings */}
-          {publicKey && (
-            <button
-              onClick={() => setShowPlayerNameModal(true)}
-              className="group bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-            >
-              <div className="text-center">
-                <User className="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-                <h2 className="text-2xl font-bold mb-2">Player Name</h2>
-                <p className="text-emerald-100">
-                  {hasPlayerName ? `Current: ${playerName}` : 'Set your name'}
-                </p>
-              </div>
-            </button>
-          )}
         </div>
 
         {/* Features Section */}
@@ -232,14 +183,6 @@ export const MainMenu: FC<MainMenuProps> = ({
 
       {/* Quest Progress Tracker */}
       <QuestProgressTracker />
-      
-      {/* Player Name Modal */}
-      <PlayerNameModal
-        isOpen={showPlayerNameModal}
-        onClose={() => setShowPlayerNameModal(false)}
-        onSave={savePlayerName}
-        currentPlayerName={playerName}
-      />
     </div>
   )
 }

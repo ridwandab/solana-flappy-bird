@@ -1501,15 +1501,15 @@ export class GameScene extends Phaser.Scene {
       // Get player data from game events
       const playerData = await this.getPlayerData()
       
-      if (playerData && playerData.walletAddress && playerData.playerName) {
+      if (playerData && playerData.walletAddress) {
         console.log('Saving high score to database:', {
           walletAddress: playerData.walletAddress,
-          playerName: playerData.playerName,
+          playerName: playerData.playerName || 'Anonymous',
           score: this.score
         })
         
         if (isSupabaseAvailable()) {
-          await saveHighScore(playerData.walletAddress, playerData.playerName, this.score)
+          await saveHighScore(playerData.walletAddress, this.score, playerData.playerName)
           console.log('High score saved to Supabase successfully')
         } else {
           console.log('Supabase not available, saving to localStorage only')
@@ -1534,10 +1534,10 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private async getPlayerData(): Promise<{ walletAddress: string; playerName: string } | null> {
+  private async getPlayerData(): Promise<{ walletAddress: string; playerName?: string } | null> {
     return new Promise((resolve) => {
       // Emit event to get player data from React component
-      this.game.events.emit('getPlayerData', (data: { walletAddress: string; playerName: string } | null) => {
+      this.game.events.emit('getPlayerData', (data: { walletAddress: string; playerName?: string } | null) => {
         resolve(data)
       })
       

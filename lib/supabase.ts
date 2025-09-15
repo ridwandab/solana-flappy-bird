@@ -108,7 +108,7 @@ export interface Database {
 }
 
 // Helper functions for database operations
-export const saveHighScore = async (playerAddress: string, playerName: string, score: number) => {
+export const saveHighScore = async (playerAddress: string, score: number, playerName?: string) => {
   if (!isSupabaseAvailable()) {
     console.warn('Supabase not configured, skipping database save')
     return null
@@ -119,9 +119,9 @@ export const saveHighScore = async (playerAddress: string, playerName: string, s
     .insert([
       {
         player_address: playerAddress,
-        player_name: playerName,
         score: score,
         timestamp: new Date().toISOString(),
+        player_name: playerName || 'Anonymous',
       }
     ])
     .select()
@@ -141,23 +141,6 @@ export const getHighScores = async (limit: number = 100) => {
     .select('*')
     .order('score', { ascending: false })
     .limit(limit)
-
-  if (error) throw error
-  return data
-}
-
-export const getUserHighScores = async (playerAddress: string) => {
-  if (!isSupabaseAvailable()) {
-    console.warn('Supabase not configured, returning empty array')
-    return []
-  }
-
-  const { data, error } = await supabase!
-    .from('high_scores')
-    .select('*')
-    .eq('player_address', playerAddress)
-    .order('score', { ascending: false })
-    .limit(10)
 
   if (error) throw error
   return data

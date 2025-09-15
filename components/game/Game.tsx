@@ -4,7 +4,6 @@ import { FC, useEffect, useRef } from 'react'
 import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface GameProps {
   onBackToMenu?: () => void
@@ -14,8 +13,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
-  const { publicKey } = useWallet()
-  const { playerName } = usePlayerName()
+  const { publicKey, connected } = useWallet()
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -53,12 +51,18 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
       // Add event listener for getPlayerData
       phaserGameRef.current.events.on('getPlayerData', (callback: (data: any) => void) => {
-        console.log('GameScene requested player data')
-        const playerData = {
-          walletAddress: publicKey?.toString() || '',
-          playerName: playerName || ''
+        console.log('getPlayerData event received')
+        if (connected && publicKey) {
+          const playerData = {
+            walletAddress: publicKey.toString(),
+            playerName: 'Player' // You can customize this or get from user input
+          }
+          console.log('Sending player data:', playerData)
+          callback(playerData)
+        } else {
+          console.log('Wallet not connected, sending null')
+          callback(null)
         }
-        callback(playerData)
       })
     }
 

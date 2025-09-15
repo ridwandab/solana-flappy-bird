@@ -34,6 +34,7 @@ Untuk mengaktifkan leaderboard yang terintegrasi dengan database, Anda perlu mem
 CREATE TABLE high_scores (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   player_address TEXT NOT NULL,
+  player_name TEXT NOT NULL DEFAULT 'Anonymous',
   score INTEGER NOT NULL,
   timestamp TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()

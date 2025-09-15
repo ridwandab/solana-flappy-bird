@@ -139,18 +139,11 @@ export const Leaderboard: FC = () => {
                 
                 <div className="col-span-4 flex items-center space-x-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    {entry.player_name ? entry.player_name.slice(0, 2).toUpperCase() : (entry.player_address ? entry.player_address.slice(2, 4).toUpperCase() : '??')}
+                    {entry.player_address ? entry.player_address.slice(2, 4).toUpperCase() : '??'}
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium text-white">
-                      {entry.player_name || 'Anonymous'}
-                    </span>
-                    {entry.player_address && (
-                      <span className="text-xs text-white/60">
-                        {formatAddress(entry.player_address)}
-                      </span>
-                    )}
-                  </div>
+                  <span className="font-medium text-white">
+                    {entry.player_address ? formatAddress(entry.player_address) : 'Anonymous'}
+                  </span>
                 </div>
                 
                 <div className="col-span-3 text-center">
