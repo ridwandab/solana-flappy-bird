@@ -50,7 +50,7 @@ export class GameScene extends Phaser.Scene {
   private readonly DEFAULT_FLAP_FORCE = -600  // Optimized flap force to counter higher gravity (was -500)
   private readonly PIPE_SPEED = 3.5  // Balanced pipe speed for optimal gameplay (was 4)
   private readonly PIPE_SPAWN_DELAY = 3000  // Balanced delay between pipes (3 seconds) for optimal gameplay
-  private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
+  private readonly PIPE_RESPAWN_X = 700  // Moved left for better collision precision
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
@@ -1091,16 +1091,17 @@ export class GameScene extends Phaser.Scene {
     
     console.log(`🎯 Random gap position: ${finalGapPosition}px from top - Gap size: ${gap}px - Difficulty: ${this.difficultyLevel}`)
     
-    // Calculate consistent spawn position
+    // Calculate consistent spawn position with left offset for better collision precision
+    const PIPE_LEFT_OFFSET = 50 // Move pipes 50px to the left for better collision precision
     let x: number
     if (this.activePipes.length === 0) {
-      // First pipe spawns at respawn position
-      x = this.PIPE_RESPAWN_X
+      // First pipe spawns at respawn position with left offset
+      x = this.PIPE_RESPAWN_X - PIPE_LEFT_OFFSET
     } else {
-      // Subsequent pipes spawn at consistent spacing from last pipe
+      // Subsequent pipes spawn at consistent spacing from last pipe with left offset
       const lastPipe = this.activePipes[this.activePipes.length - 1]
       const currentSpacing = this.getCurrentPipeSpacing()
-      x = lastPipe.topPipe.x + currentSpacing
+      x = lastPipe.topPipe.x + currentSpacing - PIPE_LEFT_OFFSET
     }
 
     console.log(`🚀 SPAWNING PIPE #${this.activePipes.length + 1}: x=${x}, height=${pipeHeight}, gap=${Math.round(gap)}, difficulty=${this.difficultyLevel}`)
