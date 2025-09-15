@@ -703,13 +703,34 @@ export class GameScene extends Phaser.Scene {
         
         // Visual debugging removed - collision detection works invisibly
         
-        // Simplified debug logging when pipe is very close
-        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 30) {
+        // Detailed debug logging when pipe is very close
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 50) {
           console.log('🔍 COLLISION DEBUG:', {
-            bird: { x: this.bird.x, y: this.bird.y },
+            bird: { 
+              x: this.bird.x, 
+              y: this.bird.y,
+              left: birdLeft,
+              right: birdRight,
+              top: birdTop,
+              bottom: birdBottom
+            },
             distance: Math.abs(pipeSet.topPipe.x - this.bird.x),
             hitTopPipe,
-            hitBottomPipe
+            hitBottomPipe,
+            topPipeBounds: pipeSet.topPipeCollision ? {
+              x: pipeSet.topPipeCollision.x,
+              y: pipeSet.topPipeCollision.y,
+              width: pipeSet.topPipeCollision.width,
+              height: pipeSet.topPipeCollision.height,
+              right: pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width
+            } : 'none',
+            bottomPipeBounds: pipeSet.bottomPipeCollision ? {
+              x: pipeSet.bottomPipeCollision.x,
+              y: pipeSet.bottomPipeCollision.y,
+              width: pipeSet.bottomPipeCollision.width,
+              height: pipeSet.bottomPipeCollision.height,
+              right: pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width
+            } : 'none'
           })
         }
         
@@ -1129,35 +1150,47 @@ export class GameScene extends Phaser.Scene {
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
     // Create invisible collision rectangles that match the visual pipe size exactly
-    // Make collision area match visual pipe perfectly
+    // Make collision area match visual pipe perfectly - ensure right side collision
     const collisionMarginLeft = 0 // No margin on left side
     const collisionMarginRight = 0 // No extension to the right - match visual exactly
     const collisionMarginTop = 0 // No margin on top
     const collisionMarginBottom = 0 // No margin on bottom
     
+    // Calculate precise collision bounds for top pipe
     const topPipeCollisionRect = { 
-      x: topPipeLeft + collisionMarginLeft, 
-      y: topPipeTop + collisionMarginTop, 
-      width: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight), // Fix: use absolute value for right margin
-      height: scaledTopPipeHeight - collisionMarginTop - collisionMarginBottom
+      x: topPipeLeft, 
+      y: topPipeTop, 
+      width: pipeWidth, // Full pipe width for complete collision coverage
+      height: scaledTopPipeHeight
     }
     
+    // Calculate precise collision bounds for bottom pipe
     const bottomPipeCollisionRect = { 
-      x: bottomPipeLeft + collisionMarginLeft, 
-      y: bottomPipeTop + collisionMarginTop, 
-      width: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight), // Fix: use absolute value for right margin
-      height: scaledBottomPipeHeight - collisionMarginTop - collisionMarginBottom
+      x: bottomPipeLeft, 
+      y: bottomPipeTop, 
+      width: pipeWidth, // Full pipe width for complete collision coverage
+      height: scaledBottomPipeHeight
     }
 
     // DEBUG: Log collision rectangle dimensions
     console.log('🔧 COLLISION RECTANGLES CREATED:', {
       pipeX: x,
       pipeWidth: pipeWidth,
-      margins: { left: collisionMarginLeft, right: collisionMarginRight, top: collisionMarginTop, bottom: collisionMarginBottom },
-      topPipeCollision: topPipeCollisionRect,
-      bottomPipeCollision: bottomPipeCollisionRect,
-      totalWidth: pipeWidth - collisionMarginLeft + Math.abs(collisionMarginRight),
-      rightExtension: Math.abs(collisionMarginRight)
+      finalGapPosition: finalGapPosition,
+      topPipeCollision: {
+        x: topPipeCollisionRect.x,
+        y: topPipeCollisionRect.y,
+        width: topPipeCollisionRect.width,
+        height: topPipeCollisionRect.height,
+        right: topPipeCollisionRect.x + topPipeCollisionRect.width
+      },
+      bottomPipeCollision: {
+        x: bottomPipeCollisionRect.x,
+        y: bottomPipeCollisionRect.y,
+        width: bottomPipeCollisionRect.width,
+        height: bottomPipeCollisionRect.height,
+        right: bottomPipeCollisionRect.x + bottomPipeCollisionRect.width
+      }
     })
 
     // Create pipe set object
