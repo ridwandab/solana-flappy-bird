@@ -118,6 +118,9 @@ export const PlayerNameModal: FC<PlayerNameModalProps> = ({
           <p className="text-white/60 text-sm text-center">
             Your name will be displayed on the leaderboard and saved with your high scores.
           </p>
+          <p className="text-green-400 text-xs text-center mt-2">
+            ✅ Wallet connected - Data will be saved to Supabase
+          </p>
         </div>
       </div>
     </div>

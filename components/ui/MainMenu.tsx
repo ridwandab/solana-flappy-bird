@@ -55,6 +55,12 @@ export const MainMenu: FC<MainMenuProps> = ({
 
   // Handle start game with player name
   const handleStartGame = () => {
+    // Check if wallet is connected first
+    if (!publicKey) {
+      console.log('Wallet not connected, cannot start game')
+      return
+    }
+    
     if (!playerName) {
       setShowPlayerNameModal(true)
     } else {
@@ -89,8 +95,8 @@ export const MainMenu: FC<MainMenuProps> = ({
           <div className="flex flex-col items-center gap-4">
             <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
             
-            {/* Player Name Display */}
-            {playerName && (
+            {/* Player Name Display - Only show when wallet is connected */}
+            {publicKey && playerName && (
               <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
                 <User className="w-4 h-4 text-white/80" />
                 <span className="text-white/80 text-sm">
@@ -104,6 +110,16 @@ export const MainMenu: FC<MainMenuProps> = ({
                 </button>
               </div>
             )}
+            
+            {/* Wallet Connection Status */}
+            {!publicKey && (
+              <div className="flex items-center gap-2 bg-orange-500/20 px-4 py-2 rounded-full border border-orange-500/30">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-orange-200 text-sm">
+                  Connect your wallet to start playing
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -112,13 +128,23 @@ export const MainMenu: FC<MainMenuProps> = ({
           {/* Play Game */}
           <button
             onClick={handleStartGame}
-            className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            disabled={!publicKey}
+            className={`group p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+              publicKey 
+                ? 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
+                : 'bg-gradient-to-br from-gray-500 to-gray-600 text-gray-300 cursor-not-allowed'
+            }`}
           >
             <div className="text-center">
               <Play className="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform" />
               <h2 className="text-2xl font-bold mb-2">Play Game</h2>
-              <p className="text-green-100">
-                {playerName ? `Start your adventure, ${getDisplayName()}!` : 'Enter your name to start!'}
+              <p className={publicKey ? 'text-green-100' : 'text-gray-400'}>
+                {!publicKey 
+                  ? 'Connect wallet first to play!' 
+                  : playerName 
+                    ? `Start your adventure, ${getDisplayName()}!` 
+                    : 'Enter your name to start!'
+                }
               </p>
             </div>
           </button>
@@ -223,13 +249,15 @@ export const MainMenu: FC<MainMenuProps> = ({
       {/* Quest Progress Tracker */}
       <QuestProgressTracker />
 
-      {/* Player Name Modal */}
-      <PlayerNameModal
-        isOpen={showPlayerNameModal}
-        onClose={() => setShowPlayerNameModal(false)}
-        onConfirm={handlePlayerNameConfirm}
-        defaultName={playerName}
-      />
+      {/* Player Name Modal - Only show when wallet is connected */}
+      {publicKey && (
+        <PlayerNameModal
+          isOpen={showPlayerNameModal}
+          onClose={() => setShowPlayerNameModal(false)}
+          onConfirm={handlePlayerNameConfirm}
+          defaultName={playerName}
+        />
+      )}
     </div>
   )
 }
