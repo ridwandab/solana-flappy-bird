@@ -11,6 +11,8 @@ export class AudioManager {
   private backgroundMusic: Phaser.Sound.BaseSound | null = null
   private sounds: Map<string, Phaser.Sound.BaseSound> = new Map()
   private soundEnabled: boolean = true
+  private audioContext: AudioContext | null = null
+  private audioContextInitialized: boolean = false
 
   constructor(scene: Phaser.Scene, config: AudioConfig) {
     this.scene = scene
@@ -20,6 +22,9 @@ export class AudioManager {
 
   private async initializeAudio() {
     try {
+      // Initialize AudioContext (but don't start it yet)
+      this.initializeAudioContext()
+      
       // Load background music
       await this.loadBackgroundMusic()
       
@@ -29,6 +34,27 @@ export class AudioManager {
       console.log('Audio system initialized successfully')
     } catch (error) {
       console.error('Failed to initialize audio system:', error)
+    }
+  }
+
+  private initializeAudioContext() {
+    try {
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      console.log('AudioContext created (suspended state)')
+    } catch (error) {
+      console.error('Failed to create AudioContext:', error)
+    }
+  }
+
+  private async resumeAudioContext() {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      try {
+        await this.audioContext.resume()
+        this.audioContextInitialized = true
+        console.log('AudioContext resumed successfully')
+      } catch (error) {
+        console.error('Failed to resume AudioContext:', error)
+      }
     }
   }
 
@@ -80,74 +106,86 @@ export class AudioManager {
     } as any
   }
 
-  private playFlapSoundEffect() {
+  private async playFlapSoundEffect() {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
+      if (!this.audioContext) return
+      
+      // Resume AudioContext if needed
+      await this.resumeAudioContext()
+      
+      const oscillator = this.audioContext.createOscillator()
+      const gainNode = this.audioContext.createGain()
       
       oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
+      gainNode.connect(this.audioContext.destination)
       
       oscillator.type = 'sawtooth'
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1)
+      oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1)
       
       const volume = (this.config.soundVolume / 100) * 0.3
-      gainNode.gain.setValueAtTime(volume, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
+      gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1)
       
       oscillator.start()
-      oscillator.stop(audioContext.currentTime + 0.1)
+      oscillator.stop(this.audioContext.currentTime + 0.1)
     } catch (error) {
       console.log('Flap sound effect failed:', error)
     }
   }
 
-  private playScoreSoundEffect() {
+  private async playScoreSoundEffect() {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
+      if (!this.audioContext) return
+      
+      // Resume AudioContext if needed
+      await this.resumeAudioContext()
+      
+      const oscillator = this.audioContext.createOscillator()
+      const gainNode = this.audioContext.createGain()
       
       oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
+      gainNode.connect(this.audioContext.destination)
       
       oscillator.type = 'sine'
-      oscillator.frequency.setValueAtTime(523, audioContext.currentTime) // C5
-      oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1) // E5
-      oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2) // G5
+      oscillator.frequency.setValueAtTime(523, this.audioContext.currentTime) // C5
+      oscillator.frequency.setValueAtTime(659, this.audioContext.currentTime + 0.1) // E5
+      oscillator.frequency.setValueAtTime(784, this.audioContext.currentTime + 0.2) // G5
       
       const volume = (this.config.soundVolume / 100) * 0.2
-      gainNode.gain.setValueAtTime(volume, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
+      gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3)
       
       oscillator.start()
-      oscillator.stop(audioContext.currentTime + 0.3)
+      oscillator.stop(this.audioContext.currentTime + 0.3)
     } catch (error) {
       console.log('Score sound effect failed:', error)
     }
   }
 
-  private playGameOverSoundEffect() {
+  private async playGameOverSoundEffect() {
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-      const oscillator = audioContext.createOscillator()
-      const gainNode = audioContext.createGain()
+      if (!this.audioContext) return
+      
+      // Resume AudioContext if needed
+      await this.resumeAudioContext()
+      
+      const oscillator = this.audioContext.createOscillator()
+      const gainNode = this.audioContext.createGain()
       
       oscillator.connect(gainNode)
-      gainNode.connect(audioContext.destination)
+      gainNode.connect(this.audioContext.destination)
       
       oscillator.type = 'sawtooth'
-      oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5)
+      oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.5)
       
       const volume = (this.config.soundVolume / 100) * 0.4
-      gainNode.gain.setValueAtTime(volume, audioContext.currentTime)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+      gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5)
       
       oscillator.start()
-      oscillator.stop(audioContext.currentTime + 0.5)
+      oscillator.stop(this.audioContext.currentTime + 0.5)
     } catch (error) {
       console.log('Game over sound effect failed:', error)
     }
@@ -233,5 +271,10 @@ export class AudioManager {
 
   public getCurrentConfig(): AudioConfig {
     return { ...this.config }
+  }
+
+  public async initializeAudioOnUserGesture() {
+    console.log('Initializing audio on user gesture...')
+    await this.resumeAudioContext()
   }
 }

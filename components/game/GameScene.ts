@@ -367,7 +367,12 @@ export class GameScene extends Phaser.Scene {
     })
   }
 
-  private startGame() {
+  private async startGame() {
+    // Initialize audio on user gesture (first click/tap)
+    if (this.audioManager) {
+      await this.audioManager.initializeAudioOnUserGesture()
+    }
+
     // Hide start screen elements (but keep bird)
     this.startScreenElements.forEach(element => {
       if (element !== this.bird) {
