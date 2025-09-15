@@ -54,8 +54,8 @@ export class GameScene extends Phaser.Scene {
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
-  private readonly BASE_PIPE_GAP = 140  // Gap between pipes (balanced for optimal gameplay)
-  private readonly MIN_PIPE_GAP = 140   // Consistent gap - no variation for fairness
+  private readonly BASE_PIPE_GAP = 180  // Gap between pipes (larger for easier gameplay)
+  private readonly MIN_PIPE_GAP = 160   // Minimum gap - still larger than before for easier gameplay
   
   // Track scored pipes to prevent multiple scoring
   private scoredPipes: Set<any> = new Set()
@@ -822,12 +822,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getCurrentPipeGap(): number {
-    // Calculate current pipe gap based on difficulty level with random variation
-    const progress = Math.min(this.difficultyLevel / 15, 1) // Max difficulty at level 15
+    // Calculate current pipe gap based on difficulty level with minimal variation
+    const progress = Math.min(this.difficultyLevel / 20, 1) // Max difficulty at level 20 (slower progression)
     const baseGap = this.BASE_PIPE_GAP - (this.BASE_PIPE_GAP - this.MIN_PIPE_GAP) * progress
     
-    // Add random variation to gap size for more challenge (±20px)
-    const randomVariation = Phaser.Math.Between(-20, 20)
+    // Add minimal random variation to gap size for slight challenge (±10px)
+    const randomVariation = Phaser.Math.Between(-10, 10)
     const finalGap = Math.max(baseGap + randomVariation, this.MIN_PIPE_GAP)
     
     console.log(`Gap calculation: base=${baseGap}, random=${randomVariation}, final=${finalGap}`)
