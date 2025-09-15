@@ -1518,24 +1518,54 @@ export class GameScene extends Phaser.Scene {
           console.log('High score saved to Supabase successfully')
         } else {
           console.log('Supabase not available, saving to localStorage only')
-          // Fallback to localStorage
-          const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
-          const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
-          localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+          // Fallback to localStorage - save to leaderboard format
+          this.saveToLocalStorageLeaderboard(playerData.walletAddress, this.score, playerData.playerName)
         }
       } else {
         console.log('Player data not available, saving to localStorage only')
-        // Fallback to localStorage
-        const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
-        const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
-        localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+        // Fallback to localStorage - save with anonymous data
+        this.saveToLocalStorageLeaderboard('anonymous', this.score, 'Anonymous')
       }
     } catch (error) {
       console.error('Error saving high score to database:', error)
-      // Fallback to localStorage
-      const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
-      const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
-      localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+      // Fallback to localStorage - save with anonymous data
+      this.saveToLocalStorageLeaderboard('anonymous', this.score, 'Anonymous')
+    }
+  }
+
+  private saveToLocalStorageLeaderboard(walletAddress: string, score: number, playerName: string) {
+    try {
+      // Create leaderboard entry
+      const leaderboardKey = `leaderboard_${walletAddress}_${Date.now()}`
+      const leaderboardEntry = {
+        id: leaderboardKey,
+        player_address: walletAddress,
+        player_name: playerName,
+        score: score,
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+      }
+      
+      // Save to localStorage
+      localStorage.setItem(leaderboardKey, JSON.stringify(leaderboardEntry))
+      
+      // Also save to flappyBirdHighScores array for HighScoreDashboard
+      const existingScores = localStorage.getItem('flappyBirdHighScores')
+      let scores = existingScores ? JSON.parse(existingScores) : []
+      
+      // Add new score
+      scores.push(leaderboardEntry)
+      
+      // Sort by score (highest first) and keep top 100
+      scores.sort((a: any, b: any) => b.score - a.score)
+      scores = scores.slice(0, 100)
+      
+      // Save back to localStorage
+      localStorage.setItem('flappyBirdHighScores', JSON.stringify(scores))
+      
+      console.log('High score saved to localStorage leaderboard:', leaderboardEntry)
+    } catch (error) {
+      console.error('Error saving to localStorage leaderboard:', error)
     }
   }
 
