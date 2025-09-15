@@ -108,12 +108,15 @@ export const SupabaseDebug: React.FC = () => {
         <div className="bg-gray-800 rounded-lg p-3">
           <h4 className="text-white font-semibold mb-2">Setup Instructions:</h4>
           <div className="text-white/80 text-sm space-y-2">
-            <p>1. Go to: <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Supabase Dashboard</a></p>
-            <p>2. Select project: <code className="bg-gray-700 px-1 rounded">solana-flappy-bird</code></p>
-            <p>3. Go to: Settings → API</p>
-            <p>4. Copy "anon public" key</p>
-            <p>5. Update <code className="bg-gray-700 px-1 rounded">.env.local</code> file</p>
-            <p>6. Restart development server</p>
+            <p><strong>Step 1:</strong> Create database tables</p>
+            <p>• Go to: <a href="https://supabase.com/dashboard/project/yqxafphtxatnrxswnpje/sql" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">SQL Editor</a></p>
+            <p>• Copy script from: <code className="bg-gray-700 px-1 rounded">database_schema.sql</code></p>
+            <p>• Click "Run" to create tables</p>
+            <p><strong>Step 2:</strong> Get anon key</p>
+            <p>• Go to: <a href="https://supabase.com/dashboard/project/yqxafphtxatnrxswnpje/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Settings → API</a></p>
+            <p>• Copy "anon public" key</p>
+            <p>• Update <code className="bg-gray-700 px-1 rounded">.env.local</code> file</p>
+            <p>• Restart development server</p>
           </div>
         </div>
       </div>
