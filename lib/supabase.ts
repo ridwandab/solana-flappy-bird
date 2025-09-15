@@ -7,6 +7,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
   supabaseUrl !== 'your_supabase_project_url' && 
   supabaseAnonKey !== 'your_supabase_anon_key' &&
+  supabaseAnonKey !== 'your_supabase_anon_key_here' &&
   supabaseUrl.startsWith('https://') &&
   supabaseAnonKey.length > 50
 

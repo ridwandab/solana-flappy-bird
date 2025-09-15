@@ -36,7 +36,6 @@ export const MainMenu: FC<MainMenuProps> = ({
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
   const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
-  const [hasShownPlayerNameModal, setHasShownPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
   const { playerName, hasPlayerName, savePlayerName } = usePlayerName()
 
@@ -56,12 +55,17 @@ export const MainMenu: FC<MainMenuProps> = ({
 
   // Show player name modal only when wallet is first connected and no name exists
   useEffect(() => {
-    if (publicKey && !hasPlayerName && !hasShownPlayerNameModal) {
-      // Only show modal if it hasn't been shown before for this session
-      setShowPlayerNameModal(true)
-      setHasShownPlayerNameModal(true)
+    if (publicKey && !hasPlayerName) {
+      // Check if we've already shown the modal for this wallet in this session
+      const modalShownKey = `playerNameModalShown_${publicKey.toString()}`
+      const hasShownModal = sessionStorage.getItem(modalShownKey)
+      
+      if (!hasShownModal) {
+        setShowPlayerNameModal(true)
+        sessionStorage.setItem(modalShownKey, 'true')
+      }
     }
-  }, [publicKey, hasPlayerName, hasShownPlayerNameModal])
+  }, [publicKey, hasPlayerName])
 
   const handleStartGame = () => {
     if (publicKey && !hasPlayerName) {

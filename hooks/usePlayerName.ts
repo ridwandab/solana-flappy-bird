@@ -16,6 +16,19 @@ export const usePlayerName = () => {
     }
   }, [publicKey])
 
+  // Clear session storage when wallet changes
+  useEffect(() => {
+    if (publicKey) {
+      // Clear any old session storage for different wallets
+      const keys = Object.keys(sessionStorage)
+      keys.forEach(key => {
+        if (key.startsWith('playerNameModalShown_') && !key.includes(publicKey.toString())) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    }
+  }, [publicKey])
+
   const loadPlayerName = async () => {
     if (!publicKey) return
 
