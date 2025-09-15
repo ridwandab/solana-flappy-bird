@@ -6,7 +6,9 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 // Check if Supabase is configured
 const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
   supabaseUrl !== 'your_supabase_project_url' && 
-  supabaseAnonKey !== 'your_supabase_anon_key'
+  supabaseAnonKey !== 'your_supabase_anon_key' &&
+  supabaseUrl.startsWith('https://') &&
+  supabaseAnonKey.length > 50
 
 // Create Supabase client only if properly configured
 export const supabase = isSupabaseConfigured 
@@ -15,7 +17,12 @@ export const supabase = isSupabaseConfigured
 
 // Helper function to check if Supabase is available
 export const isSupabaseAvailable = () => {
-  return supabase !== null
+  const available = supabase !== null
+  console.log(`🔍 Supabase availability check: ${available}`)
+  if (!available) {
+    console.log(`⚠️ Supabase not available. URL: ${supabaseUrl}, Key: ${supabaseAnonKey ? 'Set' : 'Not set'}`)
+  }
+  return available
 }
 
 // Database types

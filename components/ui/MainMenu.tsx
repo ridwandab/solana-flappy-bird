@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
+import { PlayerNameModal } from './PlayerNameModal'
+import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -32,7 +34,9 @@ export const MainMenu: FC<MainMenuProps> = ({
 }) => {
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
+  const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
+  const { playerName, hasPlayerName, savePlayerName } = usePlayerName()
 
   // Initialize audio context for sound effects
   useEffect(() => {
@@ -47,6 +51,33 @@ export const MainMenu: FC<MainMenuProps> = ({
 
     initializeAudio()
   }, [resumeAudioContext])
+
+  // Show player name modal if wallet is connected but no name is set
+  useEffect(() => {
+    if (publicKey && !hasPlayerName) {
+      setShowPlayerNameModal(true)
+    }
+  }, [publicKey, hasPlayerName])
+
+  const handleStartGame = () => {
+    if (publicKey && !hasPlayerName) {
+      setShowPlayerNameModal(true)
+    } else {
+      onStartGame()
+    }
+  }
+
+  const handlePlayerNameSave = async (name: string) => {
+    const success = await savePlayerName(name)
+    if (success) {
+      setShowPlayerNameModal(false)
+      onStartGame() // Start game after saving name
+    }
+  }
+
+  const handlePlayerNameClose = () => {
+    setShowPlayerNameModal(false)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
@@ -74,7 +105,7 @@ export const MainMenu: FC<MainMenuProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Play Game */}
           <button
-            onClick={onStartGame}
+            onClick={handleStartGame}
             className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           >
             <div className="text-center">
@@ -183,6 +214,14 @@ export const MainMenu: FC<MainMenuProps> = ({
 
       {/* Quest Progress Tracker */}
       <QuestProgressTracker />
+
+      {/* Player Name Modal */}
+      <PlayerNameModal
+        isOpen={showPlayerNameModal}
+        playerAddress={publicKey?.toString() || ''}
+        onClose={handlePlayerNameClose}
+        onSave={handlePlayerNameSave}
+      />
     </div>
   )
 }

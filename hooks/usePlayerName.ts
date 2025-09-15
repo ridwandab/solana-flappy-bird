@@ -54,24 +54,34 @@ export const usePlayerName = () => {
   }
 
   const savePlayerNameToDatabase = async (name: string) => {
-    if (!publicKey) return
+    if (!publicKey) {
+      console.error('❌ No public key available for saving player name')
+      return false
+    }
 
     setIsLoading(true)
     setError(null)
 
     try {
+      console.log(`💾 Saving player name: "${name}" for address: ${publicKey.toString()}`)
+      
       // Save to localStorage first
       localStorage.setItem(`playerName_${publicKey.toString()}`, name)
       setPlayerName(name)
+      console.log(`✅ Player name saved to localStorage`)
 
       // Try to save to Supabase if available
       if (isSupabaseAvailable()) {
+        console.log(`🌐 Supabase available, saving to database...`)
         await savePlayerName(publicKey.toString(), name)
+        console.log(`✅ Player name saved to Supabase`)
+      } else {
+        console.log(`⚠️ Supabase not available, saved to localStorage only`)
       }
 
       return true
     } catch (error) {
-      console.error('Failed to save player name:', error)
+      console.error('❌ Failed to save player name:', error)
       setError('Failed to save player name')
       return false
     } finally {

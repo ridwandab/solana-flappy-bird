@@ -150,6 +150,8 @@ export const useLeaderboard = () => {
 
   const addScore = async (playerAddress: string, playerName: string, score: number) => {
     try {
+      console.log(`🏆 Adding score to leaderboard: ${score} for ${playerName} (${playerAddress})`)
+      
       // Always save to localStorage as backup
       const leaderboardKey = `leaderboard_${playerAddress}_${Date.now()}`
       const leaderboardEntry = {
@@ -161,9 +163,11 @@ export const useLeaderboard = () => {
         created_at: new Date().toISOString(),
       }
       localStorage.setItem(leaderboardKey, JSON.stringify(leaderboardEntry))
+      console.log(`✅ Score saved to localStorage`)
 
       // Try to save to Supabase if available
       if (isSupabaseAvailable()) {
+        console.log(`🌐 Supabase available, saving to database...`)
         const newEntry = {
           player_address: playerAddress,
           player_name: playerName,
@@ -177,18 +181,18 @@ export const useLeaderboard = () => {
           .select()
 
         if (error) {
-          console.error('Failed to save to Supabase:', error)
+          console.error('❌ Failed to save to Supabase:', error)
         } else {
-          console.log('Score saved to Supabase:', data)
+          console.log('✅ Score saved to Supabase:', data)
         }
       } else {
-        console.log('Supabase not configured, saved to localStorage only')
+        console.log('⚠️ Supabase not configured, saved to localStorage only')
       }
 
       // Refresh leaderboard
       await loadLeaderboard('all')
     } catch (error) {
-      console.error('Failed to add score:', error)
+      console.error('❌ Failed to add score:', error)
     }
   }
 

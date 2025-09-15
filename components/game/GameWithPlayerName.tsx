@@ -50,15 +50,17 @@ export const GameWithPlayerName: FC<GameWithPlayerNameProps> = ({ onBackToMenu }
     const displayName = playerName || `${publicKey.toString().slice(0, 4)}...${publicKey.toString().slice(-4)}`
 
     try {
+      console.log(`🎮 Game over! Score: ${score}, Player: ${displayName}, Address: ${publicKey.toString()}`)
+      
       // Save high score
       await saveHighScore(publicKey.toString(), displayName, score)
       
       // Add to leaderboard
       await addScore(publicKey.toString(), displayName, score)
       
-      console.log(`Game over! Score: ${score}, Player: ${displayName}`)
+      console.log(`✅ Score saved successfully!`)
     } catch (error) {
-      console.error('Failed to save score:', error)
+      console.error('❌ Failed to save score:', error)
     }
   }
 
