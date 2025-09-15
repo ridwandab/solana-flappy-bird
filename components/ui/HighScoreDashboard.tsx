@@ -25,7 +25,16 @@ export const HighScoreDashboard: FC = () => {
 
     try {
       if (!isSupabaseAvailable()) {
-        setError('Supabase not configured')
+        // Use localStorage fallback
+        const localScores = localStorage.getItem('flappyBirdHighScores')
+        if (localScores) {
+          const scores = JSON.parse(localScores)
+          setHighScores(scores.slice(0, 10)) // Top 10
+          setLastUpdated(new Date())
+        } else {
+          setHighScores([])
+          setLastUpdated(new Date())
+        }
         return
       }
 
@@ -117,14 +126,16 @@ export const HighScoreDashboard: FC = () => {
             <RefreshCw className={`w-4 h-4 text-white ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           
-          <a
-            href="https://supabase.com/dashboard/project/yqxafphtxatnrxswnpje/database/tables"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <ExternalLink className="w-4 h-4 text-white" />
-          </a>
+          {isSupabaseAvailable() && (
+            <a
+              href="https://supabase.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <ExternalLink className="w-4 h-4 text-white" />
+            </a>
+          )}
         </div>
       </div>
 
@@ -211,7 +222,7 @@ export const HighScoreDashboard: FC = () => {
       <div className="mt-6 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between text-sm text-white/60">
           <span>Showing top {highScores.length} scores</span>
-          <span>Data from Supabase database</span>
+          <span>{isSupabaseAvailable() ? 'Data from Supabase database' : 'Data from localStorage'}</span>
         </div>
       </div>
     </div>
