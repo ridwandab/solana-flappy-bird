@@ -4,6 +4,7 @@ import { supabase, getHighScores, isSupabaseAvailable } from '@/lib/supabase'
 interface LeaderboardEntry {
   id: string
   player_address: string
+  player_name: string
   score: number
   timestamp: string
   created_at: string
@@ -147,13 +148,14 @@ export const useLeaderboard = () => {
     }
   }
 
-  const addScore = async (playerAddress: string, score: number) => {
+  const addScore = async (playerAddress: string, score: number, playerName?: string) => {
     try {
       // Always save to localStorage as backup
       const leaderboardKey = `leaderboard_${playerAddress}_${Date.now()}`
       const leaderboardEntry = {
         id: leaderboardKey,
         player_address: playerAddress,
+        player_name: playerName || 'Anonymous',
         score,
         timestamp: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -164,6 +166,7 @@ export const useLeaderboard = () => {
       if (isSupabaseAvailable()) {
         const newEntry = {
           player_address: playerAddress,
+          player_name: playerName || 'Anonymous',
           score: score,
           timestamp: new Date().toISOString(),
         }
