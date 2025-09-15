@@ -50,7 +50,7 @@ export class GameScene extends Phaser.Scene {
   private readonly DEFAULT_FLAP_FORCE = -600  // Optimized flap force to counter higher gravity (was -500)
   private readonly PIPE_SPEED = 3.5  // Balanced pipe speed for optimal gameplay (was 4)
   private readonly PIPE_SPAWN_DELAY = 3000  // Balanced delay between pipes (3 seconds) for optimal gameplay
-  private readonly PIPE_RESPAWN_X = 700  // Moved left for better collision precision
+  private readonly PIPE_RESPAWN_X = 800  // Balanced respawn position for closer pipe spacing
   private readonly BASE_PIPE_SPACING = 500  // Base distance between pipe sets (in pixels) - closer spacing
   private readonly MIN_PIPE_SPACING = 400   // Minimum distance - closer but allows for difficulty progression
   private readonly MAX_ACTIVE_PIPES = 3  // Maximum number of pipe sets on screen
@@ -667,8 +667,8 @@ export class GameScene extends Phaser.Scene {
         // Use red lines as the actual collision area instead of pipe bounds
         const birdBounds = this.bird.getBounds()
         
-        // Use ultra-strict bird bounds with negative margin to prevent any penetration
-        const birdMargin = 2 // Negative margin to make collision detection more strict
+        // Use balanced bird bounds for fair collision detection
+        const birdMargin = 1 // Small margin for balanced collision detection
         const birdLeft = this.bird.x - (this.bird.width * this.bird.scaleX) / 2 + birdMargin
         const birdRight = this.bird.x + (this.bird.width * this.bird.scaleX) / 2 - birdMargin
         const birdTop = this.bird.y - (this.bird.height * this.bird.scaleY) / 2 + birdMargin
@@ -679,27 +679,27 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Use the stored collision rectangle for top pipe with extended bounds
-          const pipeMargin = 3 // Extend pipe collision area to prevent penetration
+          // Use the stored collision rectangle for top pipe with minimal margin
+          const pipeMargin = 1 // Minimal margin for balanced collision detection
           const topPipeLeft = pipeSet.topPipeCollision.x - pipeMargin
           const topPipeRight = pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width + pipeMargin
           const topPipeTop = pipeSet.topPipeCollision.y - pipeMargin
           const topPipeBottom = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height + pipeMargin
           
-          // Check collision with extended bounds
+          // Check collision with balanced bounds
           hitTopPipe = birdLeft < topPipeRight && birdRight > topPipeLeft && 
                       birdTop < topPipeBottom && birdBottom > topPipeTop
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Use the stored collision rectangle for bottom pipe with extended bounds
-          const pipeMargin = 3 // Extend pipe collision area to prevent penetration
+          // Use the stored collision rectangle for bottom pipe with minimal margin
+          const pipeMargin = 1 // Minimal margin for balanced collision detection
           const bottomPipeLeft = pipeSet.bottomPipeCollision.x - pipeMargin
           const bottomPipeRight = pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width + pipeMargin
           const bottomPipeTop = pipeSet.bottomPipeCollision.y - pipeMargin
           const bottomPipeBottom = pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height + pipeMargin
           
-          // Check collision with extended bounds
+          // Check collision with balanced bounds
           hitBottomPipe = birdLeft < bottomPipeRight && birdRight > bottomPipeLeft && 
                          birdTop < bottomPipeBottom && birdBottom > bottomPipeTop
         }
@@ -740,7 +740,7 @@ export class GameScene extends Phaser.Scene {
         // Check if bird is in the safe gap (between top and bottom pipes)
         const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
         const gapBottom = pipeSet.bottomPipeCollision.y
-        const gapTolerance = 1 // Ultra-minimal gap tolerance to prevent any penetration
+        const gapTolerance = 5 // Balanced gap tolerance for fair gameplay
         const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
         
         // ULTRA-STRICT collision: bird must not overlap with any pipe at all
@@ -1091,17 +1091,16 @@ export class GameScene extends Phaser.Scene {
     
     console.log(`🎯 Random gap position: ${finalGapPosition}px from top - Gap size: ${gap}px - Difficulty: ${this.difficultyLevel}`)
     
-    // Calculate consistent spawn position with left offset for better collision precision
-    const PIPE_LEFT_OFFSET = 50 // Move pipes 50px to the left for better collision precision
+    // Calculate consistent spawn position
     let x: number
     if (this.activePipes.length === 0) {
-      // First pipe spawns at respawn position with left offset
-      x = this.PIPE_RESPAWN_X - PIPE_LEFT_OFFSET
+      // First pipe spawns at respawn position
+      x = this.PIPE_RESPAWN_X
     } else {
-      // Subsequent pipes spawn at consistent spacing from last pipe with left offset
+      // Subsequent pipes spawn at consistent spacing from last pipe
       const lastPipe = this.activePipes[this.activePipes.length - 1]
       const currentSpacing = this.getCurrentPipeSpacing()
-      x = lastPipe.topPipe.x + currentSpacing - PIPE_LEFT_OFFSET
+      x = lastPipe.topPipe.x + currentSpacing
     }
 
     console.log(`🚀 SPAWNING PIPE #${this.activePipes.length + 1}: x=${x}, height=${pipeHeight}, gap=${Math.round(gap)}, difficulty=${this.difficultyLevel}`)
