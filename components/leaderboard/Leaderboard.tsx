@@ -143,10 +143,10 @@ export const Leaderboard: FC = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="font-medium text-white">
-                      {entry.player_name || (entry.player_address ? formatAddress(entry.player_address) : 'Anonymous')}
+                      {entry.player_name || 'Anonymous'}
                     </span>
-                    {entry.player_name && (
-                      <span className="text-xs text-white/50">
+                    {entry.player_address && (
+                      <span className="text-xs text-white/60">
                         {formatAddress(entry.player_address)}
                       </span>
                     )}

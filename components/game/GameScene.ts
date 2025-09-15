@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser'
 import { AudioManager, AudioConfig } from '@/lib/audioManager'
+import { saveHighScore, isSupabaseAvailable } from '@/lib/supabase'
 
 // Quest event types
 interface QuestEvent {
@@ -1272,6 +1273,9 @@ export class GameScene extends Phaser.Scene {
       timestamp: Date.now()
     })
     
+    // Save high score to Supabase if available
+    this.saveHighScoreToDatabase()
+    
     // Play game over sound using audio manager
     if (this.audioManager) {
       this.audioManager.playGameOverSound()
@@ -1490,5 +1494,57 @@ export class GameScene extends Phaser.Scene {
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
     console.log('Applied bird placeholder texture')
+  }
+
+  private async saveHighScoreToDatabase() {
+    try {
+      // Get player data from game events
+      const playerData = await this.getPlayerData()
+      
+      if (playerData && playerData.walletAddress && playerData.playerName) {
+        console.log('Saving high score to database:', {
+          walletAddress: playerData.walletAddress,
+          playerName: playerData.playerName,
+          score: this.score
+        })
+        
+        if (isSupabaseAvailable()) {
+          await saveHighScore(playerData.walletAddress, playerData.playerName, this.score)
+          console.log('High score saved to Supabase successfully')
+        } else {
+          console.log('Supabase not available, saving to localStorage only')
+          // Fallback to localStorage
+          const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
+          const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
+          localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+        }
+      } else {
+        console.log('Player data not available, saving to localStorage only')
+        // Fallback to localStorage
+        const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
+        const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
+        localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+      }
+    } catch (error) {
+      console.error('Error saving high score to database:', error)
+      // Fallback to localStorage
+      const savedHighScore = localStorage.getItem('flappyBirdHighScore') || '0'
+      const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
+      localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
+    }
+  }
+
+  private async getPlayerData(): Promise<{ walletAddress: string; playerName: string } | null> {
+    return new Promise((resolve) => {
+      // Emit event to get player data from React component
+      this.game.events.emit('getPlayerData', (data: { walletAddress: string; playerName: string } | null) => {
+        resolve(data)
+      })
+      
+      // Timeout after 1 second if no response
+      setTimeout(() => {
+        resolve(null)
+      }, 1000)
+    })
   }
 }

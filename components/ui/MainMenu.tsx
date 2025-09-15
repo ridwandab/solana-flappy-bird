@@ -10,14 +10,13 @@ import {
   BarChart3, 
   Settings,
   Gift,
-  Star
+  Star,
+  User
 } from 'lucide-react'
 import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
-import { PlayerNameModal } from './PlayerNameModal'
 import { usePlayerName } from '@/hooks/usePlayerName'
-import { SupabaseDebug } from '../debug/SupabaseDebug'
-import { isSupabaseAvailable } from '@/lib/supabase'
+import { PlayerNameModal } from './PlayerNameModal'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -38,7 +37,7 @@ export const MainMenu: FC<MainMenuProps> = ({
   const [showQuestTracker, setShowQuestTracker] = useState(false)
   const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
-  const { playerName, hasPlayerName, savePlayerName } = usePlayerName()
+  const { playerName, savePlayerName, hasPlayerName } = usePlayerName()
 
   // Initialize audio context for sound effects
   useEffect(() => {
@@ -53,49 +52,6 @@ export const MainMenu: FC<MainMenuProps> = ({
 
     initializeAudio()
   }, [resumeAudioContext])
-
-  // Show player name modal only when wallet is first connected and no name exists
-  useEffect(() => {
-    if (publicKey && !hasPlayerName) {
-      // Check if we've already shown the modal for this wallet in this session
-      const modalShownKey = `playerNameModalShown_${publicKey.toString()}`
-      const hasShownModal = sessionStorage.getItem(modalShownKey)
-      
-      if (!hasShownModal) {
-        setShowPlayerNameModal(true)
-        sessionStorage.setItem(modalShownKey, 'true')
-      }
-    }
-  }, [publicKey, hasPlayerName])
-
-  const handleStartGame = () => {
-    if (publicKey && !hasPlayerName) {
-      // Show player name modal if no name is set
-      setShowPlayerNameModal(true)
-    } else if (publicKey && hasPlayerName) {
-      // Player has a name, start game directly
-      console.log(`🎮 Starting game for player: ${playerName}`)
-      onStartGame()
-    } else {
-      // No wallet connected, show wallet connection prompt
-      console.log('⚠️ Please connect wallet first')
-    }
-  }
-
-  const handlePlayerNameSave = async (name: string) => {
-    const success = await savePlayerName(name)
-    if (success) {
-      console.log(`✅ Player name saved: ${name}`)
-      setShowPlayerNameModal(false)
-      // Don't start game automatically, stay in menu
-    } else {
-      console.error('❌ Failed to save player name')
-    }
-  }
-
-  const handlePlayerNameClose = () => {
-    setShowPlayerNameModal(false)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-900 via-secondary-900 to-primary-800 flex items-center justify-center p-4">
@@ -114,46 +70,36 @@ export const MainMenu: FC<MainMenuProps> = ({
             </p>
           </div>
           
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center gap-4">
             <WalletMultiButton className="!bg-gradient-to-r !from-purple-500 !to-pink-500 hover:!from-purple-600 hover:!to-pink-600 !text-white !font-semibold !px-6 !py-3 !rounded-full !transition-all !duration-300 hover:!scale-105" />
             
-            {/* Player Name Display */}
-            {publicKey && hasPlayerName && (
-              <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm flex items-center justify-between">
-                <p className="text-white/80 text-sm">
-                  Playing as: <span className="font-semibold text-white">{playerName}</span>
-                </p>
-                <button
-                  onClick={() => setShowPlayerNameModal(true)}
-                  className="text-white/60 hover:text-white text-xs ml-2 underline"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
-
-            {/* Supabase Status */}
-            <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <p className="text-white/80 text-sm">
-                  Database: {isSupabaseAvailable() ? (
-                    <span className="text-green-400 font-semibold">✅ Connected</span>
-                  ) : (
-                    <span className="text-red-400 font-semibold">❌ Not Connected</span>
-                  )}
-                </p>
-                {!isSupabaseAvailable() && (
-                  <a 
-                    href="https://supabase.com/dashboard" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 text-xs underline"
-                  >
-                    Setup
-                  </a>
+            {publicKey && (
+              <div className="flex items-center gap-3 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
+                {hasPlayerName ? (
+                  <>
+                    <User className="w-4 h-4 text-white" />
+                    <span className="text-white font-medium">{playerName}</span>
+                    <button
+                      onClick={() => setShowPlayerNameModal(true)}
+                      className="text-white/60 hover:text-white transition-colors text-sm"
+                    >
+                      Edit
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <User className="w-4 h-4 text-white/60" />
+                    <span className="text-white/60 text-sm">No player name set</span>
+                    <button
+                      onClick={() => setShowPlayerNameModal(true)}
+                      className="text-white hover:text-white/80 transition-colors text-sm font-medium"
+                    >
+                      Set Name
+                    </button>
+                  </>
                 )}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -161,7 +107,7 @@ export const MainMenu: FC<MainMenuProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Play Game */}
           <button
-            onClick={handleStartGame}
+            onClick={onStartGame}
             className="group bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
           >
             <div className="text-center">
@@ -230,6 +176,22 @@ export const MainMenu: FC<MainMenuProps> = ({
               <p className="text-indigo-100">Check your progress</p>
             </div>
           </button>
+
+          {/* Player Name Settings */}
+          {publicKey && (
+            <button
+              onClick={() => setShowPlayerNameModal(true)}
+              className="group bg-gradient-to-br from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white p-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            >
+              <div className="text-center">
+                <User className="w-12 h-12 mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                <h2 className="text-2xl font-bold mb-2">Player Name</h2>
+                <p className="text-emerald-100">
+                  {hasPlayerName ? `Current: ${playerName}` : 'Set your name'}
+                </p>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Features Section */}
@@ -262,13 +224,6 @@ export const MainMenu: FC<MainMenuProps> = ({
           </div>
         </div>
 
-        {/* Debug Section - Only show in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8">
-            <SupabaseDebug />
-          </div>
-        )}
-
         {/* Footer */}
         <div className="text-center mt-8 text-white/40 text-sm">
           <p>Powered by Solana • Built with Next.js & Phaser 3</p>
@@ -277,13 +232,13 @@ export const MainMenu: FC<MainMenuProps> = ({
 
       {/* Quest Progress Tracker */}
       <QuestProgressTracker />
-
+      
       {/* Player Name Modal */}
       <PlayerNameModal
         isOpen={showPlayerNameModal}
-        playerAddress={publicKey?.toString() || ''}
-        onClose={handlePlayerNameClose}
-        onSave={handlePlayerNameSave}
+        onClose={() => setShowPlayerNameModal(false)}
+        onSave={savePlayerName}
+        currentPlayerName={playerName}
       />
     </div>
   )

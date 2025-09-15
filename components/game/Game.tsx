@@ -3,17 +3,19 @@
 import { FC, useEffect, useRef } from 'react'
 import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface GameProps {
   onBackToMenu?: () => void
-  onGameOver?: (score: number) => void
-  onGameRestart?: () => void
 }
 
-export const Game: FC<GameProps> = ({ onBackToMenu, onGameOver, onGameRestart }) => {
+export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
+  const { publicKey } = useWallet()
+  const { playerName } = usePlayerName()
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -40,7 +42,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu, onGameOver, onGameRestart })
 
     phaserGameRef.current = new Phaser.Game(config)
 
-    // Add event listeners
+    // Add event listener for goToMainMenu
     if (phaserGameRef.current) {
       phaserGameRef.current.events.on('goToMainMenu', () => {
         console.log('Main Menu button clicked - going back to menu')
@@ -49,18 +51,14 @@ export const Game: FC<GameProps> = ({ onBackToMenu, onGameOver, onGameRestart })
         }
       })
 
-      phaserGameRef.current.events.on('gameOver', (score: number) => {
-        console.log('Game over event received with score:', score)
-        if (onGameOver) {
-          onGameOver(score)
+      // Add event listener for getPlayerData
+      phaserGameRef.current.events.on('getPlayerData', (callback: (data: any) => void) => {
+        console.log('GameScene requested player data')
+        const playerData = {
+          walletAddress: publicKey?.toString() || '',
+          playerName: playerName || ''
         }
-      })
-
-      phaserGameRef.current.events.on('gameRestart', () => {
-        console.log('Game restart event received')
-        if (onGameRestart) {
-          onGameRestart()
-        }
+        callback(playerData)
       })
     }
 

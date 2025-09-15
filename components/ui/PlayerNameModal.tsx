@@ -1,74 +1,44 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { User, Save, X } from 'lucide-react'
-import { savePlayerName, getPlayerName } from '@/lib/supabase'
+import { FC, useState } from 'react'
+import { X, User, Save } from 'lucide-react'
 
 interface PlayerNameModalProps {
   isOpen: boolean
-  playerAddress: string
   onClose: () => void
   onSave: (playerName: string) => void
+  currentPlayerName?: string
 }
 
-export const PlayerNameModal: React.FC<PlayerNameModalProps> = ({
+export const PlayerNameModal: FC<PlayerNameModalProps> = ({
   isOpen,
-  playerAddress,
   onClose,
   onSave,
+  currentPlayerName = ''
 }) => {
-  const [playerName, setPlayerName] = useState('')
+  const [playerName, setPlayerName] = useState(currentPlayerName)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (isOpen && playerAddress) {
-      loadExistingName()
-    }
-  }, [isOpen, playerAddress])
-
-  const loadExistingName = async () => {
-    try {
-      const existingName = await getPlayerName(playerAddress)
-      if (existingName) {
-        setPlayerName(existingName)
-      }
-    } catch (error) {
-      console.error('Failed to load existing name:', error)
-    }
-  }
 
   const handleSave = async () => {
     if (!playerName.trim()) {
-      setError('Please enter a player name')
-      return
-    }
-
-    if (playerName.length < 2) {
-      setError('Player name must be at least 2 characters')
+      alert('Please enter a player name')
       return
     }
 
     if (playerName.length > 20) {
-      setError('Player name must be less than 20 characters')
+      alert('Player name must be 20 characters or less')
       return
     }
 
     setIsLoading(true)
-    setError(null)
-
     try {
-      // Save to Supabase
-      await savePlayerName(playerAddress, playerName.trim())
-      
-      // Save to localStorage as backup
-      localStorage.setItem(`playerName_${playerAddress}`, playerName.trim())
-      
-      onSave(playerName.trim())
+      await onSave(playerName.trim())
+      // Show success message
+      alert('Player name saved successfully!')
       onClose()
     } catch (error) {
-      console.error('Failed to save player name:', error)
-      setError('Failed to save player name. Please try again.')
+      console.error('Error saving player name:', error)
+      alert('Failed to save player name. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -77,8 +47,6 @@ export const PlayerNameModal: React.FC<PlayerNameModalProps> = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSave()
-    } else if (e.key === 'Escape') {
-      onClose()
     }
   }
 
@@ -86,80 +54,69 @@ export const PlayerNameModal: React.FC<PlayerNameModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-xl border border-gray-700 p-6 w-full max-w-md">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <User className="w-6 h-6 text-primary-500" />
-            <h2 className="text-xl font-bold text-white">Player Name</h2>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">Player Name</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 text-gray-600" />
           </button>
         </div>
 
         {/* Content */}
         <div className="space-y-4">
-          <p className="text-white/80 text-sm">
-            Enter your player name to appear on the leaderboard. This name will be associated with your wallet address.
+          <p className="text-gray-600">
+            Enter your player name to save your high scores and compete on the leaderboard!
           </p>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-white">
+          
+          <div>
+            <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-2">
               Player Name
             </label>
             <input
+              id="playerName"
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Enter your name..."
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               maxLength={20}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
               autoFocus
             />
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500 mt-1">
               {playerName.length}/20 characters
-            </p>
-          </div>
-
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-              <p className="text-red-400 text-sm">{error}</p>
-            </div>
-          )}
-
-          {/* Wallet Address Display */}
-          <div className="bg-gray-800 rounded-lg p-3">
-            <p className="text-xs text-gray-400 mb-1">Wallet Address</p>
-            <p className="text-white font-mono text-sm">
-              {playerAddress.slice(0, 8)}...{playerAddress.slice(-8)}
             </p>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex space-x-3 mt-6">
+        <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={isLoading || !playerName.trim()}
-            className="flex-1 px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+            className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <Save className="w-4 h-4" />
-                <span>Save</span>
+                Save
               </>
             )}
           </button>

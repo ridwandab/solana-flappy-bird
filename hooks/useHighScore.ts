@@ -60,31 +60,23 @@ export const useHighScore = () => {
     }
   }
 
-  const saveHighScore = async (playerAddress: string, playerName: string, score: number) => {
+  const saveHighScore = async (playerAddress: string, score: number) => {
     try {
-      console.log(`🎯 Saving high score: ${score} for ${playerName} (${playerAddress})`)
-      
       // Get current high score first
       const currentHighScore = await getHighScore(playerAddress)
-      console.log(`📊 Current high score: ${currentHighScore}`)
       
       // Only update high score if new score is higher
       if (score > currentHighScore) {
-        console.log(`🏆 New high score! ${score} > ${currentHighScore}`)
-        
         // Always save to localStorage as backup
         localStorage.setItem(`highScore_${playerAddress}`, score.toString())
-        console.log(`✅ High score saved to localStorage`)
         
         // Try to save to Supabase if available
         if (isSupabaseAvailable()) {
-          console.log(`🌐 Supabase available, saving high score to database...`)
           const { data, error } = await supabase!
             .from('high_scores')
             .insert([
               {
                 player_address: playerAddress,
-                player_name: playerName,
                 score: score,
                 timestamp: new Date().toISOString(),
               }
@@ -92,21 +84,21 @@ export const useHighScore = () => {
             .select()
 
           if (error) {
-            console.error('❌ Failed to save to Supabase:', error)
+            console.error('Failed to save to Supabase:', error)
           } else {
-            console.log('✅ High score saved to Supabase:', data)
+            console.log('High score saved to Supabase:', data)
           }
         } else {
-          console.log('⚠️ Supabase not configured, saved to localStorage only')
+          console.log('Supabase not configured, saved to localStorage only')
         }
         
         if (publicKey && playerAddress === publicKey.toString()) {
           setHighScore(score)
         }
         
-        console.log(`🎉 New high score ${score} saved for ${playerName} (${playerAddress})! (Previous: ${currentHighScore})`)
+        console.log(`New high score ${score} saved for ${playerAddress}! (Previous: ${currentHighScore})`)
       } else {
-        console.log(`📝 Score ${score} not saved as high score for ${playerName} (${playerAddress}) (Current high: ${currentHighScore})`)
+        console.log(`Score ${score} not saved as high score for ${playerAddress} (Current high: ${currentHighScore})`)
       }
 
       // Always save to leaderboard (for tracking all scores)
@@ -114,16 +106,15 @@ export const useHighScore = () => {
       const leaderboardEntry = {
         id: leaderboardKey,
         player_address: playerAddress,
-        player_name: playerName,
         score,
         timestamp: new Date().toISOString(),
         created_at: new Date().toISOString(),
       }
       localStorage.setItem(leaderboardKey, JSON.stringify(leaderboardEntry))
       
-      console.log(`📋 Score ${score} added to leaderboard for ${playerName} (${playerAddress})`)
+      console.log(`Score ${score} added to leaderboard for ${playerAddress}`)
     } catch (error) {
-      console.error('❌ Failed to save high score:', error)
+      console.error('Failed to save high score:', error)
     }
   }
 

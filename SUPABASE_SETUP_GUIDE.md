@@ -1,187 +1,171 @@
-# 🚀 Panduan Setup Supabase untuk Solana Flappy Bird
+# Supabase Setup Guide for Solana Flappy Bird
 
-## 📋 Langkah-langkah Setup
+This guide will help you set up Supabase to store player names and high scores for your Solana Flappy Bird game.
 
-### 1. **Dapatkan Anon Key dari Supabase Dashboard**
+## Prerequisites
 
-1. **Buka**: https://supabase.com/dashboard
-2. **Login** ke akun Supabase Anda
-3. **Pilih project**: `solana-flappy-bird` (URL: https://yqxafphtxatnrxswnpje.supabase.co)
-4. **Klik**: Settings → API
-5. **Copy**: "anon public" key (bukan service_role key)
-6. **Contoh anon key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (panjang sekitar 100+ karakter)
+- A Supabase account (free tier available)
+- Basic knowledge of SQL and database management
 
-### 2. **Update Environment Variables**
+## Step 1: Create a Supabase Project
 
-Edit file `.env.local` di root project:
+1. Go to [supabase.com](https://supabase.com)
+2. Sign up or log in to your account
+3. Click "New Project"
+4. Choose your organization
+5. Enter project details:
+   - **Name**: `solana-flappy-bird` (or your preferred name)
+   - **Database Password**: Choose a strong password
+   - **Region**: Select the region closest to your users
+6. Click "Create new project"
+7. Wait for the project to be created (usually takes 1-2 minutes)
+
+## Step 2: Get Your Project Credentials
+
+1. In your Supabase dashboard, go to **Settings** → **API**
+2. Copy the following values:
+   - **Project URL** (looks like: `https://your-project-id.supabase.co`)
+   - **Anon public key** (starts with `eyJ...`)
+
+## Step 3: Set Up Environment Variables
+
+1. In your project root, create a `.env.local` file (if it doesn't exist)
+2. Add your Supabase credentials:
 
 ```env
-# Solana Configuration
-NEXT_PUBLIC_SOLANA_NETWORK=devnet
-NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
-
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://yqxafphtxatnrxswnpje.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... # Ganti dengan anon key yang sebenarnya
-
-# Game Configuration
-NEXT_PUBLIC_GAME_TREASURY_ADDRESS=your_treasury_wallet_address
-NEXT_PUBLIC_GAME_MIN_SCORE_TO_SAVE=10
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-### 3. **Setup Database Schema**
+**Important**: Replace `your-project-id` and `your-anon-key-here` with your actual values.
 
-Buka **SQL Editor** di dashboard Supabase dan jalankan script berikut:
+## Step 4: Set Up the Database Schema
 
-```sql
--- 1. Buat tabel high_scores
-CREATE TABLE IF NOT EXISTS high_scores (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  player_address TEXT NOT NULL,
-  player_name TEXT NOT NULL,
-  score INTEGER NOT NULL,
-  timestamp TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+1. In your Supabase dashboard, go to **SQL Editor**
+2. Click "New Query"
+3. Copy and paste the contents of `supabase-setup.sql` into the editor
+4. Click "Run" to execute the SQL
 
--- 2. Buat tabel player_names
-CREATE TABLE IF NOT EXISTS player_names (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  player_address TEXT UNIQUE NOT NULL,
-  player_name TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
+This will create:
+- `high_scores` table for storing player scores
+- `user_cosmetics` table for storing purchased cosmetics
+- `cosmetics` table for available cosmetics
+- Proper indexes for performance
+- Row Level Security policies
+- Sample cosmetic data
 
--- 3. Buat index untuk performa
-CREATE INDEX IF NOT EXISTS idx_high_scores_player_address ON high_scores(player_address);
-CREATE INDEX IF NOT EXISTS idx_high_scores_player_name ON high_scores(player_name);
-CREATE INDEX IF NOT EXISTS idx_high_scores_score ON high_scores(score DESC);
-CREATE INDEX IF NOT EXISTS idx_high_scores_timestamp ON high_scores(timestamp DESC);
+## Step 5: Test the Connection
 
--- 4. Enable Row Level Security (RLS)
-ALTER TABLE high_scores ENABLE ROW LEVEL SECURITY;
-ALTER TABLE player_names ENABLE ROW LEVEL SECURITY;
+1. Start your development server:
+   ```bash
+   npm run dev
+   ```
 
--- 5. Buat policy untuk public access
-DROP POLICY IF EXISTS "Allow public read access" ON high_scores;
-CREATE POLICY "Allow public read access" ON high_scores FOR SELECT USING (true);
+2. Open your game in the browser
+3. Connect your wallet
+4. Set a player name
+5. Play the game and achieve a score
+6. Check your Supabase dashboard → **Table Editor** → **high_scores** to see if the score was saved
 
-DROP POLICY IF EXISTS "Allow public insert" ON high_scores;
-CREATE POLICY "Allow public insert" ON high_scores FOR INSERT WITH CHECK (true);
+## Step 6: Verify the Setup
 
-DROP POLICY IF EXISTS "Allow public read access" ON player_names;
-CREATE POLICY "Allow public read access" ON player_names FOR SELECT USING (true);
+### Check Tables
+Go to **Table Editor** in your Supabase dashboard and verify these tables exist:
+- `high_scores`
+- `user_cosmetics` 
+- `cosmetics`
 
-DROP POLICY IF EXISTS "Allow public insert" ON player_names;
-CREATE POLICY "Allow public insert" ON player_names FOR INSERT WITH CHECK (true);
+### Check Sample Data
+In the `cosmetics` table, you should see 10 sample cosmetic items.
 
-DROP POLICY IF EXISTS "Allow public update" ON player_names;
-CREATE POLICY "Allow public update" ON player_names FOR UPDATE USING (true);
+### Test High Score Saving
+1. Play the game and get a score
+2. Check the `high_scores` table for your entry
+3. Verify the data includes:
+   - `player_address` (your wallet address)
+   - `player_name` (the name you set)
+   - `score` (your game score)
+   - `timestamp` (when the score was achieved)
+
+## Troubleshooting
+
+### Common Issues
+
+**1. "Supabase not configured" message**
+- Check that your `.env.local` file has the correct environment variables
+- Restart your development server after adding environment variables
+- Verify the URL and key are correct (no extra spaces or quotes)
+
+**2. "Failed to save high score" error**
+- Check your Supabase project is active (not paused)
+- Verify the database schema was created correctly
+- Check the browser console for detailed error messages
+
+**3. High scores not appearing in leaderboard**
+- Ensure the `high_scores` table has data
+- Check that the leaderboard component is properly fetching data
+- Verify Row Level Security policies allow public read access
+
+### Debug Mode
+
+To enable debug logging, add this to your `.env.local`:
+```env
+NEXT_PUBLIC_DEBUG=true
 ```
 
-### 4. **Restart Development Server**
+This will show detailed logs in the browser console about Supabase operations.
 
-Setelah update `.env.local`:
+## Security Considerations
 
-```bash
-# Stop development server (Ctrl+C)
-# Start again
-npm run dev
-```
+The current setup uses public access policies for simplicity. For production, consider:
 
-### 5. **Test Koneksi**
+1. **Authentication**: Implement proper user authentication
+2. **Rate Limiting**: Add rate limiting to prevent spam
+3. **Input Validation**: Validate all inputs on the server side
+4. **Access Control**: Implement proper RLS policies based on user roles
 
-1. **Buka game** di browser
-2. **Connect wallet**
-3. **Scroll ke bawah** di menu utama
-4. **Klik "Test Supabase"** button
-5. **Lihat hasil** di console dan debug panel
+## Next Steps
 
-## 🔍 Troubleshooting
+Once Supabase is set up, you can:
 
-### **Jika Data Tidak Masuk ke Supabase:**
+1. **View Leaderboards**: High scores will automatically appear in the leaderboard
+2. **Track Player Progress**: Monitor player statistics and achievements
+3. **Manage Cosmetics**: Add new cosmetic items through the Supabase dashboard
+4. **Analytics**: Use Supabase's built-in analytics to track game usage
 
-#### **Check 1: Environment Variables**
-```bash
-# Pastikan .env.local berisi:
-NEXT_PUBLIC_SUPABASE_URL=https://yqxafphtxatnrxswnpje.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... # Bukan placeholder
-```
+## Support
 
-#### **Check 2: Browser Console**
-Buka browser console dan lihat:
-```
-🔍 Supabase availability check: true
-✅ Supabase configured correctly with URL: https://yqxafphtxatnrxswnpje.supabase.co
-```
+If you encounter issues:
 
-#### **Check 3: Database Schema**
-Pastikan tabel sudah dibuat dengan benar:
-- `high_scores` (6 columns)
-- `player_names` (5 columns)
-- RLS enabled
-- Policies created
+1. Check the [Supabase Documentation](https://supabase.com/docs)
+2. Review the browser console for error messages
+3. Check the Supabase dashboard for any service issues
+4. Verify your environment variables are correctly set
 
-#### **Check 4: Network Tab**
-Buka browser Network tab dan lihat:
-- Request ke Supabase API
-- Response status (200 OK)
-- Error messages
+## Database Schema Reference
 
-### **Jika Modal Nama Muncul Lagi:**
+### high_scores Table
+- `id`: UUID (Primary Key)
+- `player_address`: TEXT (Wallet address)
+- `player_name`: TEXT (Player's display name)
+- `score`: INTEGER (Game score)
+- `timestamp`: TIMESTAMP (When score was achieved)
+- `created_at`: TIMESTAMP (Record creation time)
 
-1. **Clear browser cache**
-2. **Check sessionStorage** di browser DevTools
-3. **Restart development server**
-4. **Check console** untuk error messages
+### user_cosmetics Table
+- `id`: UUID (Primary Key)
+- `player_address`: TEXT (Wallet address)
+- `cosmetic_id`: TEXT (Cosmetic identifier)
+- `purchased_at`: TIMESTAMP (Purchase time)
+- `transaction_signature`: TEXT (Solana transaction signature)
 
-## 📊 Cara Melihat Data di Supabase
-
-### **1. Melihat Data di Dashboard**
-1. **Buka**: https://supabase.com/dashboard
-2. **Pilih project**: `solana-flappy-bird`
-3. **Klik**: Database → Tables
-4. **Klik tabel**: `high_scores` atau `player_names`
-5. **Lihat data** di tab "Data"
-
-### **2. Query Data dengan SQL**
-Buka **SQL Editor** dan jalankan:
-
-```sql
--- Lihat semua high scores
-SELECT * FROM high_scores ORDER BY score DESC LIMIT 10;
-
--- Lihat semua player names
-SELECT * FROM player_names ORDER BY created_at DESC;
-
--- Lihat high scores dengan nama player
-SELECT 
-  h.player_name,
-  h.score,
-  h.timestamp,
-  h.player_address
-FROM high_scores h
-ORDER BY h.score DESC
-LIMIT 10;
-```
-
-## 🎯 Expected Results
-
-Setelah setup selesai:
-
-1. **Player name** tersimpan di tabel `player_names`
-2. **High scores** tersimpan di tabel `high_scores`
-3. **Leaderboard** menampilkan data dari Supabase
-4. **Modal nama** tidak muncul lagi setelah sudah ada nama
-5. **Data persist** antara session
-
-## 🆘 Support
-
-Jika masih ada masalah:
-
-1. **Check browser console** untuk error messages
-2. **Use debug tool** di menu utama
-3. **Verify environment variables** di `.env.local`
-4. **Check Supabase dashboard** untuk data
-5. **Restart development server** setelah perubahan
+### cosmetics Table
+- `id`: UUID (Primary Key)
+- `name`: TEXT (Cosmetic name)
+- `description`: TEXT (Cosmetic description)
+- `price`: DECIMAL (Price in SOL)
+- `rarity`: TEXT (Common, Uncommon, Rare, Epic)
+- `type`: TEXT (bird, pipe, background)
+- `image_url`: TEXT (Image file path)
+- `is_active`: BOOLEAN (Whether cosmetic is available)
