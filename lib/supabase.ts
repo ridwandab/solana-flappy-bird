@@ -21,6 +21,12 @@ export const isSupabaseAvailable = () => {
   console.log(`🔍 Supabase availability check: ${available}`)
   if (!available) {
     console.log(`⚠️ Supabase not available. URL: ${supabaseUrl}, Key: ${supabaseAnonKey ? 'Set' : 'Not set'}`)
+    console.log(`🔧 Please check your .env.local file and ensure:`)
+    console.log(`   - NEXT_PUBLIC_SUPABASE_URL is set correctly`)
+    console.log(`   - NEXT_PUBLIC_SUPABASE_ANON_KEY is set correctly`)
+    console.log(`   - Both values are not placeholder values`)
+  } else {
+    console.log(`✅ Supabase configured correctly with URL: ${supabaseUrl}`)
   }
   return available
 }

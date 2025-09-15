@@ -16,6 +16,7 @@ import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
 import { PlayerNameModal } from './PlayerNameModal'
 import { usePlayerName } from '@/hooks/usePlayerName'
+import { SupabaseDebug } from '../debug/SupabaseDebug'
 
 interface MainMenuProps {
   onStartGame: () => void
@@ -232,6 +233,13 @@ export const MainMenu: FC<MainMenuProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Debug Section - Only show in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8">
+            <SupabaseDebug />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/40 text-sm">
