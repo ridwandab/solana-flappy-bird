@@ -23,21 +23,22 @@ export const usePlayerName = () => {
     setError(null)
 
     try {
-      // Try to load from Supabase first if available
-      if (isSupabaseAvailable()) {
-        const supabaseName = await getPlayerName(publicKey.toString())
-        if (supabaseName) {
-          setPlayerName(supabaseName)
-          // Also save to localStorage as backup
-          localStorage.setItem(`playerName_${publicKey.toString()}`, supabaseName)
-          return
-        }
-      }
-
-      // Fallback to localStorage
+      // Try to load from localStorage first (faster)
       const localName = localStorage.getItem(`playerName_${publicKey.toString()}`)
       if (localName) {
         setPlayerName(localName)
+        console.log(`📝 Loaded player name from localStorage: ${localName}`)
+      }
+
+      // Then try to sync with Supabase if available
+      if (isSupabaseAvailable()) {
+        const supabaseName = await getPlayerName(publicKey.toString())
+        if (supabaseName && supabaseName !== localName) {
+          setPlayerName(supabaseName)
+          // Update localStorage with Supabase data
+          localStorage.setItem(`playerName_${publicKey.toString()}`, supabaseName)
+          console.log(`🌐 Synced player name from Supabase: ${supabaseName}`)
+        }
       }
     } catch (error) {
       console.error('Failed to load player name:', error)

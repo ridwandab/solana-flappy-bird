@@ -35,6 +35,7 @@ export const MainMenu: FC<MainMenuProps> = ({
   const { publicKey } = useWallet()
   const [showQuestTracker, setShowQuestTracker] = useState(false)
   const [showPlayerNameModal, setShowPlayerNameModal] = useState(false)
+  const [hasShownPlayerNameModal, setHasShownPlayerNameModal] = useState(false)
   const { resumeAudioContext } = useGlobalAudio()
   const { playerName, hasPlayerName, savePlayerName } = usePlayerName()
 
@@ -52,12 +53,14 @@ export const MainMenu: FC<MainMenuProps> = ({
     initializeAudio()
   }, [resumeAudioContext])
 
-  // Show player name modal if wallet is connected but no name is set
+  // Show player name modal only when wallet is first connected and no name exists
   useEffect(() => {
-    if (publicKey && !hasPlayerName) {
+    if (publicKey && !hasPlayerName && !hasShownPlayerNameModal) {
+      // Only show modal if it hasn't been shown before for this session
       setShowPlayerNameModal(true)
+      setHasShownPlayerNameModal(true)
     }
-  }, [publicKey, hasPlayerName])
+  }, [publicKey, hasPlayerName, hasShownPlayerNameModal])
 
   const handleStartGame = () => {
     if (publicKey && !hasPlayerName) {
@@ -78,8 +81,7 @@ export const MainMenu: FC<MainMenuProps> = ({
     if (success) {
       console.log(`✅ Player name saved: ${name}`)
       setShowPlayerNameModal(false)
-      // Start game after saving name
-      onStartGame()
+      // Don't start game automatically, stay in menu
     } else {
       console.error('❌ Failed to save player name')
     }
@@ -111,10 +113,16 @@ export const MainMenu: FC<MainMenuProps> = ({
             
             {/* Player Name Display */}
             {publicKey && hasPlayerName && (
-              <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
+              <div className="bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm flex items-center justify-between">
                 <p className="text-white/80 text-sm">
                   Playing as: <span className="font-semibold text-white">{playerName}</span>
                 </p>
+                <button
+                  onClick={() => setShowPlayerNameModal(true)}
+                  className="text-white/60 hover:text-white text-xs ml-2 underline"
+                >
+                  Edit
+                </button>
               </div>
             )}
           </div>
