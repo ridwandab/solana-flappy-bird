@@ -1138,20 +1138,20 @@ export class GameScene extends Phaser.Scene {
     console.log(`Bottom pipe created at x: ${x}, y: ${bottomPipeY}, scaleY: ${bottomPipeScaleY}`)
 
     // Calculate collision bounds for invisible collision detection
-    const pipeWidth = topPipe.width
+    const pipeWidth = topPipe.width * topPipe.scaleX // Actual width after scaling
     const scaledTopPipeHeight = topPipeHeight // Actual height of scaled top pipe
     const scaledBottomPipeHeight = bottomPipeHeight // Actual height of scaled bottom pipe
     
     // Get the actual bounds that Phaser will use for collision detection
     // Top pipe bounds (flipped pipe - extends from top (0) to gap)
     const topPipeLeft = x
-    const topPipeRight = x + pipeWidth
+    const topPipeRight = x + pipeWidth // Full width including right side
     const topPipeTop = 0 // Top pipe starts at top of game
     const topPipeBottom = finalGapPosition // Top pipe ends at gap
     
     // Bottom pipe bounds (extends from gap to bottom of game)
     const bottomPipeLeft = x
-    const bottomPipeRight = x + pipeWidth
+    const bottomPipeRight = x + pipeWidth // Full width including right side
     const bottomPipeTop = bottomPipeY // Bottom pipe starts at gap
     const bottomPipeBottom = gameHeight // Bottom pipe ends at bottom of game
     
@@ -1182,20 +1182,29 @@ export class GameScene extends Phaser.Scene {
     console.log('🔧 COLLISION RECTANGLES CREATED:', {
       pipeX: x,
       pipeWidth: pipeWidth,
+      pipeScaleX: topPipe.scaleX,
       finalGapPosition: finalGapPosition,
       topPipeCollision: {
         x: topPipeCollisionRect.x,
         y: topPipeCollisionRect.y,
         width: topPipeCollisionRect.width,
         height: topPipeCollisionRect.height,
-        right: topPipeCollisionRect.x + topPipeCollisionRect.width
+        right: topPipeCollisionRect.x + topPipeCollisionRect.width,
+        left: topPipeCollisionRect.x
       },
       bottomPipeCollision: {
         x: bottomPipeCollisionRect.x,
         y: bottomPipeCollisionRect.y,
         width: bottomPipeCollisionRect.width,
         height: bottomPipeCollisionRect.height,
-        right: bottomPipeCollisionRect.x + bottomPipeCollisionRect.width
+        right: bottomPipeCollisionRect.x + bottomPipeCollisionRect.width,
+        left: bottomPipeCollisionRect.x
+      },
+      bounds: {
+        topPipeLeft,
+        topPipeRight,
+        bottomPipeLeft,
+        bottomPipeRight
       }
     })
 
