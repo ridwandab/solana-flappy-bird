@@ -10,7 +10,7 @@ const AudioInitializer = dynamic(() => import('@/components/AudioInitializer').t
 const MainMenu = dynamic(() => import('@/components/ui/MainMenu').then(mod => ({ default: mod.MainMenu })), { ssr: false })
 const Game = dynamic(() => import('@/components/game/Game').then(mod => ({ default: mod.Game })), { ssr: false })
 const Store = dynamic(() => import('@/components/store/Store').then(mod => ({ default: mod.Store })), { ssr: false })
-const Leaderboard = dynamic(() => import('@/components/leaderboard/Leaderboard').then(mod => ({ default: mod.Leaderboard })), { ssr: false })
+const HighScoreDashboard = dynamic(() => import('@/components/ui/HighScoreDashboard').then(mod => ({ default: mod.HighScoreDashboard })), { ssr: false })
 const QuestSystem = dynamic(() => import('@/components/quest/QuestSystem').then(mod => ({ default: mod.QuestSystem })), { ssr: false })
 const Settings = dynamic(() => import('@/components/ui/Settings').then(mod => ({ default: mod.Settings })), { ssr: false })
 
@@ -25,7 +25,7 @@ export default function HomePage() {
       case 'store':
         return <Store />
       case 'leaderboard':
-        return <Leaderboard />
+        return <HighScoreDashboard />
       case 'quests':
         return <QuestSystem />
       case 'settings':
