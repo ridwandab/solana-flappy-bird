@@ -1224,9 +1224,9 @@ export class GameScene extends Phaser.Scene {
           // Rotate bird based on falling speed (like original Flappy Bird)
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
-          // Stop bird from falling below ground level (keep visible on screen)
-          if (this.bird.y >= 750) { // Ground level
-            this.bird.y = 750
+          // Stop bird from falling below ground level (align with pipes bottom)
+          if (this.bird.y >= 700) { // Ground level - same as pipes bottom
+            this.bird.y = 700
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
