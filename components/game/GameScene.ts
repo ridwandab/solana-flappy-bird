@@ -318,7 +318,7 @@ export class GameScene extends Phaser.Scene {
     this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics) - centered for 1000px height
-    this.bird = this.add.sprite(400, 500, 'bird_default')
+    this.bird = this.add.sprite(400, 400, 'bird_default')
     this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -340,7 +340,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Add tap to start instruction text
-    const tapToStartText = this.add.text(400, 600, 'Tap anywhere to start', {
+    const tapToStartText = this.add.text(400, 500, 'Tap anywhere to start', {
       fontSize: '24px',
       color: '#ffffff',
       fontFamily: 'Arial',
