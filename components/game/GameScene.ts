@@ -308,14 +308,14 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create invisible ground for collision detection only
-    this.ground = this.add.rectangle(400, 760, 800, 40, 0x8B4513)
+    // Create invisible ground for collision detection only (moved down for extended area)
+    this.ground = this.add.rectangle(400, 980, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
 
-    // Create bird for start screen (static, no physics) - centered for 780px height
-    this.bird = this.add.sprite(400, 390, 'bird_default')
+    // Create bird for start screen (static, no physics) - centered for 1000px height
+    this.bird = this.add.sprite(400, 500, 'bird_default')
     this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -337,7 +337,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Add tap to start instruction text
-    const tapToStartText = this.add.text(400, 500, 'Tap anywhere to start', {
+    const tapToStartText = this.add.text(400, 600, 'Tap anywhere to start', {
       fontSize: '24px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -590,7 +590,7 @@ export class GameScene extends Phaser.Scene {
     this.pipes = this.add.group()
 
     // Score text
-    this.scoreText = this.add.text(400, 50, '0', {
+    this.scoreText = this.add.text(400, 80, '0', {
       fontSize: '48px',
       color: '#ffffff',
       stroke: '#000000',
@@ -599,7 +599,7 @@ export class GameScene extends Phaser.Scene {
     this.scoreText.setOrigin(0.5)
 
     // Difficulty text
-    this.difficultyText = this.add.text(400, 100, 'Level 0', {
+    this.difficultyText = this.add.text(400, 130, 'Level 0', {
       fontSize: '24px',
       color: '#ffff00',
       stroke: '#000000',
@@ -767,7 +767,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 760 // Ground top edge (ground is at y: 760, height: 40)
+      const groundTop = 980 // Ground top edge (ground is at y: 980, height: 40)
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
@@ -1222,8 +1222,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
           // Stop bird from falling below ground level (keep visible on screen)
-          if (this.bird.y >= 750) { // Ground level
-            this.bird.y = 750
+          if (this.bird.y >= 980) { // Ground level (extended area)
+            this.bird.y = 980
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
@@ -1268,7 +1268,7 @@ export class GameScene extends Phaser.Scene {
     gameOverText.setOrigin(0.5)
     
     // Score display
-    const scoreText = this.add.text(400, 350, `Score: ${this.score}`, {
+    const scoreText = this.add.text(400, 450, `Score: ${this.score}`, {
       fontSize: '24px',
       color: '#ffff00',
       fontFamily: 'Arial',

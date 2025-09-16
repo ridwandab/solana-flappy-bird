@@ -23,7 +23,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: 800,
-      height: 780,
+      height: 1000, // Extended height from 780 to 1000
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -86,7 +86,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       <div 
         ref={gameRef} 
         className="shadow-2xl"
-        style={{ width: '800px', height: '780px' }}
+        style={{ width: '800px', height: '1000px' }}
       />
     </div>
   )
