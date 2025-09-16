@@ -684,17 +684,23 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Direct collision check without margins for accuracy
-          hitTopPipe = birdLeft < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
-                      birdRight > pipeSet.topPipeCollision.x && 
+          // Add small margin for left pipe to prevent false positives
+          const leftPipeMargin = 3 // Small margin for left side collision
+          const rightPipeMargin = 0 // No margin for right side to prevent penetration
+          
+          hitTopPipe = (birdLeft + leftPipeMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
+                      (birdRight - rightPipeMargin) > pipeSet.topPipeCollision.x && 
                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
                       birdBottom > pipeSet.topPipeCollision.y
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Direct collision check without margins for accuracy
-          hitBottomPipe = birdLeft < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
-                         birdRight > pipeSet.bottomPipeCollision.x && 
+          // Add small margin for left pipe to prevent false positives
+          const leftPipeMargin = 3 // Small margin for left side collision
+          const rightPipeMargin = 0 // No margin for right side to prevent penetration
+          
+          hitBottomPipe = (birdLeft + leftPipeMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
+                         (birdRight - rightPipeMargin) > pipeSet.bottomPipeCollision.x && 
                          birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
                          birdBottom > pipeSet.bottomPipeCollision.y
         }
@@ -718,7 +724,11 @@ export class GameScene extends Phaser.Scene {
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapTop,
               gapBottom,
-              pipeX: pipeSet.topPipe.x
+              pipeX: pipeSet.topPipe.x,
+              topPipeCollision: pipeSet.topPipeCollision,
+              bottomPipeCollision: pipeSet.bottomPipeCollision,
+              leftPipeMargin: 3,
+              rightPipeMargin: 0
             })
             
             if (!this.isGameOver) {
