@@ -35,7 +35,6 @@ export class GameScene extends Phaser.Scene {
   
   // Scrolling background
   private background1!: Phaser.GameObjects.GameObject
-  private background2!: Phaser.GameObjects.GameObject
   private backgroundSpeed: number = 0.5
   private score: number = 0
   private isGameOver: boolean = false
@@ -243,8 +242,6 @@ export class GameScene extends Phaser.Scene {
       (this.background1 as any).setScrollFactor(0)
     }
     
-    // Clear background2 since we're using single background
-    this.background2 = undefined as any
   }
 
   private reloadBackgroundWithSprite() {
@@ -483,9 +480,6 @@ export class GameScene extends Phaser.Scene {
       }
     })
     this.startScreenElements = []
-    
-    // Clear background2 reference since we're using single background
-    this.background2 = undefined as any
     
     // Reset input handlers
     this.input.removeAllListeners()
