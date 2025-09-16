@@ -1171,18 +1171,20 @@ export class GameScene extends Phaser.Scene {
     // this.activePipes.forEach(pipeSet => this.destroyPipeSet(pipeSet))
     // this.activePipes = []
 
-    // Stop bird physics and freeze at collision position
+    // Make bird fall down when game over
     if (this.bird.body) {
       const body = this.bird.body as Phaser.Physics.Arcade.Body
-      body.setVelocity(0, 0)
-      body.setGravityY(0)
-      body.setImmovable(true) // Make bird immovable
+      // Keep gravity active so bird falls down
+      body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
+      // Add downward velocity to make bird fall faster
+      body.setVelocityY(300) // Fall down with 300px/s velocity
       body.setCollideWorldBounds(false) // Disable world bounds collision
+      console.log('Bird set to fall down on game over')
     }
     
-    // Stop world gravity to prevent bird from falling
-    this.physics.world.gravity.y = 0
-    console.log('World gravity stopped for game over')
+    // Keep world gravity active so bird continues falling
+    this.physics.world.gravity.y = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
+    console.log('World gravity kept active for falling effect')
     
     // Make bird non-interactive and remove input handlers
     this.bird.setInteractive(false)
@@ -1191,9 +1193,27 @@ export class GameScene extends Phaser.Scene {
     // Don't disable input completely - we need it for the restart button
     // this.input.enabled = false
     
-    // Add visual effect to show bird is frozen
+    // Add visual effect to show bird is falling
     this.bird.setTint(0x888888) // Make bird slightly grayed out
     this.bird.setAlpha(0.8) // Slightly transparent
+    
+    // Add falling rotation effect
+    const fallingTimer = this.time.addEvent({
+      delay: 16, // ~60fps
+      callback: () => {
+        if (this.bird && this.bird.active) {
+          // Rotate bird as it falls (like a real bird falling)
+          this.bird.angle += 2 // Rotate 2 degrees per frame
+          
+          // Stop rotation when bird hits the ground
+          if (this.bird.y >= 760) {
+            this.bird.angle = 90 // Set to horizontal position
+            fallingTimer.destroy() // Stop the rotation timer
+          }
+        }
+      },
+      loop: true
+    })
 
     // Create game over popup box
     this.createGameOverPopup()
