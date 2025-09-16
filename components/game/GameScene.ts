@@ -1171,14 +1171,15 @@ export class GameScene extends Phaser.Scene {
     // this.activePipes.forEach(pipeSet => this.destroyPipeSet(pipeSet))
     // this.activePipes = []
 
-    // Make bird fall down like in original Flappy Bird
+    // Make bird fall down but stay visible on screen
     if (this.bird.body) {
       const body = this.bird.body as Phaser.Physics.Arcade.Body
       // Keep gravity active so bird falls down
       body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
       // Set downward velocity to make bird fall immediately
       body.setVelocityY(200) // Fall down with some initial speed
-      body.setCollideWorldBounds(false) // Disable world bounds collision
+      // Enable world bounds collision to keep bird on screen
+      body.setCollideWorldBounds(true)
       // Don't make bird immovable - let it fall naturally
     }
     
@@ -1197,7 +1198,7 @@ export class GameScene extends Phaser.Scene {
     this.bird.setTint(0x888888) // Make bird slightly grayed out
     this.bird.setAlpha(0.8) // Slightly transparent
     
-    // Add falling rotation effect like in original Flappy Bird
+    // Add falling rotation effect and limit fall to ground
     this.time.addEvent({
       delay: 16, // ~60fps
       callback: () => {
@@ -1205,6 +1206,14 @@ export class GameScene extends Phaser.Scene {
           const velocity = (this.bird.body as Phaser.Physics.Arcade.Body).velocity.y
           // Rotate bird based on falling speed (like original Flappy Bird)
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
+          
+          // Stop bird from falling below ground level (keep visible on screen)
+          if (this.bird.y >= 750) { // Ground level
+            this.bird.y = 750
+            const body = this.bird.body as Phaser.Physics.Arcade.Body
+            body.setVelocityY(0) // Stop falling
+            body.setGravityY(0) // Stop gravity
+          }
         }
       },
       loop: true
