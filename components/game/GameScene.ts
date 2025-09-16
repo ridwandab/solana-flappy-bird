@@ -710,20 +710,12 @@ export class GameScene extends Phaser.Scene {
           // Bird is in safe gap if it's between the pipes with tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
-          // Check if bird is touching gap boundaries (entering pipes)
-          const birdTouchingGapTop = birdTop <= (gapTop + gapTolerance)
-          const birdTouchingGapBottom = birdBottom >= (gapBottom - gapTolerance)
-          
-          // Only trigger collision if:
-          // 1. Bird hits pipe AND is not in safe gap, OR
-          // 2. Bird is touching gap boundaries (entering pipes)
+          // Only trigger collision if bird hits pipe AND is not in safe gap
           if ((hitTopPipe || hitBottomPipe) && !birdInSafeGap) {
-            console.log('🚨 PIPE COLLISION DETECTED!', {
+            console.log('🚨 COLLISION DETECTED!', {
               hitTopPipe,
               hitBottomPipe,
               birdInSafeGap,
-              birdTouchingGapTop,
-              birdTouchingGapBottom,
               birdPosition: { x: this.bird.x, y: this.bird.y },
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapTop,
@@ -731,24 +723,6 @@ export class GameScene extends Phaser.Scene {
               pipeX: pipeSet.topPipe.x,
               visualMargin: 12,
               gapTolerance: 10
-            })
-            
-            if (!this.isGameOver) {
-              this.gameOver()
-            }
-            return
-          }
-          
-          // Additional check: if bird is touching gap boundaries, trigger collision
-          if (birdTouchingGapTop || birdTouchingGapBottom) {
-            console.log('🚨 GAP BOUNDARY COLLISION!', {
-              birdTouchingGapTop,
-              birdTouchingGapBottom,
-              birdPosition: { x: this.bird.x, y: this.bird.y },
-              gapTop,
-              gapBottom,
-              birdTop,
-              birdBottom
             })
             
             if (!this.isGameOver) {
@@ -1197,21 +1171,23 @@ export class GameScene extends Phaser.Scene {
     // this.activePipes.forEach(pipeSet => this.destroyPipeSet(pipeSet))
     // this.activePipes = []
 
-    // Make bird fall down but stay visible on screen
+    // Make bird respawn from ground like in original Flappy Bird
     if (this.bird.body) {
       const body = this.bird.body as Phaser.Physics.Arcade.Body
-      // Keep gravity active so bird falls down
-      body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
-      // Set downward velocity to make bird fall immediately
-      body.setVelocityY(200) // Fall down with some initial speed
-      // Enable world bounds collision to keep bird on screen
-      body.setCollideWorldBounds(true)
-      // Don't make bird immovable - let it fall naturally
+      // Position bird at ground level (like respawning from pipe bottom)
+      this.bird.y = 750 // Ground level
+      this.bird.x = 200 // Center position
+      // Stop all movement
+      body.setVelocity(0, 0)
+      body.setGravityY(0)
+      body.setCollideWorldBounds(false)
+      // Make bird immovable at ground position
+      body.setImmovable(true)
     }
     
-    // Keep world gravity active so bird continues to fall
-    this.physics.world.gravity.y = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
-    console.log('Bird falling down with gravity:', this.physics.world.gravity.y)
+    // Stop world gravity for game over state
+    this.physics.world.gravity.y = 0
+    console.log('Bird respawned at ground level for game over')
     
     // Make bird non-interactive and remove input handlers
     this.bird.setInteractive(false)
@@ -1220,29 +1196,27 @@ export class GameScene extends Phaser.Scene {
     // Don't disable input completely - we need it for the restart button
     // this.input.enabled = false
     
-    // Add visual effect to show bird is falling
+    // Add visual effect to show bird is at ground level
     this.bird.setTint(0x888888) // Make bird slightly grayed out
     this.bird.setAlpha(0.8) // Slightly transparent
+    this.bird.setAngle(0) // Reset rotation to horizontal (ground position)
     
-    // Add falling rotation effect and limit fall to ground
+    // Add subtle ground bounce effect like in original Flappy Bird
     this.time.addEvent({
-      delay: 16, // ~60fps
+      delay: 1000, // 1 second delay
       callback: () => {
-        if (this.bird && this.bird.body) {
-          const velocity = (this.bird.body as Phaser.Physics.Arcade.Body).velocity.y
-          // Rotate bird based on falling speed (like original Flappy Bird)
-          this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
-          
-          // Stop bird from falling below ground level (keep visible on screen)
-          if (this.bird.y >= 750) { // Ground level
-            this.bird.y = 750
-            const body = this.bird.body as Phaser.Physics.Arcade.Body
-            body.setVelocityY(0) // Stop falling
-            body.setGravityY(0) // Stop gravity
-          }
+        if (this.bird) {
+          // Small bounce effect to show bird is "settled" on ground
+          this.tweens.add({
+            targets: this.bird,
+            y: 745, // Slight upward movement
+            duration: 200,
+            yoyo: true,
+            ease: 'Power2'
+          })
         }
       },
-      loop: true
+      loop: false
     })
 
     // Create game over popup box
