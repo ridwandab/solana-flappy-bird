@@ -1251,19 +1251,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createGameOverPopup() {
-    // Create popup background (centered for 1000px height)
-    const popupBg = this.add.rectangle(400, 400, 400, 320, 0x2C2C2C, 0.3)
+    // Create popup background (smaller and shifted left)
+    const popupBg = this.add.rectangle(350, 400, 320, 260, 0x2C2C2C, 0.3)
     popupBg.setStrokeStyle(3, 0x444444)
     popupBg.setOrigin(0.5)
     
     // Add subtle shadow effect
-    const shadow = this.add.rectangle(403, 403, 400, 320, 0x000000, 0.1)
+    const shadow = this.add.rectangle(353, 403, 320, 260, 0x000000, 0.1)
     shadow.setOrigin(0.5)
     shadow.setDepth(-1)
     
     // Game Over title
-    const gameOverText = this.add.text(400, 320, 'GAME OVER', {
-      fontSize: '36px',
+    const gameOverText = this.add.text(350, 320, 'GAME OVER', {
+      fontSize: '32px',
       color: '#ff4444',
       fontFamily: 'Arial',
       fontStyle: 'bold'
@@ -1271,8 +1271,8 @@ export class GameScene extends Phaser.Scene {
     gameOverText.setOrigin(0.5)
     
     // Score display
-    const scoreText = this.add.text(400, 360, `Score: ${this.score}`, {
-      fontSize: '24px',
+    const scoreText = this.add.text(350, 360, `Score: ${this.score}`, {
+      fontSize: '20px',
       color: '#ffff00',
       fontFamily: 'Arial',
       fontStyle: 'bold'
@@ -1284,7 +1284,7 @@ export class GameScene extends Phaser.Scene {
     const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
     localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
     
-    const highScoreText = this.add.text(400, 390, `High Score: ${currentHighScore}`, {
+    const highScoreText = this.add.text(350, 390, `High Score: ${currentHighScore}`, {
       fontSize: '20px',
       color: '#00ff00',
       fontFamily: 'Arial',
@@ -1293,11 +1293,11 @@ export class GameScene extends Phaser.Scene {
     highScoreText.setOrigin(0.5)
     
     // Main Menu button
-    const mainMenuBtn = this.add.rectangle(320, 445, 150, 50, 0x4a90e2)
+    const mainMenuBtn = this.add.rectangle(280, 445, 120, 40, 0x4a90e2)
     mainMenuBtn.setStrokeStyle(3, 0x000000)
     mainMenuBtn.setInteractive()
     
-    const mainMenuText = this.add.text(320, 445, 'Main Menu', {
+    const mainMenuText = this.add.text(280, 445, 'Main Menu', {
       fontSize: '20px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -1320,11 +1320,11 @@ export class GameScene extends Phaser.Scene {
     })
     
     // Restart button
-    const restartBtn = this.add.rectangle(480, 445, 150, 50, 0x00ff00)
+    const restartBtn = this.add.rectangle(420, 445, 120, 40, 0x00ff00)
     restartBtn.setStrokeStyle(3, 0x000000)
     restartBtn.setInteractive()
     
-    const restartText = this.add.text(480, 445, 'Restart', {
+    const restartText = this.add.text(420, 445, 'Restart', {
       fontSize: '20px',
       color: '#000000',
       fontFamily: 'Arial',
