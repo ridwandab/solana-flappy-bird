@@ -213,15 +213,15 @@ export class GameScene extends Phaser.Scene {
   private createScrollingBackground() {
     // Check if background sprite is loaded, if not create fallback
     if (this.textures.exists('background_sprite')) {
-      // Create two background tiles for seamless scrolling
-      this.background1 = this.add.tileSprite(400, 390, 800, 780, 'background_sprite')
-      this.background2 = this.add.tileSprite(1200, 390, 800, 780, 'background_sprite')
+      // Create single background tile that fits the game size perfectly
+      this.background1 = this.add.image(400, 390, 'background_sprite')
+      ;(this.background1 as Phaser.GameObjects.Image).setDisplaySize(800, 780) // Set to exact game dimensions
+      ;(this.background1 as Phaser.GameObjects.Image).setOrigin(0.5, 0.5) // Center the background
       
-      console.log('Scrolling background created with Background5.png')
+      console.log('Single background created with Background5.png - size: 800x780')
     } else {
       // Create fallback background with night city theme colors
       this.background1 = this.add.rectangle(400, 390, 800, 780, 0x1a1a2e)
-      this.background2 = this.add.rectangle(1200, 390, 800, 780, 0x1a1a2e)
       
       // Add some stars for night effect
       for (let i = 0; i < 50; i++) {
@@ -238,67 +238,48 @@ export class GameScene extends Phaser.Scene {
       console.log('Fallback background created - waiting for Background5.png to load')
     }
     
-    // Set scroll factors to 0 so they don't move with camera
+    // Set scroll factor to 0 so background doesn't move with camera
     if (this.background1 && typeof (this.background1 as any).setScrollFactor === 'function') {
       (this.background1 as any).setScrollFactor(0)
     }
-    if (this.background2 && typeof (this.background2 as any).setScrollFactor === 'function') {
-      (this.background2 as any).setScrollFactor(0)
-    }
+    
+    // Clear background2 since we're using single background
+    this.background2 = undefined as any
   }
 
   private reloadBackgroundWithSprite() {
     // Check if we need to replace fallback background with actual sprite
-    if (this.textures.exists('background_sprite') && this.background1 && this.background2) {
-      // Check if current backgrounds are rectangles (fallback)
+    if (this.textures.exists('background_sprite') && this.background1) {
+      // Check if current background is rectangle (fallback)
       if (this.background1.type === 'Rectangle') {
         console.log('Replacing fallback background with Background5.png sprite')
         
-        // Destroy old fallback backgrounds
+        // Destroy old fallback background
         this.background1.destroy()
-        this.background2.destroy()
         
-        // Create new backgrounds with actual sprite
-        this.background1 = this.add.tileSprite(400, 390, 800, 780, 'background_sprite') as any
-        this.background2 = this.add.tileSprite(1200, 390, 800, 780, 'background_sprite') as any
+        // Create new single background with actual sprite
+        this.background1 = this.add.image(400, 390, 'background_sprite')
+        ;(this.background1 as Phaser.GameObjects.Image).setDisplaySize(800, 780) // Set to exact game dimensions
+        ;(this.background1 as Phaser.GameObjects.Image).setOrigin(0.5, 0.5) // Center the background
         
-        // Set scroll factors
+        // Set scroll factor
         if (this.background1 && typeof (this.background1 as any).setScrollFactor === 'function') {
           (this.background1 as any).setScrollFactor(0)
         }
-        if (this.background2 && typeof (this.background2 as any).setScrollFactor === 'function') {
-          (this.background2 as any).setScrollFactor(0)
-        }
         
-        console.log('Background successfully replaced with Background5.png')
+        console.log('Background successfully replaced with Background5.png - single tile')
       }
     }
   }
 
   private updateScrollingBackground() {
-    if (!this.background1 || !this.background2) return
-
-    // Move both backgrounds to the left
-    const bg1 = this.background1 as any
-    const bg2 = this.background2 as any
+    // Static background - no scrolling needed
+    // Background stays in place as a single tile
+    if (!this.background1) return
     
-    // Only move if they have x property (TileSprite or Rectangle)
-    if (typeof bg1.x === 'number') {
-      bg1.x = bg1.x - this.backgroundSpeed
-    }
-    if (typeof bg2.x === 'number') {
-      bg2.x = bg2.x - this.backgroundSpeed
-    }
-
-    // Reset position when first background is completely off screen
-    if (typeof bg1.x === 'number' && bg1.x <= -400) {
-      bg1.x = 1200
-    }
-
-    // Reset position when second background is completely off screen
-    if (typeof bg2.x === 'number' && bg2.x <= -400) {
-      bg2.x = 1200
-    }
+    // No movement needed for static background
+    // Background remains centered at (400, 390) with size 800x780
+    console.log('Static background - no scrolling needed')
   }
 
   private createStartScreen() {
@@ -494,6 +475,9 @@ export class GameScene extends Phaser.Scene {
       }
     })
     this.startScreenElements = []
+    
+    // Clear background2 reference since we're using single background
+    this.background2 = undefined as any
     
     // Reset input handlers
     this.input.removeAllListeners()
