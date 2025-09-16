@@ -684,8 +684,8 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Add margin for left side of pipe to prevent premature collision
-          const leftPipeMargin = 10 // Margin for left side - bird must be closer to pipe
+          // Add larger margin for left side of pipe to prevent premature collision
+          const leftPipeMargin = 20 // Larger margin - bird must be much closer to pipe visually
           const rightPipeMargin = 0 // No margin for right side to prevent penetration
           
           hitTopPipe = (birdLeft + leftPipeMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
@@ -695,8 +695,8 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Add margin for left side of pipe to prevent premature collision
-          const leftPipeMargin = 10 // Margin for left side - bird must be closer to pipe
+          // Add larger margin for left side of pipe to prevent premature collision
+          const leftPipeMargin = 20 // Larger margin - bird must be much closer to pipe visually
           const rightPipeMargin = 0 // No margin for right side to prevent penetration
           
           hitBottomPipe = (birdLeft + leftPipeMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
@@ -725,7 +725,7 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              leftPipeMargin: 10,
+              leftPipeMargin: 20,
               rightPipeMargin: 0
             })
             
