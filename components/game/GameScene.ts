@@ -213,12 +213,11 @@ export class GameScene extends Phaser.Scene {
   private createScrollingBackground() {
     // Check if background sprite is loaded, if not create fallback
     if (this.textures.exists('background_sprite')) {
-      // Create single background tile that fits the game size perfectly
-      this.background1 = this.add.image(400, 390, 'background_sprite')
-      ;(this.background1 as Phaser.GameObjects.Image).setDisplaySize(800, 780) // Set to exact game dimensions
-      ;(this.background1 as Phaser.GameObjects.Image).setOrigin(0.5, 0.5) // Center the background
+      // Create scrolling background using tileSprite for visual movement effect
+      this.background1 = this.add.tileSprite(400, 390, 800, 780, 'background_sprite')
+      ;(this.background1 as Phaser.GameObjects.TileSprite).setOrigin(0.5, 0.5) // Center the background
       
-      console.log('Single background created with Background5.png - size: 800x780')
+      console.log('Scrolling background created with Background5.png - size: 800x780')
     } else {
       // Create fallback background with night city theme colors
       this.background1 = this.add.rectangle(400, 390, 800, 780, 0x1a1a2e)
@@ -257,10 +256,9 @@ export class GameScene extends Phaser.Scene {
         // Destroy old fallback background
         this.background1.destroy()
         
-        // Create new single background with actual sprite
-        this.background1 = this.add.image(400, 390, 'background_sprite')
-        ;(this.background1 as Phaser.GameObjects.Image).setDisplaySize(800, 780) // Set to exact game dimensions
-        ;(this.background1 as Phaser.GameObjects.Image).setOrigin(0.5, 0.5) // Center the background
+        // Create new scrolling background with actual sprite
+        this.background1 = this.add.tileSprite(400, 390, 800, 780, 'background_sprite')
+        ;(this.background1 as Phaser.GameObjects.TileSprite).setOrigin(0.5, 0.5) // Center the background
         
         // Set scroll factor
         if (this.background1 && typeof (this.background1 as any).setScrollFactor === 'function') {
@@ -273,13 +271,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateScrollingBackground() {
-    // Static background - no scrolling needed
-    // Background stays in place as a single tile
+    // Update scrolling background for visual movement effect
     if (!this.background1) return
     
-    // No movement needed for static background
-    // Background remains centered at (400, 390) with size 800x780
-    console.log('Static background - no scrolling needed')
+    // Only scroll if it's a tileSprite (not rectangle fallback)
+    if (this.background1.type === 'TileSprite') {
+      const tileSprite = this.background1 as Phaser.GameObjects.TileSprite
+      // Move the tile position to create scrolling effect
+      tileSprite.tilePositionX -= this.backgroundSpeed
+    }
   }
 
   private createStartScreen() {
