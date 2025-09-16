@@ -25,7 +25,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       width: 800,
       height: 900,
       parent: gameRef.current,
-      backgroundColor: '#87CEEB',
+      backgroundColor: 'transparent',
       physics: {
         default: 'arcade',
         arcade: {
