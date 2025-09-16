@@ -684,8 +684,8 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Add visual margin to make collision more fair - bird must actually touch the pipe
-          const visualMargin = 8 // Margin to prevent premature collision
+          // Larger visual margin to allow bird to get much closer to pipes
+          const visualMargin = 20 // Larger margin - bird can get very close before collision
           hitTopPipe = (birdLeft + visualMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
                       (birdRight - visualMargin) > pipeSet.topPipeCollision.x && 
                       (birdTop + visualMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
@@ -693,8 +693,8 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Add visual margin to make collision more fair - bird must actually touch the pipe
-          const visualMargin = 8 // Margin to prevent premature collision
+          // Larger visual margin to allow bird to get much closer to pipes
+          const visualMargin = 20 // Larger margin - bird can get very close before collision
           hitBottomPipe = (birdLeft + visualMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
                          (birdRight - visualMargin) > pipeSet.bottomPipeCollision.x && 
                          (birdTop + visualMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
@@ -721,7 +721,7 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 8,
+              visualMargin: 20,
               gapTolerance: 10
             })
             
