@@ -1167,15 +1167,15 @@ export class GameScene extends Phaser.Scene {
       this.audioManager.playGameOverSound()
     }
 
-    // Make pipes transparent so they don't cover the falling bird
+    // Make pipes visible but behind the falling bird
     this.activePipes.forEach(pipeSet => {
       if (pipeSet.topPipe) {
-        pipeSet.topPipe.setAlpha(0.3) // Make pipes semi-transparent
-        pipeSet.topPipe.setDepth(-1) // Move pipes to background
+        pipeSet.topPipe.setAlpha(0.8) // Keep pipes mostly visible
+        pipeSet.topPipe.setDepth(0) // Move pipes to background layer
       }
       if (pipeSet.bottomPipe) {
-        pipeSet.bottomPipe.setAlpha(0.3) // Make pipes semi-transparent
-        pipeSet.bottomPipe.setDepth(-1) // Move pipes to background
+        pipeSet.bottomPipe.setAlpha(0.8) // Keep pipes mostly visible
+        pipeSet.bottomPipe.setDepth(0) // Move pipes to background layer
       }
     })
     
