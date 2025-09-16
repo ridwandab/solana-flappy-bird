@@ -1171,21 +1171,44 @@ export class GameScene extends Phaser.Scene {
     // this.activePipes.forEach(pipeSet => this.destroyPipeSet(pipeSet))
     // this.activePipes = []
 
-    // Make bird fall down naturally from collision position
+    // Make bird emerge from pipe (like Bullet Bill from Mario)
     if (this.bird.body) {
       const body = this.bird.body as Phaser.Physics.Arcade.Body
-      // Keep gravity active so bird falls down naturally
-      body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
-      // Set downward velocity to make bird fall immediately
-      body.setVelocityY(200) // Fall down with some initial speed
-      // Enable world bounds collision to keep bird on screen
-      body.setCollideWorldBounds(true)
-      // Don't make bird immovable - let it fall naturally
+      
+      // Find the pipe that caused the collision
+      let collisionPipe = null
+      for (let i = 0; i < this.activePipes.length; i++) {
+        const pipeSet = this.activePipes[i]
+        if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+          collisionPipe = pipeSet
+          break
+        }
+      }
+      
+      if (collisionPipe) {
+        // Position bird to emerge from the right side of the pipe
+        this.bird.x = collisionPipe.topPipe.x + (collisionPipe.topPipe.width * collisionPipe.topPipe.scaleX) + 20
+        this.bird.y = collisionPipe.topPipe.y + (collisionPipe.topPipe.height * collisionPipe.topPipe.scaleY) / 2
+        
+        // Set velocity to emerge from pipe (move right and down)
+        body.setVelocityX(150) // Emerge to the right
+        body.setVelocityY(100) // Slight downward movement
+        body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
+        body.setCollideWorldBounds(true)
+        
+        console.log('Bird emerging from pipe at position:', { x: this.bird.x, y: this.bird.y })
+      } else {
+        // Fallback: if no pipe found, fall naturally
+        body.setGravityY(this.gameSettings?.gravity || this.DEFAULT_GRAVITY)
+        body.setVelocityY(200)
+        body.setCollideWorldBounds(true)
+        console.log('No collision pipe found, falling naturally')
+      }
     }
     
-    // Keep world gravity active so bird continues to fall
+    // Keep world gravity active
     this.physics.world.gravity.y = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
-    console.log('Bird falling down naturally from collision position')
+    console.log('Bird emerging from pipe like Bullet Bill!')
     
     // Make bird non-interactive and remove input handlers
     this.bird.setInteractive(false)
@@ -1198,22 +1221,37 @@ export class GameScene extends Phaser.Scene {
     this.bird.setTint(0x888888) // Make bird slightly grayed out
     this.bird.setAlpha(0.8) // Slightly transparent
     
-    // Add falling rotation effect like in original Flappy Bird
+    // Add emerge and falling rotation effect like Bullet Bill from Mario
     this.time.addEvent({
       delay: 16, // ~60fps
       callback: () => {
         if (this.bird && this.bird.body) {
-          const velocity = (this.bird.body as Phaser.Physics.Arcade.Body).velocity.y
-          // Rotate bird based on falling speed (like original Flappy Bird)
-          this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
+          const body = this.bird.body as Phaser.Physics.Arcade.Body
+          const velocityX = body.velocity.x
+          const velocityY = body.velocity.y
+          
+          // Rotate bird based on movement direction (like Bullet Bill emerging)
+          if (velocityX > 0) {
+            // Moving right (emerging from pipe) - slight forward tilt
+            this.bird.angle = Math.min(velocityX * 0.1, 15)
+          } else {
+            // Falling down - rotate based on falling speed
+            this.bird.angle = Math.min(Math.max(velocityY * 0.15, -90), 90)
+          }
           
           // Stop bird from falling below ground level (keep visible on screen)
           if (this.bird.y >= 750) { // Ground level
             this.bird.y = 750
-            const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
+            body.setVelocityX(0) // Stop horizontal movement
             body.setGravityY(0) // Stop gravity
             this.bird.setAngle(0) // Reset to horizontal when on ground
+          }
+          
+          // Stop bird from going off screen to the right
+          if (this.bird.x >= 800) {
+            this.bird.x = 800
+            body.setVelocityX(0) // Stop horizontal movement
           }
         }
       },
