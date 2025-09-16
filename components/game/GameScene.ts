@@ -756,6 +756,13 @@ export class GameScene extends Phaser.Scene {
       }
     }
     
+    // Keep bird visible even when falling below screen (for falling effect)
+    if (this.isGameOver && this.bird && this.bird.y > 780) {
+      // Make sure bird stays visible even when off-screen
+      this.bird.setVisible(true)
+      this.bird.setAlpha(1.0)
+    }
+    
     // Additional collision check for bird hitting ceiling (top of screen)
     if (this.bird.y < 0) {
       console.log('🚨 BIRD HIT CEILING! Game Over!', { birdY: this.bird.y })
@@ -1186,6 +1193,10 @@ export class GameScene extends Phaser.Scene {
     this.physics.world.gravity.y = this.gameSettings?.gravity || this.DEFAULT_GRAVITY
     console.log('World gravity kept active for falling effect')
     
+    // Start camera follow for falling bird to keep it visible
+    this.cameras.main.startFollow(this.bird, false, 0.1, 0.1)
+    this.cameras.main.setDeadzone(0, 0) // No deadzone so camera follows smoothly
+    
     // Make bird non-interactive and remove input handlers
     this.bird.setInteractive(false)
     this.bird.removeInteractive()
@@ -1193,9 +1204,10 @@ export class GameScene extends Phaser.Scene {
     // Don't disable input completely - we need it for the restart button
     // this.input.enabled = false
     
-    // Add visual effect to show bird is falling
+    // Add visual effect to show bird is falling but keep it visible
     this.bird.setTint(0x888888) // Make bird slightly grayed out
-    this.bird.setAlpha(0.8) // Slightly transparent
+    this.bird.setAlpha(1.0) // Keep fully visible (not transparent)
+    this.bird.setVisible(true) // Ensure bird is visible
     
     // Add falling rotation effect
     const fallingTimer = this.time.addEvent({
