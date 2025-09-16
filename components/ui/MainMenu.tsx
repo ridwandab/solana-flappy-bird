@@ -16,6 +16,7 @@ import {
 import { QuestProgressTracker } from '@/components/quest/QuestRewardSystem'
 import { useGlobalAudio } from '@/hooks/useGlobalAudio'
 import { PlayerNameModal } from './PlayerNameModal'
+import { MerchantInfo } from './MerchantInfo'
 import { usePlayerName } from '@/hooks/usePlayerName'
 
 interface MainMenuProps {
@@ -239,6 +240,9 @@ export const MainMenu: FC<MainMenuProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Merchant Info */}
+        <MerchantInfo />
 
         {/* Footer */}
         <div className="text-center mt-8 text-white/40 text-sm">
