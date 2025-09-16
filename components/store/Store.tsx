@@ -6,7 +6,6 @@ import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
 import { ShoppingCart, Coins, Lock, Check, RefreshCw } from 'lucide-react'
 import { CosmeticItem } from './CosmeticItem'
-import { PurchaseModal } from './PurchaseModal'
 import { useCosmetics } from '@/hooks/useCosmetics'
 import { useBalance } from '@/hooks/useBalance'
 
@@ -18,17 +17,6 @@ export const Store: FC = () => {
   const [userCosmetics, setUserCosmetics] = useState<string[]>([])
   const [selectedCosmetic, setSelectedCosmetic] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [purchaseModal, setPurchaseModal] = useState<{
-    isOpen: boolean
-    itemName: string
-    itemPrice: number
-    cosmeticId: string
-  }>({
-    isOpen: false,
-    itemName: '',
-    itemPrice: 0,
-    cosmeticId: ''
-  })
 
   useEffect(() => {
     if (publicKey) {
@@ -57,45 +45,20 @@ export const Store: FC = () => {
     }
   }
 
-  const handlePurchase = (cosmeticId: string, price: number) => {
-    const cosmetic = cosmetics.find(c => c.id === cosmeticId)
-    if (!cosmetic) return
+  const handlePurchase = async (cosmeticId: string, price: number) => {
+    if (!publicKey) return
     
-    setPurchaseModal({
-      isOpen: true,
-      itemName: cosmetic.name,
-      itemPrice: price,
-      cosmeticId: cosmeticId
-    })
-  }
-
-  const handlePurchaseSuccess = async () => {
+    setIsLoading(true)
     try {
-      // Mark cosmetic as purchased in local storage
-      await purchaseCosmetic(purchaseModal.cosmeticId, purchaseModal.itemPrice)
+      await purchaseCosmetic(cosmeticId, price)
       await loadUserCosmetics()
       // Refresh balance after successful purchase
       refreshBalance()
-      
-      // Close modal
-      setPurchaseModal({
-        isOpen: false,
-        itemName: '',
-        itemPrice: 0,
-        cosmeticId: ''
-      })
     } catch (error) {
-      console.error('Failed to update cosmetic ownership:', error)
+      console.error('Purchase failed:', error)
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const closePurchaseModal = () => {
-    setPurchaseModal({
-      isOpen: false,
-      itemName: '',
-      itemPrice: 0,
-      cosmeticId: ''
-    })
   }
 
   const handleUseCosmetic = async (cosmeticId: string) => {
@@ -228,15 +191,6 @@ export const Store: FC = () => {
           ))}
         </div>
       </div>
-
-      {/* Purchase Modal */}
-      <PurchaseModal
-        isOpen={purchaseModal.isOpen}
-        onClose={closePurchaseModal}
-        itemName={purchaseModal.itemName}
-        itemPrice={purchaseModal.itemPrice}
-        onPurchaseSuccess={handlePurchaseSuccess}
-      />
 
       {/* Back Button */}
       {/* Back to Menu button removed */}
