@@ -211,16 +211,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createScrollingBackground() {
-    // Only use Background5.png - no fallback blue background
+    // Check if background sprite is loaded, if not create fallback
     if (this.textures.exists('background_sprite')) {
-      // Create two background tiles for seamless scrolling - adjusted for pipe bounds
-      this.background1 = this.add.tileSprite(400, 450, 800, 900, 'background_sprite')
-      this.background2 = this.add.tileSprite(1200, 450, 800, 900, 'background_sprite')
+    // Create two background tiles for seamless scrolling - extended height
+    this.background1 = this.add.tileSprite(400, 450, 800, 900, 'background_sprite')
+    this.background2 = this.add.tileSprite(1200, 450, 800, 900, 'background_sprite')
       
-      console.log('Scrolling background created with Background5.png only')
+      console.log('Scrolling background created with Background5.png')
     } else {
-      // No fallback - wait for Background5.png to load
-      console.log('Waiting for Background5.png to load - no fallback background')
+      // Create fallback background with night city theme colors - extended height
+      this.background1 = this.add.rectangle(400, 450, 800, 900, 0x1a1a2e)
+      this.background2 = this.add.rectangle(1200, 450, 800, 900, 0x1a1a2e)
+      
+      // Add some stars for night effect
+      for (let i = 0; i < 50; i++) {
+        const star = this.add.circle(
+          Phaser.Math.Between(0, 800), 
+          Phaser.Math.Between(0, 900), 
+          1, 
+          0xffffff, 
+          0.8
+        )
+        star.setScrollFactor(0)
+      }
+      
+      console.log('Fallback background created - waiting for Background5.png to load')
     }
     
     // Set scroll factors to 0 so they don't move with camera
@@ -231,8 +246,8 @@ export class GameScene extends Phaser.Scene {
       (this.background2 as any).setScrollFactor(0)
     }
     
-    // Set camera bounds to prevent scrolling beyond pipe bounds
-    this.cameras.main.setBounds(0, 0, 800, 850)
+    // Set camera bounds to extended height (900px total)
+    this.cameras.main.setBounds(0, 0, 800, 900)
   }
 
   private reloadBackgroundWithSprite() {
@@ -296,8 +311,8 @@ export class GameScene extends Phaser.Scene {
     // Create scrolling background
     this.createScrollingBackground()
 
-    // Create invisible ground for collision detection only - adjusted for pipe bounds
-    this.ground = this.add.rectangle(400, 850, 800, 100, 0x8B4513)
+    // Create invisible ground for collision detection only
+    this.ground = this.add.rectangle(400, 760, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
@@ -753,9 +768,9 @@ export class GameScene extends Phaser.Scene {
     }
     
     // Manual ground collision detection for more accuracy
-      if (this.bird && !this.isGameOver) {
-        const birdBottom = this.bird.y + 25 // Bird bottom edge
-        const groundTop = 850 // Ground top edge (ground is at y: 850, height: 100)
+    if (this.bird && !this.isGameOver) {
+      const birdBottom = this.bird.y + 25 // Bird bottom edge
+      const groundTop = 760 // Ground top edge (ground is at y: 760, height: 40)
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
@@ -1210,8 +1225,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
           // Stop bird from falling below ground level (keep visible on screen)
-          if (this.bird.y >= 840) { // Ground level
-            this.bird.y = 840
+          if (this.bird.y >= 750) { // Ground level
+            this.bird.y = 750
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
