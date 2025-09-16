@@ -710,12 +710,20 @@ export class GameScene extends Phaser.Scene {
           // Bird is in safe gap if it's between the pipes with tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
-          // Only trigger collision if bird hits pipe AND is not in safe gap
+          // Check if bird is touching gap boundaries (entering pipes)
+          const birdTouchingGapTop = birdTop <= (gapTop + gapTolerance)
+          const birdTouchingGapBottom = birdBottom >= (gapBottom - gapTolerance)
+          
+          // Only trigger collision if:
+          // 1. Bird hits pipe AND is not in safe gap, OR
+          // 2. Bird is touching gap boundaries (entering pipes)
           if ((hitTopPipe || hitBottomPipe) && !birdInSafeGap) {
-            console.log('🚨 COLLISION DETECTED!', {
+            console.log('🚨 PIPE COLLISION DETECTED!', {
               hitTopPipe,
               hitBottomPipe,
               birdInSafeGap,
+              birdTouchingGapTop,
+              birdTouchingGapBottom,
               birdPosition: { x: this.bird.x, y: this.bird.y },
               birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
               gapTop,
@@ -723,6 +731,24 @@ export class GameScene extends Phaser.Scene {
               pipeX: pipeSet.topPipe.x,
               visualMargin: 12,
               gapTolerance: 10
+            })
+            
+            if (!this.isGameOver) {
+              this.gameOver()
+            }
+            return
+          }
+          
+          // Additional check: if bird is touching gap boundaries, trigger collision
+          if (birdTouchingGapTop || birdTouchingGapBottom) {
+            console.log('🚨 GAP BOUNDARY COLLISION!', {
+              birdTouchingGapTop,
+              birdTouchingGapBottom,
+              birdPosition: { x: this.bird.x, y: this.bird.y },
+              gapTop,
+              gapBottom,
+              birdTop,
+              birdBottom
             })
             
             if (!this.isGameOver) {
