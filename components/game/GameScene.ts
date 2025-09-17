@@ -318,7 +318,7 @@ export class GameScene extends Phaser.Scene {
     this.startScreenElements.push(this.ground)
 
     // Create bird for start screen (static, no physics) - centered for 1400px height
-    this.bird = this.add.sprite(400, 600, 'bird_default')
+    this.bird = this.add.sprite(400, 700, 'bird_default')
     this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -340,7 +340,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Add tap to start instruction text
-    const tapToStartText = this.add.text(400, 700, 'Tap anywhere to start', {
+    const tapToStartText = this.add.text(400, 800, 'Tap anywhere to start', {
       fontSize: '24px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -558,7 +558,7 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird converted from static to physics sprite')
     } else {
       // Create new bird if none exists
-      this.bird = this.physics.add.sprite(200, 300, 'bird_default')
+      this.bird = this.physics.add.sprite(200, 700, 'bird_default')
       this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
       this.bird.setVisible(true)
       this.bird.setAlpha(1)
@@ -992,18 +992,18 @@ export class GameScene extends Phaser.Scene {
 
     const gap = this.getCurrentPipeGap() // Use dynamic gap size based on difficulty
     // Calculate pipe height to ensure pipes touch top and bottom of game area
-    const gameHeight = 780 // Game height
+    const gameHeight = 1400 // Game height - extended arena
     
-    // Use random gap position for more challenging gameplay
-    const minGapPosition = 150 // Minimum gap position from top (more challenging)
-    const maxGapPosition = 500 // Maximum gap position from top (more challenging)
+    // Use random gap position for more challenging gameplay - extended arena
+    const minGapPosition = 200 // Minimum gap position from top (extended arena)
+    const maxGapPosition = 1000 // Maximum gap position from top (extended arena)
     const pipeHeight = Phaser.Math.Between(minGapPosition, maxGapPosition) // Random gap position
     
     // Add difficulty-based gap position variation
-    const difficultyVariation = Math.min(this.difficultyLevel * 10, 100) // Increase variation with difficulty
+    const difficultyVariation = Math.min(this.difficultyLevel * 20, 200) // Increase variation with difficulty
     const finalGapPosition = Phaser.Math.Between(
-      Math.max(minGapPosition - difficultyVariation, 100), // Can go higher up
-      Math.min(maxGapPosition + difficultyVariation, 600)  // Can go lower down
+      Math.max(minGapPosition - difficultyVariation, 150), // Can go higher up
+      Math.min(maxGapPosition + difficultyVariation, 1200)  // Can go lower down
     )
     
     console.log(`🎯 Random gap position: ${finalGapPosition}px from top - Gap size: ${gap}px - Difficulty: ${this.difficultyLevel}`)
