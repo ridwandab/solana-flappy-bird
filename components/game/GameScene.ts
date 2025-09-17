@@ -687,8 +687,8 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Even more fair visual margin - less sensitive collision
-          const visualMargin = 5 // Even less sensitive margin for fairer gameplay
+          // Very fair visual margin - minimal collision sensitivity
+          const visualMargin = 2 // Minimal margin for very fair gameplay
           hitTopPipe = (birdLeft + visualMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
                       (birdRight - visualMargin) > pipeSet.topPipeCollision.x && 
                       (birdTop + visualMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
@@ -696,8 +696,8 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Even more fair visual margin - less sensitive collision
-          const visualMargin = 5 // Even less sensitive margin for fairer gameplay
+          // Very fair visual margin - minimal collision sensitivity
+          const visualMargin = 2 // Minimal margin for very fair gameplay
           hitBottomPipe = (birdLeft + visualMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
                          (birdRight - visualMargin) > pipeSet.bottomPipeCollision.x && 
                          (birdTop + visualMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
@@ -708,10 +708,26 @@ export class GameScene extends Phaser.Scene {
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 15 // Even larger tolerance for gap detection to be more fair
+          const gapTolerance = 20 // Very large tolerance for gap detection to be very fair
           
           // Bird is in safe gap if it's between the pipes with tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
+          
+          // Debug logging for collision analysis
+          if (hitTopPipe || hitBottomPipe) {
+            console.log('🔍 COLLISION ANALYSIS:', {
+              hitTopPipe,
+              hitBottomPipe,
+              birdInSafeGap,
+              birdPosition: { x: this.bird.x, y: this.bird.y },
+              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+              gapTop,
+              gapBottom,
+              pipeX: pipeSet.topPipe.x,
+              visualMargin: 2,
+              gapTolerance: 20
+            })
+          }
           
           // Only trigger collision if bird hits pipe AND is not in safe gap
           if ((hitTopPipe || hitBottomPipe) && !birdInSafeGap) {
@@ -724,8 +740,8 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 5,
-              gapTolerance: 15
+              visualMargin: 2,
+              gapTolerance: 20
             })
             
             if (!this.isGameOver) {
