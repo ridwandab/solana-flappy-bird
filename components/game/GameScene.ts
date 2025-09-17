@@ -687,8 +687,8 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // More fair visual margin - less sensitive collision
-          const visualMargin = 8 // Less sensitive margin for fairer gameplay
+          // Even more fair visual margin - less sensitive collision
+          const visualMargin = 5 // Even less sensitive margin for fairer gameplay
           hitTopPipe = (birdLeft + visualMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
                       (birdRight - visualMargin) > pipeSet.topPipeCollision.x && 
                       (birdTop + visualMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
@@ -696,8 +696,8 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // More fair visual margin - less sensitive collision
-          const visualMargin = 8 // Less sensitive margin for fairer gameplay
+          // Even more fair visual margin - less sensitive collision
+          const visualMargin = 5 // Even less sensitive margin for fairer gameplay
           hitBottomPipe = (birdLeft + visualMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
                          (birdRight - visualMargin) > pipeSet.bottomPipeCollision.x && 
                          (birdTop + visualMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
@@ -724,7 +724,7 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 8,
+              visualMargin: 5,
               gapTolerance: 15
             })
             
@@ -770,7 +770,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 760 // Ground top edge (ground is at y: 760, height: 40)
+      const groundTop = 900 // Ground top edge (ground is at y: 920, height: 40)
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
