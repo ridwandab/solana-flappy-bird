@@ -312,7 +312,7 @@ export class GameScene extends Phaser.Scene {
     this.createScrollingBackground()
 
     // Create invisible ground for collision detection only
-    this.ground = this.add.rectangle(400, 900, 800, 40, 0x8B4513)
+    this.ground = this.add.rectangle(400, 920, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
@@ -687,8 +687,8 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Balanced visual margin - close but no penetration
-          const visualMargin = 12 // Balanced margin - close contact but no deep penetration
+          // More fair visual margin - less sensitive collision
+          const visualMargin = 8 // Less sensitive margin for fairer gameplay
           hitTopPipe = (birdLeft + visualMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
                       (birdRight - visualMargin) > pipeSet.topPipeCollision.x && 
                       (birdTop + visualMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
@@ -696,8 +696,8 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Balanced visual margin - close but no penetration
-          const visualMargin = 12 // Balanced margin - close contact but no deep penetration
+          // More fair visual margin - less sensitive collision
+          const visualMargin = 8 // Less sensitive margin for fairer gameplay
           hitBottomPipe = (birdLeft + visualMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
                          (birdRight - visualMargin) > pipeSet.bottomPipeCollision.x && 
                          (birdTop + visualMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
@@ -708,7 +708,7 @@ export class GameScene extends Phaser.Scene {
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 10 // Larger tolerance for gap detection to be more fair
+          const gapTolerance = 15 // Even larger tolerance for gap detection to be more fair
           
           // Bird is in safe gap if it's between the pipes with tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
@@ -724,8 +724,8 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 12,
-              gapTolerance: 10
+              visualMargin: 8,
+              gapTolerance: 15
             })
             
             if (!this.isGameOver) {
@@ -1225,8 +1225,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
             // Stop bird from falling below ground level (reach bottom ground)
-            if (this.bird.y >= 900) { // Ground level - bottom ground for 930px height
-              this.bird.y = 900
+            if (this.bird.y >= 920) { // Ground level - bottom ground for 930px height
+              this.bird.y = 920
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
