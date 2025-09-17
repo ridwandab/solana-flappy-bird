@@ -212,22 +212,22 @@ export class GameScene extends Phaser.Scene {
 
   private createScrollingBackground() {
     // Check if background sprite is loaded, if not create fallback
-    if (this.textures.exists('background_sprite')) {
-      // Create two background tiles for seamless scrolling - extended height
-      this.background1 = this.add.tileSprite(400, 500, 800, 1000, 'background_sprite')
-      this.background2 = this.add.tileSprite(1200, 500, 800, 1000, 'background_sprite')
-      
-      console.log('Scrolling background created with Background5.png')
-    } else {
-      // Create fallback background with night city theme colors - extended height
-      this.background1 = this.add.rectangle(400, 500, 800, 1000, 0x1a1a2e)
-      this.background2 = this.add.rectangle(1200, 500, 800, 1000, 0x1a1a2e)
+      if (this.textures.exists('background_sprite')) {
+        // Create two background tiles for seamless scrolling - full viewport height
+        this.background1 = this.add.tileSprite(400, 600, 800, 1200, 'background_sprite')
+        this.background2 = this.add.tileSprite(1200, 600, 800, 1200, 'background_sprite')
+        
+        console.log('Scrolling background created with Background5.png')
+      } else {
+        // Create fallback background with night city theme colors - full viewport height
+        this.background1 = this.add.rectangle(400, 600, 800, 1200, 0x1a1a2e)
+        this.background2 = this.add.rectangle(1200, 600, 800, 1200, 0x1a1a2e)
       
       // Add some stars for night effect
       for (let i = 0; i < 50; i++) {
         const star = this.add.circle(
           Phaser.Math.Between(0, 800), 
-          Phaser.Math.Between(0, 1000), 
+          Phaser.Math.Between(0, 1200), 
           1, 
           0xffffff, 
           0.8
@@ -246,8 +246,8 @@ export class GameScene extends Phaser.Scene {
       (this.background2 as any).setScrollFactor(0)
     }
     
-    // Set camera bounds to extended height (1000px total)
-    this.cameras.main.setBounds(0, 0, 800, 1000)
+    // Set camera bounds to full viewport height (1200px total)
+    this.cameras.main.setBounds(0, 0, 800, 1200)
   }
 
   private reloadBackgroundWithSprite() {
@@ -312,13 +312,13 @@ export class GameScene extends Phaser.Scene {
     this.createScrollingBackground()
 
     // Create invisible ground for collision detection only
-    this.ground = this.add.rectangle(400, 980, 800, 40, 0x8B4513)
+    this.ground = this.add.rectangle(400, 1180, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
 
-    // Create bird for start screen (static, no physics) - centered for 1000px height
-    this.bird = this.add.sprite(400, 500, 'bird_default')
+    // Create bird for start screen (static, no physics) - centered for 1200px height
+    this.bird = this.add.sprite(400, 600, 'bird_default')
     this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
     this.bird.setVisible(true)
     this.bird.setAlpha(1)
@@ -340,7 +340,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Add tap to start instruction text
-    const tapToStartText = this.add.text(400, 600, 'Tap anywhere to start', {
+    const tapToStartText = this.add.text(400, 700, 'Tap anywhere to start', {
       fontSize: '24px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -558,7 +558,7 @@ export class GameScene extends Phaser.Scene {
       console.log('Bird converted from static to physics sprite')
       } else {
         // Create new bird if none exists
-        this.bird = this.physics.add.sprite(200, 500, 'bird_default')
+        this.bird = this.physics.add.sprite(200, 600, 'bird_default')
         this.bird.setScale(0.15) // Slightly smaller for better proportion with pipe gap
         this.bird.setVisible(true)
       this.bird.setAlpha(1)
@@ -593,7 +593,7 @@ export class GameScene extends Phaser.Scene {
     this.pipes = this.add.group()
 
     // Score text
-    this.scoreText = this.add.text(400, 50, '0', {
+    this.scoreText = this.add.text(400, 60, '0', {
       fontSize: '48px',
       color: '#ffffff',
       stroke: '#000000',
@@ -602,7 +602,7 @@ export class GameScene extends Phaser.Scene {
     this.scoreText.setOrigin(0.5)
 
     // Difficulty text
-    this.difficultyText = this.add.text(400, 100, 'Level 0', {
+    this.difficultyText = this.add.text(400, 120, 'Level 0', {
       fontSize: '24px',
       color: '#ffff00',
       stroke: '#000000',
@@ -992,18 +992,18 @@ export class GameScene extends Phaser.Scene {
 
     const gap = this.getCurrentPipeGap() // Use dynamic gap size based on difficulty
     // Calculate pipe height to ensure pipes touch top and bottom of game area
-    const gameHeight = 1000 // Game height - extended arena
+    const gameHeight = 1200 // Game height - full viewport
     
-    // Use random gap position for more challenging gameplay - extended arena
-    const minGapPosition = 200 // Minimum gap position from top (extended arena)
-    const maxGapPosition = 700 // Maximum gap position from top (extended arena)
+    // Use random gap position for more challenging gameplay - full viewport
+    const minGapPosition = 250 // Minimum gap position from top (full viewport)
+    const maxGapPosition = 850 // Maximum gap position from top (full viewport)
     const pipeHeight = Phaser.Math.Between(minGapPosition, maxGapPosition) // Random gap position
     
     // Add difficulty-based gap position variation
-    const difficultyVariation = Math.min(this.difficultyLevel * 20, 200) // Increase variation with difficulty
+    const difficultyVariation = Math.min(this.difficultyLevel * 25, 250) // Increase variation with difficulty
     const finalGapPosition = Phaser.Math.Between(
-      Math.max(minGapPosition - difficultyVariation, 150), // Can go higher up
-      Math.min(maxGapPosition + difficultyVariation, 800)  // Can go lower down
+      Math.max(minGapPosition - difficultyVariation, 200), // Can go higher up
+      Math.min(maxGapPosition + difficultyVariation, 1000)  // Can go lower down
     )
     
     console.log(`🎯 Random gap position: ${finalGapPosition}px from top - Gap size: ${gap}px - Difficulty: ${this.difficultyLevel}`)
@@ -1225,8 +1225,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
           // Stop bird from falling below ground level (reach bottom ground)
-          if (this.bird.y >= 980) { // Ground level - bottom ground for 1000px height
-            this.bird.y = 980
+          if (this.bird.y >= 1180) { // Ground level - bottom ground for 1200px height
+            this.bird.y = 1180
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
@@ -1251,18 +1251,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createGameOverPopup() {
-    // Create popup background (smaller and centered for 1000px height)
-    const popupBg = this.add.rectangle(400, 500, 320, 260, 0x2C2C2C, 0.3)
+    // Create popup background (smaller and centered for 1200px height)
+    const popupBg = this.add.rectangle(400, 600, 320, 260, 0x2C2C2C, 0.3)
     popupBg.setStrokeStyle(3, 0x444444)
     popupBg.setOrigin(0.5)
     
     // Add subtle shadow effect
-    const shadow = this.add.rectangle(403, 503, 320, 260, 0x000000, 0.1)
+    const shadow = this.add.rectangle(403, 603, 320, 260, 0x000000, 0.1)
     shadow.setOrigin(0.5)
     shadow.setDepth(-1)
     
     // Game Over title
-    const gameOverText = this.add.text(400, 420, 'GAME OVER', {
+    const gameOverText = this.add.text(400, 520, 'GAME OVER', {
       fontSize: '32px',
       color: '#ff4444',
       fontFamily: 'Arial',
@@ -1271,7 +1271,7 @@ export class GameScene extends Phaser.Scene {
     gameOverText.setOrigin(0.5)
     
     // Score display
-    const scoreText = this.add.text(400, 460, `Score: ${this.score}`, {
+    const scoreText = this.add.text(400, 560, `Score: ${this.score}`, {
       fontSize: '20px',
       color: '#ffff00',
       fontFamily: 'Arial',
@@ -1284,7 +1284,7 @@ export class GameScene extends Phaser.Scene {
     const currentHighScore = Math.max(parseInt(savedHighScore), this.score)
     localStorage.setItem('flappyBirdHighScore', currentHighScore.toString())
     
-    const highScoreText = this.add.text(400, 490, `High Score: ${currentHighScore}`, {
+    const highScoreText = this.add.text(400, 590, `High Score: ${currentHighScore}`, {
       fontSize: '20px',
       color: '#00ff00',
       fontFamily: 'Arial',
@@ -1293,11 +1293,11 @@ export class GameScene extends Phaser.Scene {
     highScoreText.setOrigin(0.5)
     
     // Main Menu button
-    const mainMenuBtn = this.add.rectangle(330, 545, 120, 40, 0x4a90e2)
+    const mainMenuBtn = this.add.rectangle(330, 645, 120, 40, 0x4a90e2)
     mainMenuBtn.setStrokeStyle(3, 0x000000)
     mainMenuBtn.setInteractive()
     
-    const mainMenuText = this.add.text(330, 545, 'Main Menu', {
+    const mainMenuText = this.add.text(330, 645, 'Main Menu', {
       fontSize: '20px',
       color: '#ffffff',
       fontFamily: 'Arial',
@@ -1320,11 +1320,11 @@ export class GameScene extends Phaser.Scene {
     })
     
     // Restart button
-    const restartBtn = this.add.rectangle(470, 545, 120, 40, 0x00ff00)
+    const restartBtn = this.add.rectangle(470, 645, 120, 40, 0x00ff00)
     restartBtn.setStrokeStyle(3, 0x000000)
     restartBtn.setInteractive()
     
-    const restartText = this.add.text(470, 545, 'Restart', {
+    const restartText = this.add.text(470, 645, 'Restart', {
       fontSize: '20px',
       color: '#000000',
       fontFamily: 'Arial',
