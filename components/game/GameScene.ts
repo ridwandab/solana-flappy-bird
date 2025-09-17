@@ -667,7 +667,9 @@ export class GameScene extends Phaser.Scene {
     // Check if we need to spawn new pipes
     this.checkPipeSpawning()
 
-    // COLLISION CHECK - Simplified and more accurate collision detection
+    // COLLISION CHECK - TEMPORARILY DISABLED FOR TESTING
+    // Only test ground collision for now
+    /*
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
@@ -766,6 +768,7 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+    */
 
     // Additional collision check for bird falling below screen
     if (this.bird.y > 780) {
