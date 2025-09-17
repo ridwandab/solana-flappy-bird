@@ -768,7 +768,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Additional collision check for bird falling below screen
-    if (this.bird.y > 780) {
+    if (this.bird.y > 920) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
       if (!this.isGameOver) {
         this.gameOver()
