@@ -22,8 +22,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
-      width: 800,
-      height: 930,
+      width: window.innerWidth,
+      height: window.innerHeight,
       parent: gameRef.current,
       backgroundColor: '#87CEEB',
       physics: {
@@ -35,8 +35,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: GameScene,
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: '100%',
+        height: '100%'
       }
     }
 
@@ -81,12 +83,17 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }, [onBackToMenu])
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 overflow-hidden">
-      {/* Game Container - centered with better spacing */}
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 overflow-hidden">
+      {/* Game Container - responsive and full screen */}
       <div 
         ref={gameRef} 
-        className="shadow-2xl"
-        style={{ width: '800px', height: '930px' }}
+        className="shadow-2xl w-full h-full max-w-full max-h-full"
+        style={{ 
+          width: '100vw', 
+          height: '100vh',
+          maxWidth: '100vw',
+          maxHeight: '100vh'
+        }}
       />
     </div>
   )
