@@ -24,6 +24,8 @@ export const useQuestIntegration = (game: any) => {
 
     const handleQuestEvent = (event: QuestEvent) => {
       console.log('🎯 Quest event received in integration:', event)
+      console.log('🎯 Quest event type:', event.type)
+      console.log('🎯 Quest event data:', event.data)
       
       switch (event.type) {
         case 'game_start':
@@ -40,9 +42,12 @@ export const useQuestIntegration = (game: any) => {
         case 'score_achieved':
           const score = event.data.score
           console.log('🎯 Processing score_achieved quest event, score:', score)
+          console.log('🎯 Score data:', event.data)
           
           // Only update score-based quests that are already accepted
           console.log('🎯 Updating accepted score quest progress...')
+          console.log('🎯 Current quests:', quests.map(q => ({ id: q.id, accepted: q.accepted, progress: q.progress })))
+          
           if (score >= 5) {
             console.log('🎯 Updating daily_score_5 quest with score:', score)
             updateQuestProgress('daily_score_5', score)
