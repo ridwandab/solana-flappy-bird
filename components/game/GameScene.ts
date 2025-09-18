@@ -671,8 +671,8 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 80 pixels for better performance)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 80) {
+      // Only check collision if pipe is close to bird (within 150 pixels for better performance)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 150) {
         // Get bird bounds using Phaser's built-in method for accuracy
         const birdBounds = this.bird.getBounds()
         
@@ -687,7 +687,7 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Precise collision detection - no margin for accurate collision
+          // Direct collision detection - bird must actually touch pipe
           hitTopPipe = birdLeft < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
                       birdRight > pipeSet.topPipeCollision.x && 
                       birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
@@ -695,7 +695,7 @@ export class GameScene extends Phaser.Scene {
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Precise collision detection - no margin for accurate collision
+          // Direct collision detection - bird must actually touch pipe
           hitBottomPipe = birdLeft < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
                          birdRight > pipeSet.bottomPipeCollision.x && 
                          birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
@@ -706,9 +706,9 @@ export class GameScene extends Phaser.Scene {
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 5 // Precise tolerance for gap detection
+          const gapTolerance = 5 // Small tolerance for gap detection
           
-          // Bird is in safe gap if it's between the pipes with minimal tolerance
+          // Bird is in safe gap if it's between the pipes with small tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // Debug logging for collision analysis
