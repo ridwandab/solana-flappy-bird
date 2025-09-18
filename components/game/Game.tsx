@@ -5,6 +5,7 @@ import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { usePlayerName } from '@/hooks/usePlayerName'
+import { useQuestIntegration } from '@/hooks/useQuestIntegration'
 
 interface GameProps {
   onBackToMenu?: () => void
@@ -16,6 +17,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
   const { publicKey, connected } = useWallet()
   const { getDisplayName } = usePlayerName()
+  
+  // Quest integration
+  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(phaserGameRef.current)
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
