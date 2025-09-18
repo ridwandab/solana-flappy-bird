@@ -676,11 +676,12 @@ export class GameScene extends Phaser.Scene {
         // Get bird bounds using Phaser's built-in method for accuracy
         const birdBounds = this.bird.getBounds()
         
-        // Simple bird collision box - no margins to prevent false positives
-        const birdLeft = birdBounds.x
-        const birdRight = birdBounds.x + birdBounds.width
-        const birdTop = birdBounds.y
-        const birdBottom = birdBounds.y + birdBounds.height
+        // Simple bird collision box with small margin to prevent false positives
+        const birdMargin = 5 // Small margin to make collision more fair
+        const birdLeft = birdBounds.x + birdMargin
+        const birdRight = birdBounds.x + birdBounds.width - birdMargin
+        const birdTop = birdBounds.y + birdMargin
+        const birdBottom = birdBounds.y + birdBounds.height - birdMargin
         
         // Check collision with both pipes using stored collision rectangles
         let hitTopPipe = false
@@ -706,9 +707,9 @@ export class GameScene extends Phaser.Scene {
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 5 // Small tolerance for gap detection
+          const gapTolerance = 15 // Increased tolerance for more fair gameplay
           
-          // Bird is in safe gap if it's between the pipes with small tolerance
+          // Bird is in safe gap if it's between the pipes with larger tolerance for fairness
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // Debug logging for collision analysis
