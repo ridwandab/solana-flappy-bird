@@ -866,10 +866,12 @@ export class GameScene extends Phaser.Scene {
     console.log(`🎯 Game events object:`, this.events)
     console.log(`🎯 Game events emit method:`, typeof this.events.emit)
     console.log(`🎯 Game events listeners:`, this.events.listeners('questEvent'))
+    console.log(`🎯 Game events listeners count:`, this.events.listeners('questEvent').length)
     
     if (this.events && typeof this.events.emit === 'function') {
       this.events.emit('questEvent', { type, data })
       console.log(`🎯 Quest event emitted successfully: ${type}`)
+      console.log(`🎯 Quest event data:`, { type, data })
     } else {
       console.error(`🎯 Quest event emission failed: ${type} - events.emit not available`)
     }
