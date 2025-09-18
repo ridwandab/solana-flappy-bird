@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://solana-flappy-bird.vercel.app'),
   title: 'Solana Flappy Bird',
   description: 'Play, Earn, and Collect SOL Rewards!',
   icons: {
