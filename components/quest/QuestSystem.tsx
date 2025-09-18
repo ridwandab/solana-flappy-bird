@@ -4,6 +4,7 @@ import { FC, useState, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
+import { useQuests } from '@/hooks/useQuests'
 import { 
   Trophy, 
   Star, 
@@ -26,153 +27,21 @@ interface Quest {
   progress: number
   target: number
   completed: boolean
+  claimed: boolean
+  accepted: boolean
   icon: string
   category: string
+  lastUpdated: string
 }
 
 export const QuestSystem: FC = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
-  const [quests, setQuests] = useState<Quest[]>([])
+  const { quests, acceptQuest, claimQuestReward } = useQuests()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
-  useEffect(() => {
-    loadQuests()
-  }, [])
-
-  const loadQuests = () => {
-    // Mock quest data - in real app, this would come from backend
-    const mockQuests: Quest[] = [
-      // Daily Quests
-      {
-        id: 'daily_play_1',
-        title: 'First Flight',
-        description: 'Play your first game today',
-        type: 'daily',
-        reward: 0.001,
-        progress: 0,
-        target: 1,
-        completed: false,
-        icon: '🎮',
-        category: 'gameplay'
-      },
-      {
-        id: 'daily_score_10',
-        title: 'Score Master',
-        description: 'Score 10 points in a single game',
-        type: 'daily',
-        reward: 0.002,
-        progress: 0,
-        target: 10,
-        completed: false,
-        icon: '🎯',
-        category: 'gameplay'
-      },
-      {
-        id: 'daily_play_3',
-        title: 'Triple Play',
-        description: 'Play 3 games today',
-        type: 'daily',
-        reward: 0.003,
-        progress: 0,
-        target: 3,
-        completed: false,
-        icon: '🔄',
-        category: 'gameplay'
-      },
-      {
-        id: 'daily_high_score',
-        title: 'Personal Best',
-        description: 'Beat your high score',
-        type: 'daily',
-        reward: 0.005,
-        progress: 0,
-        target: 1,
-        completed: false,
-        icon: '🏆',
-        category: 'achievement'
-      },
-
-      // Weekly Quests
-      {
-        id: 'weekly_play_20',
-        title: 'Weekly Warrior',
-        description: 'Play 20 games this week',
-        type: 'weekly',
-        reward: 0.01,
-        progress: 0,
-        target: 20,
-        completed: false,
-        icon: '⚔️',
-        category: 'gameplay'
-      },
-      {
-        id: 'weekly_score_100',
-        title: 'Century Club',
-        description: 'Score 100 points total this week',
-        type: 'weekly',
-        reward: 0.015,
-        progress: 0,
-        target: 100,
-        completed: false,
-        icon: '💯',
-        category: 'gameplay'
-      },
-      {
-        id: 'weekly_cosmetic',
-        title: 'Fashionista',
-        description: 'Purchase a cosmetic item',
-        type: 'weekly',
-        reward: 0.02,
-        progress: 0,
-        target: 1,
-        completed: false,
-        icon: '👗',
-        category: 'cosmetic'
-      },
-
-      // Achievement Quests
-      {
-        id: 'achievement_first_win',
-        title: 'First Victory',
-        description: 'Win your first game',
-        type: 'achievement',
-        reward: 0.005,
-        progress: 0,
-        target: 1,
-        completed: false,
-        icon: '🥇',
-        category: 'achievement'
-      },
-      {
-        id: 'achievement_score_50',
-        title: 'Half Century',
-        description: 'Score 50 points in a single game',
-        type: 'achievement',
-        reward: 0.01,
-        progress: 0,
-        target: 50,
-        completed: false,
-        icon: '🎖️',
-        category: 'achievement'
-      },
-      {
-        id: 'achievement_play_100',
-        title: 'Centurion',
-        description: 'Play 100 games total',
-        type: 'achievement',
-        reward: 0.05,
-        progress: 0,
-        target: 100,
-        completed: false,
-        icon: '🏅',
-        category: 'achievement'
-      }
-    ]
-
-    setQuests(mockQuests)
-  }
+  // Removed loadQuests function - now using useQuests hook
 
   const claimReward = async (quest: Quest) => {
     if (!publicKey || !sendTransaction) {
@@ -182,17 +51,8 @@ export const QuestSystem: FC = () => {
 
     setIsLoading(true)
     try {
-      // In a real app, this would call a backend API to verify quest completion
-      // and send SOL to the user's wallet
-      
-      // For demo purposes, we'll simulate the reward
-      console.log(`Claiming reward: ${quest.reward} SOL for quest: ${quest.title}`)
-      
-      // Update quest as completed
-      setQuests(prev => prev.map(q => 
-        q.id === quest.id ? { ...q, completed: true } : q
-      ))
-
+      // Use the claimQuestReward function from useQuests hook
+      await claimQuestReward(quest.id)
       alert(`🎉 Reward claimed! You received ${quest.reward} SOL!`)
       
     } catch (error) {
@@ -345,32 +205,45 @@ export const QuestSystem: FC = () => {
                 </div>
               </div>
               
-              {/* Claim Button */}
+              {/* Quest Button */}
               <button
-                onClick={() => claimReward(quest)}
-                disabled={quest.completed || quest.progress < quest.target || isLoading}
+                onClick={() => {
+                  if (!quest.accepted) {
+                    acceptQuest(quest.id)
+                  } else if (quest.completed && !quest.claimed) {
+                    claimReward(quest)
+                  }
+                }}
+                disabled={isLoading || (quest.accepted && quest.progress < quest.target)}
                 className={`w-full py-2 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
-                  quest.completed
+                  quest.claimed
                     ? 'bg-green-500 text-white cursor-not-allowed'
-                    : quest.progress >= quest.target
+                    : quest.completed && !quest.claimed
                     ? 'bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white'
-                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                    : quest.accepted
+                    ? 'bg-blue-500 text-white cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
                 }`}
               >
-                {quest.completed ? (
+                {quest.claimed ? (
                   <>
                     <CheckCircle className="w-4 h-4" />
-                    <span>Completed</span>
+                    <span>Claimed</span>
                   </>
-                ) : quest.progress >= quest.target ? (
+                ) : quest.completed && !quest.claimed ? (
                   <>
                     <Zap className="w-4 h-4" />
                     <span>Claim Reward</span>
                   </>
-                ) : (
+                ) : quest.accepted ? (
                   <>
                     <Target className="w-4 h-4" />
                     <span>In Progress</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span>Accept Quest</span>
                   </>
                 )}
               </button>
