@@ -671,8 +671,8 @@ export class GameScene extends Phaser.Scene {
     for (let i = 0; i < this.activePipes.length; i++) {
       const pipeSet = this.activePipes[i]
       
-      // Only check collision if pipe is close to bird (within 100 pixels for better performance)
-      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 100) {
+      // Only check collision if pipe is close to bird (within 80 pixels for better performance)
+      if (Math.abs(pipeSet.topPipe.x - this.bird.x) < 80) {
         // Get bird bounds using Phaser's built-in method for accuracy
         const birdBounds = this.bird.getBounds()
         
@@ -687,30 +687,28 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Fair visual margin - balanced collision sensitivity
-          const visualMargin = 5 // Balanced margin for fair gameplay
-          hitTopPipe = (birdLeft + visualMargin) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
-                      (birdRight - visualMargin) > pipeSet.topPipeCollision.x && 
-                      (birdTop + visualMargin) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
-                      (birdBottom - visualMargin) > pipeSet.topPipeCollision.y
+          // Precise collision detection - no margin for accurate collision
+          hitTopPipe = birdLeft < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
+                      birdRight > pipeSet.topPipeCollision.x && 
+                      birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
+                      birdBottom > pipeSet.topPipeCollision.y
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Fair visual margin - balanced collision sensitivity
-          const visualMargin = 5 // Balanced margin for fair gameplay
-          hitBottomPipe = (birdLeft + visualMargin) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
-                         (birdRight - visualMargin) > pipeSet.bottomPipeCollision.x && 
-                         (birdTop + visualMargin) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                         (birdBottom - visualMargin) > pipeSet.bottomPipeCollision.y
+          // Precise collision detection - no margin for accurate collision
+          hitBottomPipe = birdLeft < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
+                         birdRight > pipeSet.bottomPipeCollision.x && 
+                         birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                         birdBottom > pipeSet.bottomPipeCollision.y
         }
         
         // Check if bird is in the safe gap between pipes
         if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
           const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
           const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 10 // Balanced tolerance for gap detection
+          const gapTolerance = 5 // Precise tolerance for gap detection
           
-          // Bird is in safe gap if it's between the pipes with tolerance
+          // Bird is in safe gap if it's between the pipes with minimal tolerance
           const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
           
           // Debug logging for collision analysis
@@ -724,8 +722,8 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 5,
-              gapTolerance: 10
+              visualMargin: 0,
+              gapTolerance: 5
             })
           }
           
@@ -740,8 +738,8 @@ export class GameScene extends Phaser.Scene {
               gapTop,
               gapBottom,
               pipeX: pipeSet.topPipe.x,
-              visualMargin: 5,
-              gapTolerance: 10
+              visualMargin: 0,
+              gapTolerance: 5
             })
             
             if (!this.isGameOver) {
