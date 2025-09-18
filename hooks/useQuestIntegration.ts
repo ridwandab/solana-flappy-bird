@@ -19,6 +19,7 @@ export const useQuestIntegration = (game: any) => {
     console.log('🔍🔍🔍 useQuestIntegration game type:', typeof game)
     console.log('🔍🔍🔍 useQuestIntegration game events:', game?.events)
     console.log('🔍🔍🔍 useQuestIntegration quests:', quests)
+    console.log('🔍🔍🔍 useQuestIntegration useEffect triggered at:', new Date().toISOString())
     if (!game) {
       console.log('🔍🔍🔍 Quest integration: No game instance available - this is normal on first render')
       return
@@ -108,13 +109,17 @@ export const useQuestIntegration = (game: any) => {
     console.log('🔍 Game events on method:', typeof game.events.on)
     console.log('🔍 Game events emit method:', typeof game.events.emit)
     console.log('🔍 Game events listeners before:', game.events?.listeners?.('questEvent')?.length || 0)
+    console.log('🔍 Setting up quest event listener at:', new Date().toISOString())
     
     if (game.events && typeof game.events.on === 'function') {
       game.events.on('questEvent', handleQuestEvent)
       console.log('Quest integration: Event listener attached successfully')
       console.log('🔍 Game events listeners after:', game.events?.listeners?.('questEvent')?.length || 0)
+      console.log('🔍 Quest event listener attached at:', new Date().toISOString())
     } else {
       console.error('Quest integration: Game events.on is not available!')
+      console.error('Quest integration: Game events object:', game.events)
+      console.error('Quest integration: Game events type:', typeof game.events)
     }
 
     return () => {
