@@ -66,18 +66,20 @@ export default function HomePage() {
           )}
 
           {/* Main Content */}
-          <main className={currentView === 'game' || currentView === 'menu' ? 'pt-0 pb-8' : 'pt-20 pb-8'}>
-            <div className="container mx-auto px-4">
+          <main className={currentView === 'game' ? 'h-screen overflow-hidden' : currentView === 'menu' ? 'pt-0 pb-8' : 'pt-20 pb-8'}>
+            <div className={currentView === 'game' ? 'h-full' : 'container mx-auto px-4'}>
               {renderView()}
             </div>
           </main>
 
-          {/* Footer */}
-          <footer className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10">
-            <div className="container mx-auto px-4 py-2 text-center text-white/60 text-sm">
-              Powered by Solana • Built with Next.js & Phaser 3
-            </div>
-          </footer>
+          {/* Footer - hidden during game */}
+          {currentView !== 'game' && (
+            <footer className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-md border-t border-white/10">
+              <div className="container mx-auto px-4 py-2 text-center text-white/60 text-sm">
+                Powered by Solana • Built with Next.js & Phaser 3
+              </div>
+            </footer>
+          )}
         </div>
       </AudioInitializer>
     </WalletProvider>
