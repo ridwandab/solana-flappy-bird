@@ -5,6 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
 import { useQuests } from '@/hooks/useQuests'
+import { useCustomPopup } from '@/components/ui/CustomPopup'
 import { 
   Trophy, 
   Star, 
@@ -38,6 +39,7 @@ export const QuestSystem: FC = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
   const { quests, acceptQuest, claimQuestReward } = useQuests()
+  const { showPopup, PopupComponent } = useCustomPopup()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
@@ -46,7 +48,7 @@ export const QuestSystem: FC = () => {
 
   const claimReward = async (quest: Quest) => {
     if (!publicKey || !sendTransaction) {
-      alert('Please connect your wallet to claim rewards')
+      showPopup('Please connect your wallet to claim rewards', 'warning')
       return
     }
 
@@ -54,11 +56,11 @@ export const QuestSystem: FC = () => {
     try {
       // Use the claimQuestReward function from useQuests hook
       await claimQuestReward(quest.id)
-      alert(`🎉 Reward claimed! You received ${quest.reward} SOL!`)
+      showPopup(`🎉 Reward claimed! You received ${quest.reward} SOL!`, 'success')
       
     } catch (error) {
       console.error('Failed to claim reward:', error)
-      alert('Failed to claim reward. Please try again.')
+      showPopup('Failed to claim reward. Please try again.', 'error')
     } finally {
       setIsLoading(false)
     }
@@ -94,7 +96,9 @@ export const QuestSystem: FC = () => {
   ]
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <>
+      {PopupComponent}
+      <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -263,6 +267,7 @@ export const QuestSystem: FC = () => {
           </p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
