@@ -4,7 +4,6 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Solana Flappy Bird',
   description: 'Play, Earn, and Collect SOL Rewards!',
-  viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
   icons: {
     icon: '/favicon.png',
     shortcut: '/favicon.png',

@@ -768,7 +768,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Additional collision check for bird falling below screen
-    if (this.bird.y > 920) {
+    if (this.bird.y > this.cameras.main.height) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
       if (!this.isGameOver) {
         this.gameOver()
@@ -786,7 +786,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 900 // Ground top edge (ground is at y: 920, height: 40)
+      const groundTop = this.cameras.main.height - 30 // Dynamic ground top edge based on screen height
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
@@ -1008,7 +1008,7 @@ export class GameScene extends Phaser.Scene {
 
     const gap = this.getCurrentPipeGap() // Use dynamic gap size based on difficulty
     // Calculate pipe height to ensure pipes touch top and bottom of game area
-    const gameHeight = 930 // Game height - top same, bottom raised more
+    const gameHeight = this.cameras.main.height // Dynamic game height based on screen size
     
     // Use random gap position for more challenging gameplay - top same, bottom raised more
     const minGapPosition = 190 // Minimum gap position from top (top same, bottom raised more)
@@ -1241,8 +1241,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
             // Stop bird from falling below ground level (reach bottom ground)
-            if (this.bird.y >= 920) { // Ground level - bottom ground for 930px height
-              this.bird.y = 920
+            if (this.bird.y >= this.cameras.main.height - 10) { // Dynamic ground level based on screen height
+              this.bird.y = this.cameras.main.height - 10
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity

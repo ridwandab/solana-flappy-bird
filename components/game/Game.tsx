@@ -44,6 +44,15 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     phaserGameRef.current = new Phaser.Game(config)
 
+    // Add window resize listener for responsive design
+    const handleResize = () => {
+      if (phaserGameRef.current) {
+        phaserGameRef.current.scale.resize(window.innerWidth, window.innerHeight)
+      }
+    }
+    
+    window.addEventListener('resize', handleResize)
+
     // Add event listener for goToMainMenu
     if (phaserGameRef.current) {
       phaserGameRef.current.events.on('goToMainMenu', () => {
@@ -75,6 +84,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     }
 
     return () => {
+      window.removeEventListener('resize', handleResize)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
