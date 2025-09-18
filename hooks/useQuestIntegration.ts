@@ -9,6 +9,9 @@ interface QuestEvent {
 export const useQuestIntegration = (game: any) => {
   console.log('🔍🔍🔍 useQuestIntegration hook called with game:', game)
   console.log('🔍🔍🔍 useQuestIntegration hook called at:', new Date().toISOString())
+  console.log('🔍🔍🔍 useQuestIntegration hook game type:', typeof game)
+  console.log('🔍🔍🔍 useQuestIntegration hook game null check:', game === null)
+  console.log('🔍🔍🔍 useQuestIntegration hook game undefined check:', game === undefined)
   const { acceptQuest, updateQuestProgress, quests } = useQuests()
   console.log('🔍🔍🔍 useQuestIntegration hook quests loaded:', quests.length, 'quests')
   console.log('🔍🔍🔍 useQuestIntegration hook quests:', quests.map(q => ({ id: q.id, accepted: q.accepted, progress: q.progress })))

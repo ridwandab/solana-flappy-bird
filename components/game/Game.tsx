@@ -23,9 +23,11 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   // Quest integration - will be initialized when game is ready
   console.log('🔍🔍🔍 Game component: gameReady =', gameReady, 'gameInstance =', gameInstance)
   console.log('🔍🔍🔍 Game component: About to call useQuestIntegration with:', gameReady ? gameInstance : null)
+  console.log('🔍🔍🔍 Game component: Quest integration hook called at:', new Date().toISOString())
   const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? gameInstance : null)
   console.log('🔍🔍🔍 Game component: quest integration result =', { quests, acceptQuest, updateQuestProgress })
   console.log('🔍🔍🔍 Game component: quests length =', quests?.length || 0)
+  console.log('🔍🔍🔍 Game component: Quest integration hook completed at:', new Date().toISOString())
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
