@@ -6,6 +6,7 @@ import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
 import { useQuests } from '@/hooks/useQuests'
 import { useCustomPopup } from '@/components/ui/CustomPopup'
+import { useSolBalance } from '@/hooks/useSolBalance'
 import { 
   Trophy, 
   Star, 
@@ -40,6 +41,7 @@ export const QuestSystem: FC = () => {
   const { connection } = useConnection()
   const { quests, acceptQuest, claimQuestReward } = useQuests()
   const { showPopup, PopupComponent } = useCustomPopup()
+  const { earnedSol, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading } = useSolBalance()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
@@ -56,6 +58,8 @@ export const QuestSystem: FC = () => {
     try {
       // Use the claimQuestReward function from useQuests hook
       await claimQuestReward(quest.id)
+      // Add SOL to earned balance
+      addEarnedSol(quest.reward)
       showPopup(`🎉 Reward claimed! You received ${quest.reward} SOL!`, 'success')
       
     } catch (error) {
@@ -63,6 +67,26 @@ export const QuestSystem: FC = () => {
       showPopup('Failed to claim reward. Please try again.', 'error')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleTransferSol = async () => {
+    if (!publicKey) {
+      showPopup('Please connect your wallet to transfer SOL', 'warning')
+      return
+    }
+
+    if (earnedSol <= 0) {
+      showPopup('No SOL to transfer', 'warning')
+      return
+    }
+
+    try {
+      const result = await transferEarnedSol()
+      showPopup(`🎉 ${result.amount} SOL transferred to your wallet!`, 'success')
+    } catch (error) {
+      console.error('Transfer failed:', error)
+      showPopup('Failed to transfer SOL. Please try again.', 'error')
     }
   }
 
@@ -110,6 +134,43 @@ export const QuestSystem: FC = () => {
             Complete quests to earn free SOL rewards!
           </p>
         </div>
+        
+        {/* SOL Transfer Section */}
+        {publicKey && (
+          <div className="flex flex-col items-end space-y-2">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <Coins className="w-5 h-5 text-yellow-400" />
+                <span className="text-white font-medium">Earned SOL</span>
+              </div>
+              <div className="text-2xl font-bold text-yellow-400">
+                {earnedSol.toFixed(3)} SOL
+              </div>
+            </div>
+            
+            <button
+              onClick={handleTransferSol}
+              disabled={earnedSol <= 0 || isTransferLoading}
+              className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
+                earnedSol > 0 && !isTransferLoading
+                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white'
+                  : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+              }`}
+            >
+              {isTransferLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Transferring...</span>
+                </>
+              ) : (
+                <>
+                  <Coins className="w-4 h-4" />
+                  <span>Transfer to Wallet</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Quest Categories */}
