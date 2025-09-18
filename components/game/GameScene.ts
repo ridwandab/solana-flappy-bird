@@ -863,8 +863,16 @@ export class GameScene extends Phaser.Scene {
   // Quest event emission
   private emitQuestEvent(type: QuestEvent['type'], data: any) {
     console.log(`🎯 Emitting quest event: ${type}`, data)
-    this.events.emit('questEvent', { type, data })
-    console.log(`🎯 Quest event emitted successfully: ${type}`)
+    console.log(`🎯 Game events object:`, this.events)
+    console.log(`🎯 Game events emit method:`, typeof this.events.emit)
+    console.log(`🎯 Game events listeners:`, this.events.listeners('questEvent'))
+    
+    if (this.events && typeof this.events.emit === 'function') {
+      this.events.emit('questEvent', { type, data })
+      console.log(`🎯 Quest event emitted successfully: ${type}`)
+    } else {
+      console.error(`🎯 Quest event emission failed: ${type} - events.emit not available`)
+    }
   }
 
   private checkPipeSpawning() {

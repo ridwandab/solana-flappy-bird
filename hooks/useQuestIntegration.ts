@@ -18,6 +18,7 @@ export const useQuestIntegration = (game: any) => {
 
     console.log('Quest integration: Setting up quest event listeners for game:', game)
     console.log('Quest integration: Game events object:', game.events)
+    console.log('Quest integration: Game events methods:', Object.keys(game.events || {}))
 
     const handleQuestEvent = (event: QuestEvent) => {
       console.log('🎯 Quest event received in integration:', event)
@@ -107,8 +108,15 @@ export const useQuestIntegration = (game: any) => {
 
     // Listen for quest events from game
     console.log('🔍 Setting up quest event listener on game.events:', game.events)
-    game.events.on('questEvent', handleQuestEvent)
-    console.log('Quest integration: Event listener attached successfully')
+    console.log('🔍 Game events on method:', typeof game.events.on)
+    console.log('🔍 Game events emit method:', typeof game.events.emit)
+    
+    if (game.events && typeof game.events.on === 'function') {
+      game.events.on('questEvent', handleQuestEvent)
+      console.log('Quest integration: Event listener attached successfully')
+    } else {
+      console.error('Quest integration: Game events.on is not available!')
+    }
 
     return () => {
       if (game && game.events) {
