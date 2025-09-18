@@ -21,7 +21,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { getDisplayName } = usePlayerName()
   
   // Quest integration - will be initialized when game is ready
+  console.log('🔍🔍🔍 Game component: gameReady =', gameReady, 'gameInstance =', gameInstance)
   const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? gameInstance : null)
+  console.log('🔍🔍🔍 Game component: quest integration result =', { quests, acceptQuest, updateQuestProgress })
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return

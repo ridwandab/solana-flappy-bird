@@ -10,12 +10,13 @@ export const useQuestIntegration = (game: any) => {
   const { acceptQuest, updateQuestProgress, quests } = useQuests()
 
   useEffect(() => {
-    console.log('🔍 useQuestIntegration useEffect triggered, game:', game)
-    console.log('🔍 useQuestIntegration gameReady state:', game !== null)
-    console.log('🔍 useQuestIntegration game type:', typeof game)
-    console.log('🔍 useQuestIntegration game events:', game?.events)
+    console.log('🔍🔍🔍 useQuestIntegration useEffect triggered, game:', game)
+    console.log('🔍🔍🔍 useQuestIntegration gameReady state:', game !== null)
+    console.log('🔍🔍🔍 useQuestIntegration game type:', typeof game)
+    console.log('🔍🔍🔍 useQuestIntegration game events:', game?.events)
+    console.log('🔍🔍🔍 useQuestIntegration quests:', quests)
     if (!game) {
-      console.log('Quest integration: No game instance available - this is normal on first render')
+      console.log('🔍🔍🔍 Quest integration: No game instance available - this is normal on first render')
       return
     }
 
