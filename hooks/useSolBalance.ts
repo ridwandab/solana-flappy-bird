@@ -3,6 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
 import { useQuests } from './useQuests'
+import { createTreasuryWallet } from '@/lib/treasuryWallet'
 
 export const useSolBalance = () => {
   const { publicKey, sendTransaction } = useWallet()
@@ -57,36 +58,49 @@ export const useSolBalance = () => {
 
   // Transfer earned SOL to wallet
   const transferEarnedSol = async () => {
-    if (!publicKey || !sendTransaction || earnedSol <= 0) {
+    if (!publicKey || earnedSol <= 0) {
       throw new Error('Cannot transfer: No wallet connected or no SOL to transfer')
     }
 
     setIsLoading(true)
     try {
-      // Create transaction to send SOL to the connected wallet
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey, // This should be the game's treasury wallet in production
-          toPubkey: publicKey,   // Player's wallet
-          lamports: Math.floor(earnedSol * LAMPORTS_PER_SOL),
-        })
-      )
-
-      // For demo purposes, we'll simulate the transfer
-      // In production, you would need a treasury wallet to send from
-      console.log(`Simulating transfer of ${earnedSol} SOL to wallet ${publicKey.toString()}`)
+      // Create treasury wallet instance
+      const treasuryWallet = createTreasuryWallet(connection)
       
-      // Simulate transaction delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Check treasury balance
+      const treasuryBalance = await treasuryWallet.getBalance()
+      console.log(`Treasury balance: ${treasuryBalance} SOL`)
       
-      // Clear earned SOL after successful transfer
-      setEarnedSol(0)
-      localStorage.setItem('earnedSol', '0')
-      
-      return {
-        success: true,
-        amount: earnedSol,
-        transactionId: 'simulated-tx-' + Date.now()
+      if (treasuryBalance < earnedSol) {
+        // If treasury doesn't have enough SOL, simulate the transfer
+        console.log('Treasury insufficient, simulating transfer...')
+        const signature = await treasuryWallet.simulateTransfer(publicKey, earnedSol)
+        
+        // Clear earned SOL after successful transfer
+        setEarnedSol(0)
+        localStorage.setItem('earnedSol', '0')
+        
+        return {
+          success: true,
+          amount: earnedSol,
+          transactionId: signature,
+          simulated: true
+        }
+      } else {
+        // Real transfer using treasury wallet
+        console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()}`)
+        const signature = await treasuryWallet.transferSol(publicKey, earnedSol)
+        
+        // Clear earned SOL after successful transfer
+        setEarnedSol(0)
+        localStorage.setItem('earnedSol', '0')
+        
+        return {
+          success: true,
+          amount: earnedSol,
+          transactionId: signature,
+          simulated: false
+        }
       }
       
     } catch (error) {
