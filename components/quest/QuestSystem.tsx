@@ -17,7 +17,8 @@ import {
   Play, 
   Award,
   Calendar,
-  Zap
+  Zap,
+  Info
 } from 'lucide-react'
 
 interface Quest {
@@ -41,7 +42,7 @@ export const QuestSystem: FC = () => {
   const { connection } = useConnection()
   const { quests, acceptQuest, claimQuestReward } = useQuests()
   const { showPopup, PopupComponent } = useCustomPopup()
-  const { earnedSol, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading } = useSolBalance()
+  const { earnedSol, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading, getTransferHistory } = useSolBalance()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [showTransferModal, setShowTransferModal] = useState(false)
@@ -92,7 +93,7 @@ export const QuestSystem: FC = () => {
     try {
       const result = await transferEarnedSol()
       if (result.simulated) {
-        showPopup(`🎉 ${result.amount} SOL transferred to your wallet! (Demo Mode)`, 'success')
+        showPopup(`🎉 ${result.amount} SOL transferred to your wallet! (Demo Mode - TX: ${result.transactionId})`, 'success')
       } else {
         showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
       }
@@ -152,6 +153,16 @@ export const QuestSystem: FC = () => {
               <p className="text-white/60 mb-4">
                 Are you sure you want to transfer your earned SOL to your connected wallet?
               </p>
+              
+              <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-4">
+                <div className="flex items-center space-x-2 text-blue-300">
+                  <Info className="w-4 h-4" />
+                  <span className="text-sm font-medium">Demo Mode</span>
+                </div>
+                <p className="text-blue-200/80 text-xs mt-1">
+                  This is a simulation. In production, SOL would be transferred to your wallet.
+                </p>
+              </div>
               
               <div className="bg-white/10 rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-center space-x-2 text-yellow-400">

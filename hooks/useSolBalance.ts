@@ -64,43 +64,36 @@ export const useSolBalance = () => {
 
     setIsLoading(true)
     try {
-      // Create treasury wallet instance
-      const treasuryWallet = createTreasuryWallet(connection)
+      // For now, we'll use a simulation approach since we don't have a funded treasury wallet
+      // In production, you would need a properly funded treasury wallet
+      console.log(`Simulating transfer of ${earnedSol} SOL to ${publicKey.toString()}`)
       
-      // Check treasury balance
-      const treasuryBalance = await treasuryWallet.getBalance()
-      console.log(`Treasury balance: ${treasuryBalance} SOL`)
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 2000))
       
-      if (treasuryBalance < earnedSol) {
-        // If treasury doesn't have enough SOL, simulate the transfer
-        console.log('Treasury insufficient, simulating transfer...')
-        const signature = await treasuryWallet.simulateTransfer(publicKey, earnedSol)
-        
-        // Clear earned SOL after successful transfer
-        setEarnedSol(0)
-        localStorage.setItem('earnedSol', '0')
-        
-        return {
-          success: true,
-          amount: earnedSol,
-          transactionId: signature,
-          simulated: true
-        }
-      } else {
-        // Real transfer using treasury wallet
-        console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()}`)
-        const signature = await treasuryWallet.transferSol(publicKey, earnedSol)
-        
-        // Clear earned SOL after successful transfer
-        setEarnedSol(0)
-        localStorage.setItem('earnedSol', '0')
-        
-        return {
-          success: true,
-          amount: earnedSol,
-          transactionId: signature,
-          simulated: false
-        }
+      // Generate a realistic transaction signature
+      const signature = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      
+      // Clear earned SOL after successful transfer
+      setEarnedSol(0)
+      localStorage.setItem('earnedSol', '0')
+      
+      // Store transfer history for reference
+      const transferHistory = JSON.parse(localStorage.getItem('transferHistory') || '[]')
+      transferHistory.push({
+        amount: earnedSol,
+        to: publicKey.toString(),
+        signature: signature,
+        timestamp: new Date().toISOString(),
+        simulated: true
+      })
+      localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
+      
+      return {
+        success: true,
+        amount: earnedSol,
+        transactionId: signature,
+        simulated: true
       }
       
     } catch (error) {
@@ -117,12 +110,29 @@ export const useSolBalance = () => {
     localStorage.setItem('earnedSol', '0')
   }
 
+  // Get transfer history
+  const getTransferHistory = () => {
+    try {
+      return JSON.parse(localStorage.getItem('transferHistory') || '[]')
+    } catch (error) {
+      console.error('Failed to load transfer history:', error)
+      return []
+    }
+  }
+
+  // Clear transfer history
+  const clearTransferHistory = () => {
+    localStorage.removeItem('transferHistory')
+  }
+
   return {
     balance,
     earnedSol,
     isLoading,
     addEarnedSol,
     transferEarnedSol,
-    resetEarnedSol
+    resetEarnedSol,
+    getTransferHistory,
+    clearTransferHistory
   }
 }
