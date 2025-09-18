@@ -12,6 +12,8 @@ export const useQuestIntegration = (game: any) => {
   useEffect(() => {
     console.log('🔍 useQuestIntegration useEffect triggered, game:', game)
     console.log('🔍 useQuestIntegration gameReady state:', game !== null)
+    console.log('🔍 useQuestIntegration game type:', typeof game)
+    console.log('🔍 useQuestIntegration game events:', game?.events)
     if (!game) {
       console.log('Quest integration: No game instance available - this is normal on first render')
       return

@@ -54,6 +54,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       setGameInstance(phaserGameRef.current)
       console.log('🎮 Game is ready for quest integration!')
       console.log('🎮 Game instance set for quest integration:', phaserGameRef.current)
+      console.log('🎮 Game events object:', phaserGameRef.current?.events)
+      console.log('🎮 Game events methods:', Object.keys(phaserGameRef.current?.events || {}))
     }, 100)
 
     // Add event listener for goToMainMenu
