@@ -64,16 +64,26 @@ export const useSolBalance = () => {
 
     setIsLoading(true)
     try {
-      // For now, we'll use a simulation approach since treasury wallet has issues in browser
-      // In production, you would need a proper backend service to handle transfers
-      console.log(`Simulating transfer of ${earnedSol} SOL to ${publicKey.toString()}`)
+      // Use real API endpoint for transfer
+      console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()}`)
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // Generate a realistic transaction signature
-      const signature = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
+      const response = await fetch('/api/transfer-sol', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          playerWallet: publicKey.toString(),
+          amount: earnedSol
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Transfer failed')
+      }
+
       // Clear earned SOL after successful transfer
       setEarnedSol(0)
       localStorage.setItem('earnedSol', '0')
@@ -83,18 +93,18 @@ export const useSolBalance = () => {
       transferHistory.push({
         amount: earnedSol,
         to: publicKey.toString(),
-        signature: signature,
-        timestamp: new Date().toISOString(),
-        simulated: true,
-        note: 'Simulated transfer - Treasury wallet has browser compatibility issues'
+        signature: result.transactionId,
+        timestamp: result.timestamp,
+        simulated: false,
+        note: 'Real transfer via API endpoint'
       })
       localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
       
       return {
         success: true,
         amount: earnedSol,
-        transactionId: signature,
-        simulated: true
+        transactionId: result.transactionId,
+        simulated: false
       }
       
     } catch (error) {

@@ -92,11 +92,7 @@ export const QuestSystem: FC = () => {
     
     try {
       const result = await transferEarnedSol()
-      if (result.simulated) {
-        showPopup(`🎉 ${result.amount} SOL transferred to your wallet! (Simulated - TX: ${result.transactionId})`, 'success')
-      } else {
-        showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
-      }
+      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
     } catch (error) {
       console.error('Transfer failed:', error)
       showPopup('Failed to transfer SOL. Please try again.', 'error')
@@ -154,13 +150,13 @@ export const QuestSystem: FC = () => {
                 Are you sure you want to transfer your earned SOL to your connected wallet?
               </p>
               
-              <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-4">
-                <div className="flex items-center space-x-2 text-blue-300">
+              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mb-4">
+                <div className="flex items-center space-x-2 text-green-300">
                   <Info className="w-4 h-4" />
-                  <span className="text-sm font-medium">Simulated Transfer</span>
+                  <span className="text-sm font-medium">Real Transfer</span>
                 </div>
-                <p className="text-blue-200/80 text-xs mt-1">
-                  This is a simulation. Treasury wallet has browser compatibility issues. In production, a backend service would handle real transfers.
+                <p className="text-green-200/80 text-xs mt-1">
+                  SOL will be transferred directly to your connected wallet via secure API endpoint.
                 </p>
               </div>
               
