@@ -37,11 +37,18 @@ interface Quest {
 export const QuestSystem: FC = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
-  const { quests, acceptQuest, claimQuestReward } = useQuests()
+  const { quests, acceptQuest, claimQuestReward, updateQuestProgress } = useQuests()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   // Removed loadQuests function - now using useQuests hook
+
+  // Manual test function for quest progress
+  const testQuestProgress = (questId: string, increment: number = 1) => {
+    console.log(`🧪 MANUAL TEST: Updating quest ${questId} with increment ${increment}`)
+    updateQuestProgress(questId, increment)
+    console.log(`🧪 MANUAL TEST: Quest ${questId} updated!`)
+  }
 
   const claimReward = async (quest: Quest) => {
     if (!publicKey || !sendTransaction) {
@@ -106,7 +113,27 @@ export const QuestSystem: FC = () => {
           </p>
         </div>
         
-        {/* Back to Menu button removed */}
+        {/* Manual Test Buttons */}
+        <div className="flex flex-col space-y-2">
+          <button
+            onClick={() => testQuestProgress('daily_play_3', 1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+          >
+            🧪 Test Daily Play +1
+          </button>
+          <button
+            onClick={() => testQuestProgress('daily_score_5', 5)}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+          >
+            🧪 Test Score +5
+          </button>
+          <button
+            onClick={() => testQuestProgress('weekly_play_20', 1)}
+            className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm"
+          >
+            🧪 Test Weekly Play +1
+          </button>
+        </div>
       </div>
 
       {/* Quest Categories */}
