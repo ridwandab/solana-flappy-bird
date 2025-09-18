@@ -27,15 +27,8 @@ export const useQuestIntegration = (game: any) => {
       switch (event.type) {
         case 'game_start':
           console.log('🎮 Processing game_start quest event')
-          // Auto-accept and update daily play quests
-          console.log('🎮 Auto-accepting quests...')
-          acceptQuest('daily_play_1')
-          acceptQuest('daily_play_3')
-          acceptQuest('weekly_play_20')
-          acceptQuest('achievement_play_50')
-          
-          // Update daily play quests
-          console.log('🎮 Updating quest progress...')
+          // Only update quests that are already accepted
+          console.log('🎮 Updating accepted quest progress...')
           updateQuestProgress('daily_play_1', 1)
           updateQuestProgress('daily_play_3', 1)
           updateQuestProgress('weekly_play_20', 1)
@@ -47,14 +40,8 @@ export const useQuestIntegration = (game: any) => {
           const score = event.data.score
           console.log('🎯 Processing score_achieved quest event, score:', score)
           
-          // Auto-accept score-based quests
-          console.log('🎯 Auto-accepting score quests...')
-          acceptQuest('daily_score_5')
-          acceptQuest('achievement_score_20')
-          acceptQuest('weekly_score_50')
-          
-          // Update score-based quests
-          console.log('🎯 Updating score quest progress...')
+          // Only update score-based quests that are already accepted
+          console.log('🎯 Updating accepted score quest progress...')
           if (score >= 5) {
             console.log('🎯 Updating daily_score_5 quest with score:', score)
             updateQuestProgress('daily_score_5', score)
@@ -75,10 +62,7 @@ export const useQuestIntegration = (game: any) => {
           const pipesPassed = event.data.pipesPassed || 0
           console.log('Processing game_end quest event, score:', finalScore)
           
-          // Auto-accept achievement quests
-          acceptQuest('daily_high_score')
-          acceptQuest('achievement_first_win')
-          
+          // Only update achievement quests that are already accepted
           // Check for high score achievement
           const currentHighScore = localStorage.getItem('highScore') || '0'
           if (finalScore > parseInt(currentHighScore)) {
@@ -97,8 +81,7 @@ export const useQuestIntegration = (game: any) => {
 
         case 'cosmetic_purchased':
           console.log('Processing cosmetic_purchased quest event')
-          // Auto-accept cosmetic quest
-          acceptQuest('weekly_cosmetic')
+          // Only update cosmetic quest that is already accepted
           updateQuestProgress('weekly_cosmetic', 1)
           break
 
