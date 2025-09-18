@@ -21,7 +21,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { getDisplayName } = usePlayerName()
   
   // Quest integration - will be initialized when game is ready
-  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameInstance)
+  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? gameInstance : null)
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -56,6 +56,8 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       console.log('🎮 Game instance set for quest integration:', phaserGameRef.current)
       console.log('🎮 Game events object:', phaserGameRef.current?.events)
       console.log('🎮 Game events methods:', Object.keys(phaserGameRef.current?.events || {}))
+      console.log('🎮 Game ready state:', true)
+      console.log('🎮 Game instance state:', phaserGameRef.current)
     }, 100)
 
     // Add event listener for goToMainMenu
