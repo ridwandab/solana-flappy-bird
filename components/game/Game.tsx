@@ -5,7 +5,7 @@ import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { usePlayerName } from '@/hooks/usePlayerName'
-import { useQuestIntegration } from '@/hooks/useQuestIntegration'
+import { useQuestEventListener } from '@/hooks/useQuestEventListener'
 
 interface GameProps {
   onBackToMenu?: () => void
@@ -20,14 +20,10 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { publicKey, connected } = useWallet()
   const { getDisplayName } = usePlayerName()
   
-  // Quest integration - will be initialized when game is ready
-  console.log('🔍🔍🔍 Game component: gameReady =', gameReady, 'gameInstance =', gameInstance)
-  console.log('🔍🔍🔍 Game component: About to call useQuestIntegration with:', gameReady ? gameInstance : null)
-  console.log('🔍🔍🔍 Game component: Quest integration hook called at:', new Date().toISOString())
-  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? gameInstance : null)
-  console.log('🔍🔍🔍 Game component: quest integration result =', { quests, acceptQuest, updateQuestProgress })
-  console.log('🔍🔍🔍 Game component: quests length =', quests?.length || 0)
-  console.log('🔍🔍🔍 Game component: Quest integration hook completed at:', new Date().toISOString())
+  // Quest event listener - monitors localStorage for quest events
+  console.log('🔍 Quest Event Listener: Starting quest event monitoring')
+  const { quests } = useQuestEventListener()
+  console.log('🔍 Quest Event Listener: Quest monitoring started, quests count:', quests?.length || 0)
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return

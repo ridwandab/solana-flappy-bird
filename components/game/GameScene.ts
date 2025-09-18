@@ -869,12 +869,22 @@ export class GameScene extends Phaser.Scene {
     console.log(`🎯 Game events listeners:`, this.events.listeners('questEvent'))
     console.log(`🎯 Game events listeners count:`, this.events.listeners('questEvent').length)
     
+    // Try both methods: events.emit and localStorage
     if (this.events && typeof this.events.emit === 'function') {
       this.events.emit('questEvent', { type, data })
       console.log(`🎯 Quest event emitted successfully: ${type}`)
       console.log(`🎯 Quest event data:`, { type, data })
     } else {
       console.error(`🎯 Quest event emission failed: ${type} - events.emit not available`)
+    }
+    
+    // Also store in localStorage for direct access
+    try {
+      const questEvent = { type, data, timestamp: Date.now() }
+      localStorage.setItem('latestQuestEvent', JSON.stringify(questEvent))
+      console.log(`🎯 Quest event stored in localStorage: ${type}`)
+    } catch (error) {
+      console.error(`🎯 Failed to store quest event in localStorage:`, error)
     }
   }
 
