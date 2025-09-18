@@ -207,10 +207,10 @@ export const QuestSystem: FC = () => {
           <div className="flex items-center justify-center space-x-2 mb-2">
             <Coins className="w-6 h-6 text-yellow-400" />
             <span className="text-2xl font-bold text-white">
-              {quests.filter(q => q.completed).reduce((sum, q) => sum + q.reward, 0).toFixed(3)}
+              {quests.filter(q => q.claimed).reduce((sum, q) => sum + q.reward, 0).toFixed(3)}
             </span>
           </div>
-          <p className="text-white/60">SOL Earned</p>
+          <p className="text-white/60">SOL Claimed</p>
         </div>
         
         <div className="card text-center">

@@ -2,21 +2,36 @@ import { useState, useEffect } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
+import { useQuests } from './useQuests'
 
 export const useSolBalance = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
+  const { quests } = useQuests()
   const [balance, setBalance] = useState(0)
   const [earnedSol, setEarnedSol] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Load earned SOL from localStorage
+  // Load earned SOL from localStorage and sync with claimed quests
   useEffect(() => {
     const savedEarnedSol = localStorage.getItem('earnedSol')
     if (savedEarnedSol) {
       setEarnedSol(parseFloat(savedEarnedSol))
     }
   }, [])
+
+  // Sync earned SOL with claimed quests
+  useEffect(() => {
+    const claimedQuestsTotal = quests
+      .filter(q => q.claimed)
+      .reduce((sum, q) => sum + q.reward, 0)
+    
+    // Only update if there's a difference to avoid infinite loops
+    if (Math.abs(claimedQuestsTotal - earnedSol) > 0.001) {
+      setEarnedSol(claimedQuestsTotal)
+      localStorage.setItem('earnedSol', claimedQuestsTotal.toString())
+    }
+  }, [quests, earnedSol])
 
   // Load wallet balance
   useEffect(() => {
