@@ -7,7 +7,9 @@ interface QuestEvent {
 }
 
 export const useQuestIntegration = (game: any) => {
+  console.log('🔍🔍🔍 useQuestIntegration hook called with game:', game)
   const { acceptQuest, updateQuestProgress, quests } = useQuests()
+  console.log('🔍🔍🔍 useQuestIntegration hook quests loaded:', quests.length, 'quests')
 
   useEffect(() => {
     console.log('🔍🔍🔍 useQuestIntegration useEffect triggered, game:', game)
@@ -119,7 +121,7 @@ export const useQuestIntegration = (game: any) => {
         console.log('Quest integration: Event listener removed')
       }
     }
-  }, [game])
+  }, [game, quests])
 
   return {
     quests,
