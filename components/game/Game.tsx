@@ -15,12 +15,13 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
   const [gameReady, setGameReady] = useState(false)
+  const [gameInstance, setGameInstance] = useState<Phaser.Game | null>(null)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
   const { publicKey, connected } = useWallet()
   const { getDisplayName } = usePlayerName()
   
   // Quest integration - will be initialized when game is ready
-  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? phaserGameRef.current : null)
+  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameInstance)
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -50,7 +51,9 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     // Set game as ready after a short delay to ensure it's fully initialized
     setTimeout(() => {
       setGameReady(true)
+      setGameInstance(phaserGameRef.current)
       console.log('🎮 Game is ready for quest integration!')
+      console.log('🎮 Game instance set for quest integration:', phaserGameRef.current)
     }, 100)
 
     // Add event listener for goToMainMenu
@@ -85,6 +88,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
 
     return () => {
       setGameReady(false)
+      setGameInstance(null)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
