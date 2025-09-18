@@ -221,49 +221,60 @@ export const useQuests = () => {
   }
 
   const acceptQuest = (questId: string) => {
-    console.log(`Accepting quest: ${questId}`)
+    console.log(`✅ Accepting quest: ${questId}`)
     
     setQuests(prev => {
+      console.log(`✅ Current quests before accept:`, prev.map(q => ({ id: q.id, accepted: q.accepted })))
+      
       const updated = prev.map(quest => {
         if (quest.id === questId && !quest.accepted) {
-          console.log(`Quest ${questId} accepted!`)
-          return {
+          console.log(`✅ Quest ${questId} accepted!`)
+          const updatedQuest = {
             ...quest,
             accepted: true,
             lastUpdated: new Date().toISOString()
           }
+          console.log(`✅ Updated quest:`, updatedQuest)
+          return updatedQuest
         }
         return quest
       })
       
+      console.log(`✅ Updated quests after accept:`, updated.map(q => ({ id: q.id, accepted: q.accepted })))
       saveQuests(updated)
       return updated
     })
   }
 
   const updateQuestProgress = (questId: string, increment: number) => {
-    console.log(`Updating quest progress: ${questId}, increment: ${increment}`)
+    console.log(`🔄 Updating quest progress: ${questId}, increment: ${increment}`)
     
     setQuests(prev => {
+      console.log(`🔄 Current quests before update:`, prev.map(q => ({ id: q.id, progress: q.progress, accepted: q.accepted })))
+      
       const updated = prev.map(quest => {
         if (quest.id === questId && quest.accepted) { // Only update if quest is accepted
           const newProgress = quest.progress + increment
           const completed = newProgress >= quest.target && !quest.completed
           
-          console.log(`Quest ${questId}: ${quest.progress} + ${increment} = ${newProgress} (target: ${quest.target}, completed: ${completed})`)
+          console.log(`🔄 Quest ${questId}: ${quest.progress} + ${increment} = ${newProgress} (target: ${quest.target}, completed: ${completed})`)
           
-          return {
+          const updatedQuest = {
             ...quest,
             progress: Math.min(newProgress, quest.target),
             completed: completed || quest.completed,
             lastUpdated: new Date().toISOString()
           }
+          
+          console.log(`🔄 Updated quest:`, updatedQuest)
+          return updatedQuest
         } else if (quest.id === questId && !quest.accepted) {
-          console.log(`Quest ${questId} not accepted yet, skipping progress update`)
+          console.log(`🔄 Quest ${questId} not accepted yet, skipping progress update`)
         }
         return quest
       })
       
+      console.log(`🔄 Updated quests after update:`, updated.map(q => ({ id: q.id, progress: q.progress, accepted: q.accepted })))
       saveQuests(updated)
       return updated
     })

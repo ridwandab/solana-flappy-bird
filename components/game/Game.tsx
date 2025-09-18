@@ -18,7 +18,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const { publicKey, connected } = useWallet()
   const { getDisplayName } = usePlayerName()
   
-  // Quest integration
+  // Quest integration - will be initialized when game is ready
   const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(phaserGameRef.current)
 
   useEffect(() => {
