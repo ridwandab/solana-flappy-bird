@@ -312,7 +312,7 @@ export class GameScene extends Phaser.Scene {
     this.createScrollingBackground()
 
     // Create invisible ground for collision detection only
-    this.ground = this.add.rectangle(400, 920, 800, 40, 0x8B4513)
+    this.ground = this.add.rectangle(400, 900, 800, 40, 0x8B4513)
     this.ground.setScrollFactor(0)
     this.ground.setVisible(false) // Hide ground visually but keep collision
     this.startScreenElements.push(this.ground)
@@ -768,7 +768,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // Additional collision check for bird falling below screen
-    if (this.bird.y > 920) {
+    if (this.bird.y > 900) {
       console.log('🚨 BIRD FELL BELOW SCREEN! Game Over!', { birdY: this.bird.y })
       if (!this.isGameOver) {
         this.gameOver()
@@ -786,7 +786,7 @@ export class GameScene extends Phaser.Scene {
     // Manual ground collision detection for more accuracy
     if (this.bird && !this.isGameOver) {
       const birdBottom = this.bird.y + 25 // Bird bottom edge
-      const groundTop = 900 // Ground top edge (ground is at y: 920, height: 40)
+      const groundTop = 880 // Ground top edge (ground is at y: 900, height: 40)
       
       if (birdBottom >= groundTop) {
         console.log('🚨 MANUAL GROUND COLLISION! Bird hit ground! Game Over!', { 
@@ -1241,8 +1241,8 @@ export class GameScene extends Phaser.Scene {
           this.bird.angle = Math.min(Math.max(velocity * 0.15, -90), 90)
           
             // Stop bird from falling below ground level (reach bottom ground)
-            if (this.bird.y >= 920) { // Ground level - bottom ground for 930px height
-              this.bird.y = 920
+            if (this.bird.y >= 900) { // Ground level - bottom ground for 930px height
+              this.bird.y = 900
             const body = this.bird.body as Phaser.Physics.Arcade.Body
             body.setVelocityY(0) // Stop falling
             body.setGravityY(0) // Stop gravity
