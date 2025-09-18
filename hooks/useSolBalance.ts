@@ -64,15 +64,21 @@ export const useSolBalance = () => {
 
     setIsLoading(true)
     try {
-      // For now, we'll use a simulation approach since we don't have a funded treasury wallet
-      // In production, you would need a properly funded treasury wallet
-      console.log(`Simulating transfer of ${earnedSol} SOL to ${publicKey.toString()}`)
+      // Create treasury wallet instance
+      const treasuryWallet = createTreasuryWallet(connection)
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Check treasury balance
+      const treasuryBalance = await treasuryWallet.getBalance()
+      console.log(`Treasury balance: ${treasuryBalance} SOL, attempting to transfer: ${earnedSol} SOL`)
       
-      // Generate a realistic transaction signature
-      const signature = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      if (treasuryBalance < earnedSol) {
+        // If treasury doesn't have enough SOL, show error
+        throw new Error(`Insufficient treasury balance. Available: ${treasuryBalance} SOL, Required: ${earnedSol} SOL. Please contact support to fund the treasury.`)
+      }
+
+      // Real transfer using treasury wallet
+      console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()}`)
+      const signature = await treasuryWallet.transferSol(publicKey, earnedSol)
       
       // Clear earned SOL after successful transfer
       setEarnedSol(0)
@@ -85,7 +91,7 @@ export const useSolBalance = () => {
         to: publicKey.toString(),
         signature: signature,
         timestamp: new Date().toISOString(),
-        simulated: true
+        simulated: false
       })
       localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
       
@@ -93,7 +99,7 @@ export const useSolBalance = () => {
         success: true,
         amount: earnedSol,
         transactionId: signature,
-        simulated: true
+        simulated: false
       }
       
     } catch (error) {

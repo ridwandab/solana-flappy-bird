@@ -4,9 +4,9 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 // Treasury wallet configuration
 const TREASURY_WALLET_PRIVATE_KEY = process.env.NEXT_PUBLIC_TREASURY_PRIVATE_KEY || ''
 
-// For demo purposes, we'll use a test treasury wallet
-// In production, you should use a secure treasury wallet with actual SOL
-const DEMO_TREASURY_PRIVATE_KEY = [
+// Real treasury wallet for Solana Flappy Bird
+// This wallet should be funded with SOL for real transfers
+const REAL_TREASURY_PRIVATE_KEY = [
   174, 47, 154, 16, 202, 193, 206, 113, 199, 190, 53, 133, 169, 175, 31, 56, 222, 53, 138, 189, 224, 216, 117, 173, 10, 149, 53, 45, 73, 251, 237, 246, 15, 185, 186, 82, 177, 240, 148, 69, 241, 227, 167, 80, 141, 89, 240, 121, 121, 35, 172, 247, 68, 251, 226, 218, 48, 63, 176, 109, 168, 89, 238, 135
 ]
 
@@ -15,8 +15,8 @@ export class TreasuryWallet {
   private connection: Connection
 
   constructor(connection: Connection) {
-    // Use demo treasury wallet for now
-    this.keypair = Keypair.fromSecretKey(new Uint8Array(DEMO_TREASURY_PRIVATE_KEY))
+    // Use real treasury wallet
+    this.keypair = Keypair.fromSecretKey(new Uint8Array(REAL_TREASURY_PRIVATE_KEY))
     this.connection = connection
   }
 
@@ -40,6 +40,8 @@ export class TreasuryWallet {
       
       // Check if treasury has enough balance
       const treasuryBalance = await this.getBalance()
+      console.log(`Treasury balance: ${treasuryBalance} SOL, attempting to transfer: ${amount} SOL`)
+      
       if (treasuryBalance < amount) {
         throw new Error(`Insufficient treasury balance. Available: ${treasuryBalance} SOL, Required: ${amount} SOL`)
       }
@@ -67,6 +69,7 @@ export class TreasuryWallet {
       // Confirm transaction
       await this.connection.confirmTransaction(signature, 'confirmed')
 
+      console.log(`Transfer successful: ${amount} SOL to ${toPublicKey.toString()}, TX: ${signature}`)
       return signature
     } catch (error) {
       console.error('Transfer failed:', error)
