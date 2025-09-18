@@ -1,6 +1,6 @@
 'use client'
 
-import { FC, useEffect, useRef } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { GameScene } from './GameScene'
 import { useSettings } from '@/hooks/useSettings'
 import { useWallet } from '@solana/wallet-adapter-react'
@@ -14,12 +14,13 @@ interface GameProps {
 export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   const gameRef = useRef<HTMLDivElement>(null)
   const phaserGameRef = useRef<Phaser.Game | null>(null)
+  const [gameReady, setGameReady] = useState(false)
   const { settings, getGamePhysicsConfig, getAudioConfig, getGraphicsConfig } = useSettings()
   const { publicKey, connected } = useWallet()
   const { getDisplayName } = usePlayerName()
   
   // Quest integration - will be initialized when game is ready
-  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(phaserGameRef.current)
+  const { quests, acceptQuest, updateQuestProgress } = useQuestIntegration(gameReady ? phaserGameRef.current : null)
 
   useEffect(() => {
     if (!gameRef.current || phaserGameRef.current) return
@@ -45,6 +46,12 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     }
 
     phaserGameRef.current = new Phaser.Game(config)
+    
+    // Set game as ready after a short delay to ensure it's fully initialized
+    setTimeout(() => {
+      setGameReady(true)
+      console.log('🎮 Game is ready for quest integration!')
+    }, 100)
 
     // Add event listener for goToMainMenu
     if (phaserGameRef.current) {
@@ -77,6 +84,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
     }
 
     return () => {
+      setGameReady(false)
       if (phaserGameRef.current) {
         phaserGameRef.current.destroy(true)
         phaserGameRef.current = null
