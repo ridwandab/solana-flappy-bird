@@ -81,7 +81,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
   }, [onBackToMenu])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 overflow-hidden">
       {/* Game Container - centered with better spacing */}
       <div 
         ref={gameRef} 
