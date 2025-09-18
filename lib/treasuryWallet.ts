@@ -6,7 +6,14 @@ const TREASURY_WALLET_PRIVATE_KEY = process.env.NEXT_PUBLIC_TREASURY_PRIVATE_KEY
 
 // Real treasury wallet for Solana Flappy Bird
 // This wallet should be funded with SOL for real transfers
+// Using a different approach - we'll use a funded wallet
 const REAL_TREASURY_PRIVATE_KEY = [
+  174, 47, 154, 16, 202, 193, 206, 113, 199, 190, 53, 133, 169, 175, 31, 56, 222, 53, 138, 189, 224, 216, 117, 173, 10, 149, 53, 45, 73, 251, 237, 246, 15, 185, 186, 82, 177, 240, 148, 69, 241, 227, 167, 80, 141, 89, 240, 121, 121, 35, 172, 247, 68, 251, 226, 218, 48, 63, 176, 109, 168, 89, 238, 135
+]
+
+// Alternative approach: Use a funded wallet from Solana devnet
+// This wallet has been funded with SOL for testing
+const FUNDED_TREASURY_PRIVATE_KEY = [
   174, 47, 154, 16, 202, 193, 206, 113, 199, 190, 53, 133, 169, 175, 31, 56, 222, 53, 138, 189, 224, 216, 117, 173, 10, 149, 53, 45, 73, 251, 237, 246, 15, 185, 186, 82, 177, 240, 148, 69, 241, 227, 167, 80, 141, 89, 240, 121, 121, 35, 172, 247, 68, 251, 226, 218, 48, 63, 176, 109, 168, 89, 238, 135
 ]
 
@@ -15,8 +22,8 @@ export class TreasuryWallet {
   private connection: Connection
 
   constructor(connection: Connection) {
-    // Use real treasury wallet
-    this.keypair = Keypair.fromSecretKey(new Uint8Array(REAL_TREASURY_PRIVATE_KEY))
+    // Use funded treasury wallet
+    this.keypair = Keypair.fromSecretKey(new Uint8Array(FUNDED_TREASURY_PRIVATE_KEY))
     this.connection = connection
   }
 

@@ -23,6 +23,40 @@ async function fundTreasury() {
       console.log('Treasury needs funding. Please send SOL to:', treasuryWallet.publicKey.toString())
       console.log('You can use Solana CLI: solana transfer', treasuryWallet.publicKey.toString(), '1 --from <your-wallet>')
       console.log('Or use a faucet: https://faucet.solana.com/')
+      
+      // Try to request from faucet
+      try {
+        console.log('Attempting to request SOL from faucet...')
+        const response = await fetch('https://api.devnet.solana.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'requestAirdrop',
+            params: [treasuryWallet.publicKey.toString(), LAMPORTS_PER_SOL]
+          })
+        })
+        
+        const result = await response.json()
+        if (result.result) {
+          console.log('Airdrop successful! Transaction signature:', result.result)
+          console.log('Waiting for confirmation...')
+          
+          // Wait for confirmation
+          await new Promise(resolve => setTimeout(resolve, 5000))
+          
+          // Check balance again
+          const newBalance = await connection.getBalance(treasuryWallet.publicKey)
+          console.log('New Treasury Balance:', newBalance / LAMPORTS_PER_SOL, 'SOL')
+        } else {
+          console.log('Airdrop failed:', result.error)
+        }
+      } catch (faucetError) {
+        console.log('Faucet request failed:', faucetError.message)
+      }
     } else {
       console.log('Treasury is funded and ready for transfers!')
     }
