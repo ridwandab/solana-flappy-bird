@@ -35,7 +35,7 @@ export const Game: FC<GameProps> = ({ onBackToMenu }) => {
       },
       scene: GameScene,
       scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.ENVELOP,
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: '100%',
         height: '100%'
