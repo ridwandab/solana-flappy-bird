@@ -190,6 +190,19 @@ export const QuestSystem: FC = () => {
         )}
       </div>
 
+      {/* Quest Reset Info */}
+      <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-4">
+        <div className="flex items-center space-x-3">
+          <Clock className="w-5 h-5 text-blue-400" />
+          <div>
+            <h3 className="text-white font-medium">Quest Reset Schedule</h3>
+            <p className="text-white/60 text-sm">
+              Daily quests reset every day at midnight • Weekly quests reset every Monday
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Quest Categories */}
       <div className="flex flex-wrap gap-3">
         {categories.map(category => (
@@ -258,6 +271,12 @@ export const QuestSystem: FC = () => {
                     <div className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${getQuestTypeColor(quest.type)}`}>
                       {getQuestTypeIcon(quest.type)}
                       <span className="capitalize">{quest.type}</span>
+                      {quest.type === 'daily' && (
+                        <span className="text-xs opacity-75">• Resets daily</span>
+                      )}
+                      {quest.type === 'weekly' && (
+                        <span className="text-xs opacity-75">• Resets weekly</span>
+                      )}
                     </div>
                   </div>
                 </div>

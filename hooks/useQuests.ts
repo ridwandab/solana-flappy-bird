@@ -28,6 +28,13 @@ export const useQuests = () => {
     }
   }, [publicKey])
 
+  // Auto-check quest reset on app load
+  useEffect(() => {
+    if (quests.length > 0) {
+      checkAndResetQuests()
+    }
+  }, [quests.length])
+
   const loadQuests = () => {
     if (!publicKey) return
 
@@ -37,6 +44,9 @@ export const useQuests = () => {
       if (savedQuests) {
         const parsedQuests = JSON.parse(savedQuests)
         setQuests(parsedQuests)
+        
+        // Check and reset daily/weekly quests if needed
+        checkAndResetQuests()
       } else {
         // Initialize with default quests
         initializeDefaultQuests()
@@ -300,14 +310,24 @@ export const useQuests = () => {
     })
   }
 
+  const checkAndResetQuests = () => {
+    console.log('🔄 Checking quest reset status...')
+    resetDailyQuests()
+    resetWeeklyQuests()
+  }
+
   const resetDailyQuests = () => {
     const today = new Date().toDateString()
     const lastReset = localStorage.getItem('lastDailyReset')
     
+    console.log('📅 Daily quest reset check:', { today, lastReset })
+    
     if (lastReset !== today) {
+      console.log('🔄 Resetting daily quests...')
       setQuests(prev => {
         const updated = prev.map(quest => {
           if (quest.type === 'daily') {
+            console.log(`🔄 Resetting daily quest: ${quest.id}`)
             return {
               ...quest,
               progress: 0,
@@ -322,8 +342,11 @@ export const useQuests = () => {
         
         saveQuests(updated)
         localStorage.setItem('lastDailyReset', today)
+        console.log('✅ Daily quests reset completed')
         return updated
       })
+    } else {
+      console.log('✅ Daily quests already reset today')
     }
   }
 
@@ -333,10 +356,14 @@ export const useQuests = () => {
     const weekKey = startOfWeek.toDateString()
     const lastReset = localStorage.getItem('lastWeeklyReset')
     
+    console.log('📅 Weekly quest reset check:', { weekKey, lastReset })
+    
     if (lastReset !== weekKey) {
+      console.log('🔄 Resetting weekly quests...')
       setQuests(prev => {
         const updated = prev.map(quest => {
           if (quest.type === 'weekly') {
+            console.log(`🔄 Resetting weekly quest: ${quest.id}`)
             return {
               ...quest,
               progress: 0,
@@ -351,8 +378,11 @@ export const useQuests = () => {
         
         saveQuests(updated)
         localStorage.setItem('lastWeeklyReset', weekKey)
+        console.log('✅ Weekly quests reset completed')
         return updated
       })
+    } else {
+      console.log('✅ Weekly quests already reset this week')
     }
   }
 
