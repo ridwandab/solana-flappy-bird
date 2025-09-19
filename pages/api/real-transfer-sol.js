@@ -4,12 +4,14 @@
 const { Connection, PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL, Transaction } = require('@solana/web3.js')
 
 // Treasury wallet private key (should be stored securely in environment variables)
-const TREASURY_PRIVATE_KEY = process.env.TREASURY_PRIVATE_KEY 
-  ? JSON.parse(process.env.TREASURY_PRIVATE_KEY)
-  : null
+const TREASURY_PRIVATE_KEY = process.env.TREASURY_PRIVATE_KEY_NEW 
+  ? JSON.parse(process.env.TREASURY_PRIVATE_KEY_NEW)
+  : process.env.TREASURY_PRIVATE_KEY 
+    ? JSON.parse(process.env.TREASURY_PRIVATE_KEY)
+    : null
 
 // API key for authentication (should be stored securely)
-const API_KEY = process.env.API_KEY || 'your-secure-api-key'
+const API_KEY = process.env.API_KEY_NEW || process.env.API_KEY || 'your-secure-api-key'
 
 export default async function handler(req, res) {
   console.log('Real Transfer SOL API called:', req.method, req.body)
