@@ -153,16 +153,6 @@ export const QuestSystem: FC = () => {
         {/* SOL Transfer Section */}
         {publicKey && (
           <div className="flex flex-col items-end space-y-2">
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <Coins className="w-5 h-5 text-yellow-400" />
-                <span className="text-white font-medium">Earned SOL</span>
-              </div>
-              <div className="text-2xl font-bold text-yellow-400">
-                {earnedSol.toFixed(3)} SOL
-              </div>
-            </div>
-            
             <div className="flex flex-col space-y-2">
               <button
                 onClick={handleRealTransferSol}
