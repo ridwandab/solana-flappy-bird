@@ -92,7 +92,7 @@ export const QuestSystem: FC = () => {
     
     try {
       const result = await transferEarnedSol()
-      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
+      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}... (Demo Mode)`, 'success')
     } catch (error) {
       console.error('Transfer failed:', error)
       showPopup('Failed to transfer SOL. Please try again.', 'error')
@@ -168,7 +168,7 @@ export const QuestSystem: FC = () => {
                   </span>
                 </div>
                 <p className="text-white/60 text-sm mt-1">
-                  Amount to transfer
+                  Amount to transfer (Demo Mode)
                 </p>
               </div>
               
@@ -216,6 +216,9 @@ export const QuestSystem: FC = () => {
               <div className="text-2xl font-bold text-yellow-400">
                 {earnedSol.toFixed(3)} SOL
               </div>
+              <div className="text-xs text-orange-400 mt-1">
+                ⚠️ Demo Mode
+              </div>
             </div>
             
             <button
@@ -235,7 +238,7 @@ export const QuestSystem: FC = () => {
               ) : (
                 <>
                   <Coins className="w-4 h-4" />
-                  <span>Transfer to Wallet</span>
+                  <span>Transfer to Wallet (Demo)</span>
                 </>
               )}
             </button>

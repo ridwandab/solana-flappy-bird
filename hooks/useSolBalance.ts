@@ -88,17 +88,17 @@ export const useSolBalance = () => {
       setEarnedSol(0)
       localStorage.setItem('earnedSol', '0')
       
-      // Store transfer history for reference
-      const transferHistory = JSON.parse(localStorage.getItem('transferHistory') || '[]')
-      transferHistory.push({
-        amount: earnedSol,
-        to: publicKey.toString(),
-        signature: result.transactionId,
-        timestamp: result.timestamp,
-        simulated: false,
-        note: 'Real transfer via API endpoint'
-      })
-      localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
+          // Store transfer history for reference
+          const transferHistory = JSON.parse(localStorage.getItem('transferHistory') || '[]')
+          transferHistory.push({
+            amount: earnedSol,
+            to: publicKey.toString(),
+            signature: result.transactionId,
+            timestamp: result.timestamp,
+            simulated: result.simulated || false,
+            note: result.simulated ? 'Simulated transfer for demo purposes' : 'Real transfer via API endpoint'
+          })
+          localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
       
       return {
         success: true,
