@@ -65,7 +65,7 @@ export const useSolBalance = () => {
     setIsLoading(true)
     try {
       // Choose API endpoint based on transfer type
-      const endpoint = useRealTransfer ? '/api/real-transfer-sol' : '/api/transfer-sol'
+      const endpoint = useRealTransfer ? '/api/simple-transfer-sol' : '/api/transfer-sol'
       console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()} using ${useRealTransfer ? 'REAL' : 'SIMULATED'} transfer`)
       
       const requestBody: any = {

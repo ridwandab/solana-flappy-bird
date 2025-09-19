@@ -117,17 +117,11 @@ export const QuestSystem: FC = () => {
   }
 
   const confirmRealTransfer = async () => {
-    if (!apiKey.trim()) {
-      showPopup('Please enter API key for real transfer', 'warning')
-      return
-    }
-
     setShowRealTransferModal(false)
     
     try {
-      const result = await transferEarnedSol(true, apiKey) // Real transfer
+      const result = await transferEarnedSol(true) // Real transfer (no API key needed)
       showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}... (REAL TRANSFER)`, 'success')
-      setApiKey('') // Clear API key after successful transfer
     } catch (error) {
       console.error('Real transfer failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
@@ -473,26 +467,18 @@ export const QuestSystem: FC = () => {
             
             <div className="mb-4">
               <p className="text-white/60 text-sm mb-2">
-                This will send real SOL to your wallet. Make sure you have the correct API key.
+                This will send real SOL to your wallet. No API key required!
               </p>
               <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
                 <p className="text-red-300 text-sm">
                   ⚠️ WARNING: This is a REAL transfer that will send actual SOL to your wallet!
                 </p>
               </div>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">
-                API Key
-              </label>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Enter your API key"
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-primary-500"
-              />
+              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mb-4">
+                <p className="text-green-300 text-sm">
+                  ✅ No API key required - Simple transfer system!
+                </p>
+              </div>
             </div>
             
             <div className="bg-white/10 rounded-lg p-4 mb-6">
@@ -516,7 +502,7 @@ export const QuestSystem: FC = () => {
               </button>
               <button
                 onClick={confirmRealTransfer}
-                disabled={isTransferLoading || !apiKey.trim()}
+                disabled={isTransferLoading}
                 className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isTransferLoading ? 'Transferring...' : 'Confirm Real Transfer'}
