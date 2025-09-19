@@ -150,34 +150,6 @@ export const QuestSystem: FC = () => {
           </p>
         </div>
         
-        {/* SOL Transfer Section */}
-        {publicKey && (
-          <div className="flex flex-col items-end space-y-2">
-            <div className="flex flex-col space-y-2">
-              <button
-                onClick={handleRealTransferSol}
-                disabled={earnedSol <= 0 || isTransferLoading}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
-                  earnedSol > 0 && !isTransferLoading
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
-                    : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {isTransferLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Transferring...</span>
-                  </>
-                ) : (
-                  <>
-                    <Coins className="w-4 h-4" />
-                    <span>Transfer to Wallet</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Quest Reset Info */}
@@ -223,7 +195,10 @@ export const QuestSystem: FC = () => {
           <p className="text-white/60">Completed Quests</p>
         </div>
         
-        <div className="card text-center">
+        <div 
+          className="card text-center cursor-pointer hover:bg-white/5 transition-colors"
+          onClick={() => setShowRealTransferModal(true)}
+        >
           <div className="flex items-center justify-center space-x-2 mb-2">
             <Coins className="w-6 h-6 text-yellow-400" />
             <span className="text-2xl font-bold text-white">
@@ -231,6 +206,7 @@ export const QuestSystem: FC = () => {
             </span>
           </div>
           <p className="text-white/60">SOL Available</p>
+          <p className="text-xs text-white/40 mt-1">Click to transfer</p>
         </div>
         
         <div className="card text-center">
