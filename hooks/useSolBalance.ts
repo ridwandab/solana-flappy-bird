@@ -3,7 +3,6 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { LAMPORTS_PER_SOL, PublicKey, Transaction, SystemProgram } from '@solana/web3.js'
 import { useQuests } from './useQuests'
-import { createTreasuryWallet } from '@/lib/treasuryWallet'
 
 export const useSolBalance = () => {
   const { publicKey, sendTransaction } = useWallet()
@@ -12,6 +11,7 @@ export const useSolBalance = () => {
   const [balance, setBalance] = useState(0)
   const [earnedSol, setEarnedSol] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [transferCompleted, setTransferCompleted] = useState(false)
 
   // Load earned SOL from localStorage and sync with claimed quests
   useEffect(() => {
@@ -21,18 +21,24 @@ export const useSolBalance = () => {
     }
   }, [])
 
-  // Sync earned SOL with claimed quests
+  // Sync earned SOL with claimed quests (but not after transfer)
   useEffect(() => {
+    if (transferCompleted) {
+      console.log('💰 Transfer completed, skipping sync with claimed quests')
+      return
+    }
+    
     const claimedQuestsTotal = quests
       .filter(q => q.claimed)
       .reduce((sum, q) => sum + q.reward, 0)
     
     // Only update if there's a difference to avoid infinite loops
     if (Math.abs(claimedQuestsTotal - earnedSol) > 0.001) {
+      console.log('💰 Syncing earned SOL with claimed quests:', claimedQuestsTotal)
       setEarnedSol(claimedQuestsTotal)
       localStorage.setItem('earnedSol', claimedQuestsTotal.toString())
     }
-  }, [quests, earnedSol])
+  }, [quests, earnedSol, transferCompleted])
 
   // Load wallet balance
   useEffect(() => {
@@ -54,6 +60,7 @@ export const useSolBalance = () => {
     const newEarnedSol = earnedSol + amount
     setEarnedSol(newEarnedSol)
     localStorage.setItem('earnedSol', newEarnedSol.toString())
+    setTransferCompleted(false) // Reset transfer flag when new SOL is earned
   }
 
   // Transfer earned SOL to wallet
@@ -95,24 +102,36 @@ export const useSolBalance = () => {
       // Clear earned SOL after successful transfer
       setEarnedSol(0)
       localStorage.setItem('earnedSol', '0')
+      setTransferCompleted(true) // Prevent sync with claimed quests
       
-          // Store transfer history for reference
-          const transferHistory = JSON.parse(localStorage.getItem('transferHistory') || '[]')
-          transferHistory.push({
-            amount: earnedSol,
-            to: publicKey.toString(),
-            signature: result.transactionId,
-            timestamp: result.timestamp,
-            simulated: result.simulated || false,
-            note: result.simulated ? 'Simulated transfer for demo purposes' : 'Real transfer via API endpoint'
-          })
-          localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
+      // Refresh wallet balance after transfer
+      if (publicKey) {
+        try {
+          const newBalance = await connection.getBalance(publicKey)
+          setBalance(newBalance / LAMPORTS_PER_SOL)
+          console.log('💰 Wallet balance refreshed after transfer:', newBalance / LAMPORTS_PER_SOL, 'SOL')
+        } catch (error) {
+          console.error('Failed to refresh wallet balance:', error)
+        }
+      }
+      
+      // Store transfer history for reference
+      const transferHistory = JSON.parse(localStorage.getItem('transferHistory') || '[]')
+      transferHistory.push({
+        amount: earnedSol,
+        to: publicKey.toString(),
+        signature: result.transactionId,
+        timestamp: result.timestamp,
+        simulated: result.simulated || false,
+        note: result.simulated ? 'Simulated transfer for demo purposes' : 'Real transfer via API endpoint'
+      })
+      localStorage.setItem('transferHistory', JSON.stringify(transferHistory))
       
       return {
         success: true,
         amount: earnedSol,
         transactionId: result.transactionId,
-        simulated: false
+        simulated: result.simulated || false
       }
       
     } catch (error) {
