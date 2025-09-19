@@ -45,7 +45,6 @@ export const QuestSystem: FC = () => {
   const { earnedSol, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading, getTransferHistory } = useSolBalance()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [showTransferModal, setShowTransferModal] = useState(false)
   const [showRealTransferModal, setShowRealTransferModal] = useState(false)
   const [apiKey, setApiKey] = useState('')
 
@@ -74,20 +73,6 @@ export const QuestSystem: FC = () => {
     }
   }
 
-  const handleTransferSol = async () => {
-    if (!publicKey) {
-      showPopup('Please connect your wallet to transfer SOL', 'warning')
-      return
-    }
-
-    if (earnedSol <= 0) {
-      showPopup('No SOL to transfer', 'warning')
-      return
-    }
-
-    // Show confirmation modal
-    setShowTransferModal(true)
-  }
 
   const handleRealTransferSol = async () => {
     if (!publicKey) {
@@ -104,17 +89,6 @@ export const QuestSystem: FC = () => {
     setShowRealTransferModal(true)
   }
 
-  const confirmTransfer = async () => {
-    setShowTransferModal(false)
-    
-    try {
-      const result = await transferEarnedSol(false) // Simulated transfer
-      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}... (Demo Mode)`, 'success')
-    } catch (error) {
-      console.error('Transfer failed:', error)
-      showPopup('Failed to transfer SOL. Please try again.', 'error')
-    }
-  }
 
   const confirmRealTransfer = async () => {
     setShowRealTransferModal(false)
@@ -162,65 +136,6 @@ export const QuestSystem: FC = () => {
     <>
       {PopupComponent}
       
-      {/* Transfer Confirmation Modal */}
-      {showTransferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowTransferModal(false)} />
-          <div className="relative z-10 bg-gradient-to-br from-purple-900 to-indigo-900 border border-white/20 rounded-xl p-6 max-w-md w-full">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coins className="w-8 h-8 text-white" />
-              </div>
-              
-              <h3 className="text-xl font-bold text-white mb-2">
-                Transfer SOL to Wallet
-              </h3>
-              
-              <p className="text-white/60 mb-4">
-                Are you sure you want to transfer your earned SOL to your connected wallet?
-              </p>
-              
-              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mb-4">
-                <div className="flex items-center space-x-2 text-green-300">
-                  <Info className="w-4 h-4" />
-                  <span className="text-sm font-medium">Real Transfer</span>
-                </div>
-                <p className="text-green-200/80 text-xs mt-1">
-                  SOL will be transferred directly to your connected wallet via secure API endpoint.
-                </p>
-              </div>
-              
-              <div className="bg-white/10 rounded-lg p-4 mb-6">
-                <div className="flex items-center justify-center space-x-2 text-yellow-400">
-                  <Coins className="w-6 h-6" />
-                  <span className="text-2xl font-bold">
-                    {earnedSol.toFixed(3)} SOL
-                  </span>
-                </div>
-                <p className="text-white/60 text-sm mt-1">
-                  Amount to transfer (Demo Mode)
-                </p>
-              </div>
-              
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowTransferModal(false)}
-                  className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmTransfer}
-                  disabled={isTransferLoading}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isTransferLoading ? 'Transferring...' : 'Confirm Transfer'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       
       <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
@@ -246,34 +161,9 @@ export const QuestSystem: FC = () => {
               <div className="text-2xl font-bold text-yellow-400">
                 {earnedSol.toFixed(3)} SOL
               </div>
-              <div className="text-xs text-orange-400 mt-1">
-                ⚠️ Demo Mode
-              </div>
             </div>
             
             <div className="flex flex-col space-y-2">
-              <button
-                onClick={handleTransferSol}
-                disabled={earnedSol <= 0 || isTransferLoading}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
-                  earnedSol > 0 && !isTransferLoading
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white'
-                    : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {isTransferLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Transferring...</span>
-                  </>
-                ) : (
-                  <>
-                    <Coins className="w-4 h-4" />
-                    <span>Transfer to Wallet (Demo)</span>
-                  </>
-                )}
-              </button>
-              
               <button
                 onClick={handleRealTransferSol}
                 disabled={earnedSol <= 0 || isTransferLoading}
@@ -291,7 +181,7 @@ export const QuestSystem: FC = () => {
                 ) : (
                   <>
                     <Coins className="w-4 h-4" />
-                    <span>Transfer to Wallet (REAL)</span>
+                    <span>Transfer to Wallet</span>
                   </>
                 )}
               </button>
