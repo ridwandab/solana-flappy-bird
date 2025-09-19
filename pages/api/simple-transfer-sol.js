@@ -4,7 +4,7 @@
 const { Connection, PublicKey, Keypair, SystemProgram, LAMPORTS_PER_SOL, Transaction } = require('@solana/web3.js')
 
 // Treasury wallet private key (hardcoded for testing)
-const TREASURY_PRIVATE_KEY = [48,135,95,78,170,23,23,244,2,181,52,3,86,1,44,171,245,185,77,170,2,142,27,11,79,14,115,54,6,140,253,132,60,149,227,20,141,177,150,178,35,198,213,156,150,14,165,255,143,21,136,41,60,121,78,56,158,66,128,111,13,4,23,106]
+const TREASURY_PRIVATE_KEY = [103,54,38,189,137,65,198,250,186,31,236,186,89,20,43,123,5,176,125,253,75,6,90,240,157,156,250,177,221,216,225,148,172,178,103,214,239,100,230,228,218,176,255,53,78,237,145,10,134,32,15,110,254,62,46,247,78,160,210,160,21,90,36,66]
 
 export default async function handler(req, res) {
   console.log('Simple Transfer SOL API called:', req.method, req.body)
