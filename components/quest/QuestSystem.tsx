@@ -130,7 +130,8 @@ export const QuestSystem: FC = () => {
       setApiKey('') // Clear API key after successful transfer
     } catch (error) {
       console.error('Real transfer failed:', error)
-      showPopup(`Failed to transfer SOL: ${error.message}`, 'error')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      showPopup(`Failed to transfer SOL: ${errorMessage}`, 'error')
     }
   }
 
