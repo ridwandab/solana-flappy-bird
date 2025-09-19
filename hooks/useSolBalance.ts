@@ -72,9 +72,21 @@ export const useSolBalance = () => {
   }
 
   // Transfer earned SOL to wallet
-  const transferEarnedSol = async (useRealTransfer: boolean = false, apiKey?: string) => {
-    if (!publicKey || earnedSol <= 0) {
-      throw new Error('Cannot transfer: No wallet connected or no SOL to transfer')
+  const transferEarnedSol = async (useRealTransfer: boolean = false) => {
+    console.log('💰 Transfer attempt - Debug info:', {
+      publicKey: publicKey?.toString(),
+      earnedSol,
+      useRealTransfer
+    })
+    
+    if (!publicKey) {
+      console.error('💰 Transfer failed: No wallet connected')
+      throw new Error('Cannot transfer: No wallet connected')
+    }
+    
+    if (earnedSol <= 0) {
+      console.error('💰 Transfer failed: No SOL to transfer, earnedSol:', earnedSol)
+      throw new Error('Cannot transfer: No SOL to transfer')
     }
 
     setIsLoading(true)
@@ -88,10 +100,7 @@ export const useSolBalance = () => {
         amount: earnedSol
       }
 
-      // Add API key for real transfers
-      if (useRealTransfer && apiKey) {
-        requestBody.apiKey = apiKey
-      }
+      // No API key needed for simple transfer
       
       const response = await fetch(endpoint, {
         method: 'POST',
