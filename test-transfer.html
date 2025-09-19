@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Transfer</title>
+</head>
+<body>
+    <h1>Test SOL Transfer</h1>
+    <button onclick="testTransfer()">Test Transfer</button>
+    <div id="result"></div>
+
+    <script>
+        async function testTransfer() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing transfer...';
+            
+            try {
+                const response = await fetch('/api/test-transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        playerWallet: 'Cd8ubeqg5x2M7DJFqEzLvkZ1fSMqdfZWHunkqcyvuf8d',
+                        amount: 0.001
+                    })
+                });
+                
+                const result = await response.json();
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                resultDiv.innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

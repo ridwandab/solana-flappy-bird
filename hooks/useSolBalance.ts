@@ -102,10 +102,14 @@ export const useSolBalance = () => {
       })
 
       const result = await response.json()
+      console.log('💰 Transfer API response:', result)
 
       if (!response.ok) {
+        console.error('💰 Transfer API error:', result)
         throw new Error(result.error || 'Transfer failed')
       }
+
+      console.log('💰 Transfer successful! Result:', result)
 
       // Clear earned SOL after successful transfer
       setEarnedSol(0)
@@ -116,9 +120,13 @@ export const useSolBalance = () => {
       // Refresh wallet balance after transfer
       if (publicKey) {
         try {
+          console.log('💰 Refreshing wallet balance after transfer...')
           const newBalance = await connection.getBalance(publicKey)
-          setBalance(newBalance / LAMPORTS_PER_SOL)
-          console.log('💰 Wallet balance refreshed after transfer:', newBalance / LAMPORTS_PER_SOL, 'SOL')
+          const newBalanceSOL = newBalance / LAMPORTS_PER_SOL
+          setBalance(newBalanceSOL)
+          console.log('💰 Wallet balance refreshed after transfer:', newBalanceSOL, 'SOL')
+          console.log('💰 Transfer result:', result)
+          console.log('💰 Transaction ID:', result.transactionId)
         } catch (error) {
           console.error('Failed to refresh wallet balance:', error)
         }
