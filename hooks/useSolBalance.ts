@@ -13,11 +13,18 @@ export const useSolBalance = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [transferCompleted, setTransferCompleted] = useState(false)
 
-  // Load earned SOL from localStorage and sync with claimed quests
+  // Load earned SOL and transfer status from localStorage
   useEffect(() => {
     const savedEarnedSol = localStorage.getItem('earnedSol')
     if (savedEarnedSol) {
       setEarnedSol(parseFloat(savedEarnedSol))
+    }
+    
+    // Load transfer completed status
+    const savedTransferCompleted = localStorage.getItem('transferCompleted')
+    if (savedTransferCompleted === 'true') {
+      setTransferCompleted(true)
+      console.log('💰 Transfer completed status loaded from localStorage')
     }
   }, [])
 
@@ -61,6 +68,7 @@ export const useSolBalance = () => {
     setEarnedSol(newEarnedSol)
     localStorage.setItem('earnedSol', newEarnedSol.toString())
     setTransferCompleted(false) // Reset transfer flag when new SOL is earned
+    localStorage.setItem('transferCompleted', 'false') // Save transfer status
   }
 
   // Transfer earned SOL to wallet
@@ -103,6 +111,7 @@ export const useSolBalance = () => {
       setEarnedSol(0)
       localStorage.setItem('earnedSol', '0')
       setTransferCompleted(true) // Prevent sync with claimed quests
+      localStorage.setItem('transferCompleted', 'true') // Save transfer status
       
       // Refresh wallet balance after transfer
       if (publicKey) {
