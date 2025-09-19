@@ -91,11 +91,18 @@ export const QuestSystem: FC = () => {
 
 
   const confirmRealTransfer = async () => {
+    // Double check if there's SOL to transfer
+    if (earnedSol <= 0) {
+      showPopup('No SOL available to transfer. Complete quests to earn SOL first!', 'warning')
+      setShowRealTransferModal(false)
+      return
+    }
+    
     setShowRealTransferModal(false)
     
     try {
       const result = await transferEarnedSol(true) // Real transfer (no API key needed)
-      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}... (REAL TRANSFER)`, 'success')
+      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
     } catch (error) {
       console.error('Real transfer failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
@@ -196,17 +203,25 @@ export const QuestSystem: FC = () => {
         </div>
         
         <div 
-          className="card text-center cursor-pointer hover:bg-white/5 transition-colors"
-          onClick={() => setShowRealTransferModal(true)}
+          className={`card text-center transition-colors ${
+            earnedSol > 0 
+              ? 'cursor-pointer hover:bg-white/5' 
+              : 'cursor-not-allowed opacity-60'
+          }`}
+          onClick={() => earnedSol > 0 && setShowRealTransferModal(true)}
         >
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Coins className="w-6 h-6 text-yellow-400" />
-            <span className="text-2xl font-bold text-white">
+            <Coins className={`w-6 h-6 ${earnedSol > 0 ? 'text-yellow-400' : 'text-gray-500'}`} />
+            <span className={`text-2xl font-bold ${earnedSol > 0 ? 'text-white' : 'text-gray-500'}`}>
               {earnedSol.toFixed(3)}
             </span>
           </div>
           <p className="text-white/60">SOL Available</p>
-          <p className="text-xs text-white/40 mt-1">Click to transfer</p>
+          {earnedSol > 0 ? (
+            <p className="text-xs text-white/40 mt-1">Click to transfer</p>
+          ) : (
+            <p className="text-xs text-gray-500 mt-1">Complete quests to earn SOL</p>
+          )}
         </div>
         
         <div className="card text-center">
@@ -361,8 +376,12 @@ export const QuestSystem: FC = () => {
               </button>
               <button
                 onClick={confirmRealTransfer}
-                disabled={isTransferLoading}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                disabled={isTransferLoading || earnedSol <= 0}
+                className={`flex-1 px-4 py-3 rounded-lg transition-colors flex items-center justify-center space-x-2 ${
+                  earnedSol > 0 && !isTransferLoading
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                    : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                }`}
               >
                 {isTransferLoading ? (
                   <>
