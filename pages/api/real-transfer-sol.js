@@ -8,10 +8,10 @@ const TREASURY_PRIVATE_KEY = process.env.TREASURY_PRIVATE_KEY_NEW
   ? JSON.parse(process.env.TREASURY_PRIVATE_KEY_NEW)
   : process.env.TREASURY_PRIVATE_KEY 
     ? JSON.parse(process.env.TREASURY_PRIVATE_KEY)
-    : null
+    : [48,135,95,78,170,23,23,244,2,181,52,3,86,1,44,171,245,185,77,170,2,142,27,11,79,14,115,54,6,140,253,132,60,149,227,20,141,177,150,178,35,198,213,156,150,14,165,255,143,21,136,41,60,121,78,56,158,66,128,111,13,4,23,106]
 
 // API key for authentication (should be stored securely)
-const API_KEY = process.env.API_KEY_NEW || process.env.API_KEY || 'your-secure-api-key'
+const API_KEY = process.env.API_KEY_NEW || process.env.API_KEY || '29f0f66225272194c8529bd095720efa8fcfb55f236615c29c52334f8fbfcacc'
 
 export default async function handler(req, res) {
   console.log('Real Transfer SOL API called:', req.method, req.body)
