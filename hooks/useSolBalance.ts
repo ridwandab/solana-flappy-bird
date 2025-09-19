@@ -57,25 +57,33 @@ export const useSolBalance = () => {
   }
 
   // Transfer earned SOL to wallet
-  const transferEarnedSol = async () => {
+  const transferEarnedSol = async (useRealTransfer: boolean = false, apiKey?: string) => {
     if (!publicKey || earnedSol <= 0) {
       throw new Error('Cannot transfer: No wallet connected or no SOL to transfer')
     }
 
     setIsLoading(true)
     try {
-      // Use real API endpoint for transfer
-      console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()}`)
+      // Choose API endpoint based on transfer type
+      const endpoint = useRealTransfer ? '/api/real-transfer-sol' : '/api/transfer-sol'
+      console.log(`Transferring ${earnedSol} SOL to ${publicKey.toString()} using ${useRealTransfer ? 'REAL' : 'SIMULATED'} transfer`)
       
-      const response = await fetch('/api/transfer-sol', {
+      const requestBody: any = {
+        playerWallet: publicKey.toString(),
+        amount: earnedSol
+      }
+
+      // Add API key for real transfers
+      if (useRealTransfer && apiKey) {
+        requestBody.apiKey = apiKey
+      }
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          playerWallet: publicKey.toString(),
-          amount: earnedSol
-        })
+        body: JSON.stringify(requestBody)
       })
 
       const result = await response.json()
