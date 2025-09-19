@@ -42,7 +42,7 @@ export const QuestSystem: FC = () => {
   const { connection } = useConnection()
   const { quests, acceptQuest, claimQuestReward } = useQuests()
   const { showPopup, PopupComponent } = useCustomPopup()
-  const { earnedSol, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading, getTransferHistory } = useSolBalance()
+  const { earnedSol, balance, transferEarnedSol, addEarnedSol, isLoading: isTransferLoading, getTransferHistory } = useSolBalance()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [showRealTransferModal, setShowRealTransferModal] = useState(false)
@@ -101,8 +101,33 @@ export const QuestSystem: FC = () => {
     setShowRealTransferModal(false)
     
     try {
+      // Record balance before transfer for comparison
+      const balanceBefore = balance
+      
+      // Execute transfer
       const result = await transferEarnedSol(true) // Real transfer (no API key needed)
-      showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
+      
+      // Force refresh wallet balance after transfer
+      if (publicKey) {
+        try {
+          const newBalance = await connection.getBalance(publicKey)
+          const newBalanceSOL = newBalance / LAMPORTS_PER_SOL
+          
+          // Calculate actual received amount
+          const received = newBalanceSOL - balanceBefore
+          
+          showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
+          
+          // Show additional balance info
+          setTimeout(() => {
+            showPopup(`💰 Wallet balance updated: ${newBalanceSOL.toFixed(6)} SOL (+${received.toFixed(6)} SOL)`, 'info')
+          }, 3000)
+        } catch (error) {
+          console.error('Failed to refresh wallet balance:', error)
+        }
+      } else {
+        showPopup(`🎉 ${result.amount} SOL transferred to your wallet! TX: ${result.transactionId.slice(0, 8)}...`, 'success')
+      }
     } catch (error) {
       console.error('Real transfer failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
@@ -202,26 +227,41 @@ export const QuestSystem: FC = () => {
           <p className="text-white/60">Completed Quests</p>
         </div>
         
-        <div 
-          className={`card text-center transition-colors ${
-            earnedSol > 0 
-              ? 'cursor-pointer hover:bg-white/5' 
-              : 'cursor-not-allowed opacity-60'
-          }`}
-          onClick={() => earnedSol > 0 && setShowRealTransferModal(true)}
-        >
-          <div className="flex items-center justify-center space-x-2 mb-2">
-            <Coins className={`w-6 h-6 ${earnedSol > 0 ? 'text-yellow-400' : 'text-gray-500'}`} />
-            <span className={`text-2xl font-bold ${earnedSol > 0 ? 'text-white' : 'text-gray-500'}`}>
-              {earnedSol.toFixed(3)}
-            </span>
+        <div className="grid grid-cols-1 gap-2">
+          {/* Quest SOL Card */}
+          <div 
+            className={`card text-center transition-colors ${
+              earnedSol > 0 
+                ? 'cursor-pointer hover:bg-white/5' 
+                : 'cursor-not-allowed opacity-60'
+            }`}
+            onClick={() => earnedSol > 0 && setShowRealTransferModal(true)}
+          >
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Coins className={`w-6 h-6 ${earnedSol > 0 ? 'text-yellow-400' : 'text-gray-500'}`} />
+              <span className={`text-2xl font-bold ${earnedSol > 0 ? 'text-white' : 'text-gray-500'}`}>
+                {earnedSol.toFixed(3)}
+              </span>
+            </div>
+            <p className="text-white/60">Quest SOL</p>
+            {earnedSol > 0 ? (
+              <p className="text-xs text-white/40 mt-1">Click to transfer</p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">Complete quests to earn SOL</p>
+            )}
           </div>
-          <p className="text-white/60">SOL Available</p>
-          {earnedSol > 0 ? (
-            <p className="text-xs text-white/40 mt-1">Click to transfer</p>
-          ) : (
-            <p className="text-xs text-gray-500 mt-1">Complete quests to earn SOL</p>
-          )}
+          
+          {/* Wallet SOL Card */}
+          <div className="card text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <Coins className="w-6 h-6 text-blue-400" />
+              <span className="text-2xl font-bold text-white">
+                {balance.toFixed(6)}
+              </span>
+            </div>
+            <p className="text-white/60">Wallet SOL</p>
+            <p className="text-xs text-white/40 mt-1">Your actual wallet balance</p>
+          </div>
         </div>
         
         <div className="card text-center">
@@ -365,6 +405,17 @@ export const QuestSystem: FC = () => {
               <p className="text-white/60 text-sm text-center">
                 Transfer to your wallet
               </p>
+              
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/60 text-sm">Current wallet balance:</span>
+                  <span className="text-white text-sm font-medium">{balance.toFixed(6)} SOL</span>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-white/60 text-sm">After transfer:</span>
+                  <span className="text-green-400 text-sm font-medium">{(balance + earnedSol).toFixed(6)} SOL</span>
+                </div>
+              </div>
             </div>
             
             <div className="flex space-x-3">

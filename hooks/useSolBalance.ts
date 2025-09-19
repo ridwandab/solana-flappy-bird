@@ -8,8 +8,8 @@ export const useSolBalance = () => {
   const { publicKey, sendTransaction } = useWallet()
   const { connection } = useConnection()
   const { quests } = useQuests()
-  const [balance, setBalance] = useState(0)
-  const [earnedSol, setEarnedSol] = useState(0)
+  const [balance, setBalance] = useState(0) // Actual wallet balance
+  const [earnedSol, setEarnedSol] = useState(0) // Quest earned SOL
   const [isLoading, setIsLoading] = useState(false)
   const [transferCompleted, setTransferCompleted] = useState(false)
 
