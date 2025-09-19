@@ -11,20 +11,27 @@ Environment variables sudah berhasil di-set di Vercel:
 
 **API Key untuk Real Transfer:**
 ```
-a1b2c3d4e5f6g7h8i9j0k112m3n4o5p6
+29f0f66225272194c8529bd095720efa8fcfb55f236615c29c52334f8fbfcacc
 ```
 
 ## 🚀 Production URL
 
 **Latest Production URL:**
 ```
-https://solana-flappy-bird-fjg3zoxsz-ridwans-projects-1ccd5935.vercel.app
+https://solana-flappy-bird-l0lci1qa6-ridwans-projects-1ccd5935.vercel.app
+```
+
+## 💰 Treasury Wallet
+
+**Treasury Wallet Address:**
+```
+55W2KRM9JTqZ3rhHn4cwrXzCk33CHbKSMNxKQ3tqgcGZ
 ```
 
 ## 🧪 How to Test Real Transfer
 
 ### 1. Open Production URL
-Buka: https://solana-flappy-bird-fjg3zoxsz-ridwans-projects-1ccd5935.vercel.app
+Buka: https://solana-flappy-bird-l0lci1qa6-ridwans-projects-1ccd5935.vercel.app
 
 ### 2. Connect Wallet
 Connect wallet Solana (Phantom, Solflare, etc.)
@@ -35,7 +42,7 @@ Connect wallet Solana (Phantom, Solflare, etc.)
 
 ### 4. Real Transfer
 - Click "Transfer to Wallet (REAL)"
-- Enter API Key: `a1b2c3d4e5f6g7h8i9j0k112m3n4o5p6`
+- Enter API Key: `29f0f66225272194c8529bd095720efa8fcfb55f236615c29c52334f8fbfcacc`
 - Confirm transfer
 
 ### 5. Check Result
@@ -44,7 +51,7 @@ Connect wallet Solana (Phantom, Solflare, etc.)
 
 ## ⚠️ Important Notes
 
-- **API Key**: `a1b2c3d4e5f6g7h8i9j0k112m3n4o5p6`
+- **API Key**: `29f0f66225272194c8529bd095720efa8fcfb55f236615c29c52334f8fbfcacc`
 - **Network**: Devnet (for testing)
 - **Treasury Wallet**: Pre-funded dengan SOL
 - **Real Transfer**: Akan mengirim SOL yang benar-benar real
@@ -52,7 +59,7 @@ Connect wallet Solana (Phantom, Solflare, etc.)
 ## 🔍 Troubleshooting
 
 ### If "Invalid API key" error:
-1. Pastikan menggunakan API key yang benar: `a1b2c3d4e5f6g7h8i9j0k112m3n4o5p6`
+1. Pastikan menggunakan API key yang benar: `29f0f66225272194c8529bd095720efa8fcfb55f236615c29c52334f8fbfcacc`
 2. Pastikan tidak ada spasi di awal/akhir
 3. Pastikan menggunakan production URL yang terbaru
 
