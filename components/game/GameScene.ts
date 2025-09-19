@@ -676,8 +676,8 @@ export class GameScene extends Phaser.Scene {
         // Get bird bounds using Phaser's built-in method for accuracy
         const birdBounds = this.bird.getBounds()
         
-        // Simple bird collision box with minimal margin for precise collision
-        const birdMargin = 2 // Minimal margin for precise collision detection
+        // Bird collision box with balanced margin for fair collision
+        const birdMargin = 8 // Balanced margin for fair collision detection
         const birdLeft = birdBounds.x + birdMargin
         const birdRight = birdBounds.x + birdBounds.width - birdMargin
         const birdTop = birdBounds.y + birdMargin
@@ -688,19 +688,21 @@ export class GameScene extends Phaser.Scene {
         let hitBottomPipe = false
         
         if (pipeSet.topPipeCollision) {
-          // Direct collision detection - bird must actually touch pipe
-          hitTopPipe = birdLeft < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
-                      birdRight > pipeSet.topPipeCollision.x && 
-                      birdTop < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
-                      birdBottom > pipeSet.topPipeCollision.y
+          // Collision detection with small tolerance for fair gameplay
+          const tolerance = 3 // Small tolerance to prevent premature collision
+          hitTopPipe = (birdLeft + tolerance) < (pipeSet.topPipeCollision.x + pipeSet.topPipeCollision.width) && 
+                      (birdRight - tolerance) > pipeSet.topPipeCollision.x && 
+                      (birdTop + tolerance) < (pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height) && 
+                      (birdBottom - tolerance) > pipeSet.topPipeCollision.y
         }
         
         if (pipeSet.bottomPipeCollision) {
-          // Direct collision detection - bird must actually touch pipe
-          hitBottomPipe = birdLeft < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
-                         birdRight > pipeSet.bottomPipeCollision.x && 
-                         birdTop < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
-                         birdBottom > pipeSet.bottomPipeCollision.y
+          // Collision detection with small tolerance for fair gameplay
+          const tolerance = 3 // Small tolerance to prevent premature collision
+          hitBottomPipe = (birdLeft + tolerance) < (pipeSet.bottomPipeCollision.x + pipeSet.bottomPipeCollision.width) && 
+                         (birdRight - tolerance) > pipeSet.bottomPipeCollision.x && 
+                         (birdTop + tolerance) < (pipeSet.bottomPipeCollision.y + pipeSet.bottomPipeCollision.height) && 
+                         (birdBottom - tolerance) > pipeSet.bottomPipeCollision.y
         }
         
         // Direct collision detection - if bird hits pipe, game over immediately
