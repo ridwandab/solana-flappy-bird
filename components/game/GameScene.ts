@@ -676,8 +676,8 @@ export class GameScene extends Phaser.Scene {
         // Get bird bounds using Phaser's built-in method for accuracy
         const birdBounds = this.bird.getBounds()
         
-        // Simple bird collision box with small margin to prevent false positives
-        const birdMargin = 5 // Small margin to make collision more fair
+        // Simple bird collision box with minimal margin for precise collision
+        const birdMargin = 2 // Minimal margin for precise collision detection
         const birdLeft = birdBounds.x + birdMargin
         const birdRight = birdBounds.x + birdBounds.width - birdMargin
         const birdTop = birdBounds.y + birdMargin
@@ -703,65 +703,20 @@ export class GameScene extends Phaser.Scene {
                          birdBottom > pipeSet.bottomPipeCollision.y
         }
         
-        // Check if bird is in the safe gap between pipes
-        if (pipeSet.topPipeCollision && pipeSet.bottomPipeCollision) {
-          const gapTop = pipeSet.topPipeCollision.y + pipeSet.topPipeCollision.height
-          const gapBottom = pipeSet.bottomPipeCollision.y
-          const gapTolerance = 15 // Increased tolerance for more fair gameplay
+        // Direct collision detection - if bird hits pipe, game over immediately
+        if (hitTopPipe || hitBottomPipe) {
+          console.log('🚨 COLLISION DETECTED!', {
+            hitTopPipe,
+            hitBottomPipe,
+            birdPosition: { x: this.bird.x, y: this.bird.y },
+            birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
+            pipeX: pipeSet.topPipe.x
+          })
           
-          // Bird is in safe gap if it's between the pipes with larger tolerance for fairness
-          const birdInSafeGap = (birdTop + gapTolerance) > gapTop && (birdBottom - gapTolerance) < gapBottom
-          
-          // Debug logging for collision analysis
-          if (hitTopPipe || hitBottomPipe) {
-            console.log('🔍 COLLISION ANALYSIS:', {
-              hitTopPipe,
-              hitBottomPipe,
-              birdInSafeGap,
-              birdPosition: { x: this.bird.x, y: this.bird.y },
-              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
-              gapTop,
-              gapBottom,
-              pipeX: pipeSet.topPipe.x,
-              visualMargin: 0,
-              gapTolerance: 5
-            })
+          if (!this.isGameOver) {
+            this.gameOver()
           }
-          
-          // Only trigger collision if bird hits pipe AND is not in safe gap
-          if ((hitTopPipe || hitBottomPipe) && !birdInSafeGap) {
-            console.log('🚨 COLLISION DETECTED!', {
-              hitTopPipe,
-              hitBottomPipe,
-              birdInSafeGap,
-              birdPosition: { x: this.bird.x, y: this.bird.y },
-              birdBounds: { left: birdLeft, right: birdRight, top: birdTop, bottom: birdBottom },
-              gapTop,
-              gapBottom,
-              pipeX: pipeSet.topPipe.x,
-              visualMargin: 0,
-              gapTolerance: 5
-            })
-            
-            if (!this.isGameOver) {
-              this.gameOver()
-            }
-            return
-          }
-        } else {
-          // If collision data is missing, use simple collision check
-          if (hitTopPipe || hitBottomPipe) {
-            console.log('🚨 SIMPLE COLLISION DETECTED!', {
-              hitTopPipe,
-              hitBottomPipe,
-              birdPosition: { x: this.bird.x, y: this.bird.y }
-            })
-            
-            if (!this.isGameOver) {
-              this.gameOver()
-            }
-            return
-          }
+          return
         }
       }
     }
