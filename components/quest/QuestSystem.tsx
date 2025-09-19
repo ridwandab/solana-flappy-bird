@@ -336,51 +336,45 @@ export const QuestSystem: FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowRealTransferModal(false)} />
           <div className="relative z-10 bg-gray-900 border border-white/20 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-semibold text-white mb-4 text-center">
-              Real SOL Transfer
+            <h3 className="text-xl font-semibold text-white mb-6 text-center">
+              Transfer SOL
             </h3>
             
-            <div className="mb-4">
-              <p className="text-white/60 text-sm mb-2">
-                This will send real SOL to your wallet. No API key required!
-              </p>
-              <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
-                <p className="text-red-300 text-sm">
-                  ⚠️ WARNING: This is a REAL transfer that will send actual SOL to your wallet!
-                </p>
-              </div>
-              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mb-4">
-                <p className="text-green-300 text-sm">
-                  ✅ No API key required - Simple transfer system!
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-white/10 rounded-lg p-4 mb-6">
-              <div className="flex items-center justify-center space-x-2 text-yellow-400">
-                <Coins className="w-6 h-6" />
-                <span className="text-2xl font-bold">
+            <div className="bg-white/10 rounded-lg p-6 mb-6">
+              <div className="flex items-center justify-center space-x-2 text-yellow-400 mb-2">
+                <Coins className="w-8 h-8" />
+                <span className="text-3xl font-bold">
                   {earnedSol.toFixed(3)} SOL
                 </span>
               </div>
-              <p className="text-white/60 text-sm mt-1 text-center">
-                Amount to transfer (REAL)
+              <p className="text-white/60 text-sm text-center">
+                Transfer to your wallet
               </p>
             </div>
             
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowRealTransferModal(false)}
-                className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                className="flex-1 px-4 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmRealTransfer}
                 disabled={isTransferLoading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
-                {isTransferLoading ? 'Transferring...' : 'Confirm Real Transfer'}
+                {isTransferLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Transferring...</span>
+                  </>
+                ) : (
+                  <>
+                    <Coins className="w-4 h-4" />
+                    <span>Transfer to Wallet</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
