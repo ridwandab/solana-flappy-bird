@@ -130,12 +130,34 @@ export const useSolBalance = () => {
       if (publicKey) {
         try {
           console.log('💰 Refreshing wallet balance after transfer...')
+          console.log('💰 Player wallet address:', publicKey.toString())
+          console.log('💰 Transaction ID from API:', result.transactionId)
+          
+          // Wait a bit for transaction to be confirmed
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          
           const newBalance = await connection.getBalance(publicKey)
           const newBalanceSOL = newBalance / LAMPORTS_PER_SOL
           setBalance(newBalanceSOL)
+          
           console.log('💰 Wallet balance refreshed after transfer:', newBalanceSOL, 'SOL')
           console.log('💰 Transfer result:', result)
           console.log('💰 Transaction ID:', result.transactionId)
+          
+          // Verify transaction on blockchain
+          try {
+            const transactionInfo = await connection.getTransaction(result.transactionId)
+            console.log('💰 Transaction verification:', transactionInfo ? 'CONFIRMED' : 'NOT FOUND')
+            if (transactionInfo) {
+              console.log('💰 Transaction details:', {
+                slot: transactionInfo.slot,
+                blockTime: transactionInfo.blockTime,
+                meta: transactionInfo.meta
+              })
+            }
+          } catch (verifyError) {
+            console.error('💰 Failed to verify transaction:', verifyError)
+          }
         } catch (error) {
           console.error('Failed to refresh wallet balance:', error)
         }

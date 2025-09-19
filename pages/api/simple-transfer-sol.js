@@ -91,6 +91,22 @@ export default async function handler(req, res) {
     await connection.confirmTransaction(signature, 'confirmed')
     console.log('Transaction confirmed')
 
+    // Verify the transfer by checking balances
+    console.log('Verifying transfer...')
+    const treasuryBalanceAfter = await connection.getBalance(treasuryWallet.publicKey)
+    const playerBalanceAfter = await connection.getBalance(playerPublicKey)
+    
+    console.log(`Treasury balance after: ${treasuryBalanceAfter / 1000000000} SOL`)
+    console.log(`Player balance after: ${playerBalanceAfter / 1000000000} SOL`)
+    
+    // Get transaction details
+    const transactionInfo = await connection.getTransaction(signature)
+    console.log('Transaction details:', {
+      slot: transactionInfo?.slot,
+      blockTime: transactionInfo?.blockTime,
+      success: transactionInfo?.meta?.err === null
+    })
+
     console.log(`Simple transfer successful: ${amount} SOL to ${playerWallet}, TX: ${signature}`)
 
     return res.status(200).json({
@@ -100,7 +116,18 @@ export default async function handler(req, res) {
       playerWallet: playerWallet,
       timestamp: new Date().toISOString(),
       simulated: false,
-      note: 'Real Solana transaction completed successfully (No API key required)'
+      note: 'Real Solana transaction completed successfully (No API key required)',
+      balances: {
+        treasuryBefore: treasuryBalance / 1000000000,
+        playerBefore: playerBalance / 1000000000,
+        treasuryAfter: treasuryBalanceAfter / 1000000000,
+        playerAfter: playerBalanceAfter / 1000000000
+      },
+      transactionDetails: {
+        slot: transactionInfo?.slot,
+        blockTime: transactionInfo?.blockTime,
+        success: transactionInfo?.meta?.err === null
+      }
     })
 
   } catch (error) {
